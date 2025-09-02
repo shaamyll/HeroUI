@@ -1,11 +1,11 @@
 import React from 'react'
-import TableComponent from '../components/Reusable/Table'
 
 function Home() {
   return (
     <div className='min-h-screen'>
-      <div className='mx-auto w-3/4 mt-20'>
-        <TableComponent />
+     <div className='mx-auto w-3/4 mt-15'>
+        <h3 className='ms-auto text-2xl font-bold m-2'>HOME</h3>
+      
       </div>
     </div>
   )

@@ -9,27 +9,26 @@ import {
   MobileNavHeader,
   MobileNavToggle,
   MobileNavMenu,
-} from "./ui/resizable-navbar";
+} from "../ui/resizable-navbar";
 import { useState } from "react";
 
 export function NavbarDemo() {
   const navItems = [
-    { name: "Features", link: "#features" },
-    { name: "Pricing", link: "#pricing" },
-    { name: "Contact", link: "#contact" },
+    { name: "Home", link: "/" },
+    { name: "Users", link: "/users" },
+    { name: "Projects", link: "/projects" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="relative w-full">
-    <Navbar
-  className="
-    sticky top-0 z-50 
-    bg-black/85 backdrop-blur-md
-    text-white pt-5
+    <div className="relative w-full sticky top-0 z-50 ">
+      <Navbar
+        className="
+    bg-gray-100 backdrop-blur-md
+    text-white 
   "
->
+      >
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
@@ -38,10 +37,16 @@ export function NavbarDemo() {
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
           <div className="hidden md:flex items-center gap-4">
-            <NavbarButton variant="secondary" className="text-white border-white/30 hover:bg-white/10">
+            <NavbarButton
+              variant="primary"
+              className=" hover:bg-gray-200"
+            >
               Login
             </NavbarButton>
-            <NavbarButton variant="primary" className=" text-black">
+            <NavbarButton
+              variant="primary"
+              className=" text-black hover:bg-gray-200"
+            >
               Book a call
             </NavbarButton>
           </div>
@@ -67,7 +72,7 @@ export function NavbarDemo() {
                 key={`mobile-link-${idx}`}
                 href={item.link}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="relative text-neutral-300 hover:text-white transition-colors"
+                className="relative text-neutral-600 hover:text-white transition-colors"
               >
                 <span className="block">{item.name}</span>
               </a>
@@ -76,7 +81,8 @@ export function NavbarDemo() {
               <NavbarButton
                 onClick={() => setIsMobileMenuOpen(false)}
                 variant="secondary"
-                className="w-full text-white border-white/30 hover:bg-white/10"
+                color="default"
+                className="w-full text-white border-white/30 hover:bg-gray-500"
               >
                 Login
               </NavbarButton>

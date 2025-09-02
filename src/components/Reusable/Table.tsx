@@ -18,20 +18,20 @@ import {
 } from "@heroui/react";
 
 export const columns = [
-  {name: "ID", uid: "id", sortable: true},
-  {name: "NAME", uid: "name", sortable: true},
-  {name: "AGE", uid: "age", sortable: true},
-  {name: "ROLE", uid: "role", sortable: true},
-  {name: "TEAM", uid: "team"},
-  {name: "EMAIL", uid: "email"},
-  {name: "STATUS", uid: "status", sortable: true},
-  {name: "ACTIONS", uid: "actions"},
+  { name: "ID", uid: "id", sortable: true },
+  { name: "NAME", uid: "name", sortable: true },
+  { name: "AGE", uid: "age", sortable: true },
+  { name: "ROLE", uid: "role", sortable: true },
+  { name: "TEAM", uid: "team" },
+  { name: "EMAIL", uid: "email" },
+  { name: "STATUS", uid: "status", sortable: true },
+  { name: "ACTIONS", uid: "actions" },
 ];
 
 export const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  { name: "Active", uid: "active" },
+  { name: "Paused", uid: "paused" },
+  { name: "Vacation", uid: "vacation" },
 ];
 
 export const users = [
@@ -134,114 +134,14 @@ export const users = [
     age: "35",
     avatar: "https://i.pravatar.cc/150?img=5",
     email: "emma.adams@example.com",
-  },
-  {
-    id: 11,
-    name: "Brandon Stevens",
-    role: "Jr. Dev",
-    team: "Development",
-    status: "active",
-    age: "22",
-    avatar: "https://i.pravatar.cc/150?img=8",
-    email: "brandon.stevens@example.com",
-  },
-  {
-    id: 12,
-    name: "Megan Richards",
-    role: "P. Manager",
-    team: "Product",
-    status: "paused",
-    age: "28",
-    avatar: "https://i.pravatar.cc/150?img=10",
-    email: "megan.richards@example.com",
-  },
-  {
-    id: 13,
-    name: "Oliver Scott",
-    role: "S. Manager",
-    team: "Security",
-    status: "active",
-    age: "37",
-    avatar: "https://i.pravatar.cc/150?img=12",
-    email: "oliver.scott@example.com",
-  },
-  {
-    id: 14,
-    name: "Grace Allen",
-    role: "M. Specialist",
-    team: "Marketing",
-    status: "active",
-    age: "30",
-    avatar: "https://i.pravatar.cc/150?img=16",
-    email: "grace.allen@example.com",
-  },
-  {
-    id: 15,
-    name: "Noah Carter",
-    role: "IT Specialist",
-    team: "I. Technology",
-    status: "paused",
-    age: "31",
-    avatar: "https://i.pravatar.cc/150?img=15",
-    email: "noah.carter@example.com",
-  },
-  {
-    id: 16,
-    name: "Ava Perez",
-    role: "Manager",
-    team: "Sales",
-    status: "active",
-    age: "29",
-    avatar: "https://i.pravatar.cc/150?img=20",
-    email: "ava.perez@example.com",
-  },
-  {
-    id: 17,
-    name: "Liam Johnson",
-    role: "Data Analyst",
-    team: "Analysis",
-    status: "active",
-    age: "28",
-    avatar: "https://i.pravatar.cc/150?img=33",
-    email: "liam.johnson@example.com",
-  },
-  {
-    id: 18,
-    name: "Sophia Taylor",
-    role: "QA Analyst",
-    team: "Testing",
-    status: "active",
-    age: "27",
-    avatar: "https://i.pravatar.cc/150?img=29",
-    email: "sophia.taylor@example.com",
-  },
-  {
-    id: 19,
-    name: "Lucas Harris",
-    role: "Administrator",
-    team: "Information Technology",
-    status: "paused",
-    age: "32",
-    avatar: "https://i.pravatar.cc/150?img=50",
-    email: "lucas.harris@example.com",
-  },
-  {
-    id: 20,
-    name: "Mia Robinson",
-    role: "Coordinator",
-    team: "Operations",
-    status: "active",
-    age: "26",
-    avatar: "https://i.pravatar.cc/150?img=45",
-    email: "mia.robinson@example.com",
-  },
+  }
 ];
 
 export function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
-export const PlusIcon = ({size = 24, width, height, ...props}) => {
+export const PlusIcon = ({ size = 24, width, height, ...props }) => {
   return (
     <svg
       aria-hidden="true"
@@ -267,7 +167,7 @@ export const PlusIcon = ({size = 24, width, height, ...props}) => {
   );
 };
 
-export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => {
+export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => {
   return (
     <svg
       aria-hidden="true"
@@ -317,7 +217,7 @@ export const SearchIcon = (props) => {
   );
 };
 
-export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => {
+export const ChevronDownIcon = ({ strokeWidth = 1.5, ...otherProps }) => {
   return (
     <svg
       aria-hidden="true"
@@ -349,7 +249,7 @@ const statusColorMap = {
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
-export default function App() {
+export default function TableComponent() {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -405,19 +305,43 @@ export default function App() {
     });
   }, [sortDescriptor, items]);
 
+  // utils/colors.ts
+  const gradients = [
+    "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500",
+    "bg-gradient-to-r from-green-400 to-blue-500",
+    "bg-gradient-to-r from-purple-500 to-pink-500",
+    "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500",
+    "bg-gradient-to-r from-cyan-500 to-blue-500",
+    "bg-gradient-to-r from-orange-400 to-pink-500",
+  ];
+
+  function getGradientFromName(name: string) {
+    // Simple hash to make it deterministic (same user always same gradient)
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % gradients.length;
+    return gradients[index];
+  }
+
+
   const renderCell = React.useCallback((user, columnKey) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
       case "name":
+        const bgColor = getGradientFromName(user.name);
         return (
-          <User
-            avatarProps={{radius: "lg", src: user.avatar}}
-            description={user.email}
-            name={cellValue}
-          >
-            {user.email}
-          </User>
+          <div className="flex items-center gap-3">
+            <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColor} text-white text-lg font-bold`}>
+              {user.name.charAt(0)}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium">{cellValue}</span>
+              <span className="text-sm text-gray-500">{user.email}</span>
+            </div>
+          </div>
         );
       case "role":
         return (
@@ -541,7 +465,7 @@ export default function App() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
+            <Button color="default" endContent={<PlusIcon />}>
               Add New
             </Button>
           </div>
@@ -608,7 +532,7 @@ export default function App() {
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "max-h-[382px]",
+        wrapper: "max-h-[500px]",
       }}
       selectedKeys={selectedKeys}
       selectionMode="multiple"

@@ -1,8 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
-import Home from './Pages/Home';
-import { NavbarDemo } from './components/Reusable/NavBar';
-import Users from './Pages/Users';
-import Projects from './Pages/Projects';
+import Home from './assets/Pages/Home';
+import Users from './assets/Pages/Users';
 
 function App() {
   return (
@@ -11,7 +9,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/users' element={<Users />} />
-        <Route path='/projects' element={<Projects />} />
+        <Route path='/projects' element={<Users />} />
       </Routes>
     </>
   );

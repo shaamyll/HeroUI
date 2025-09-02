@@ -144,7 +144,7 @@ function Projects() {
   return (
     <div className='min-h-screen'>
       <div className='mx-auto w-3/4 mt-15'>
-        <h3 className='ms-auto text-2xl font-bold m-2'>PROJECTS TABLE</h3>
+        <h3 className='ms-auto text-2xl font-bold mb-5'>PROJECTS TABLE :</h3>
         <TableComponent 
           columns={columns}
           data={projects}

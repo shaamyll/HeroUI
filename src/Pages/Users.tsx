@@ -123,7 +123,7 @@ function Users() {
     return (
         <div className='min-h-screen'>
             <div className='mx-auto w-3/4 mt-15'>
-                <h3 className='ms-auto text-2xl font-bold m-2'>USERS TABLE</h3>
+                <h3 className='ms-auto text-2xl font-bold mb-5'>USERS TABLE :</h3>
 
                 <TableComponent 
                     columns={columns}

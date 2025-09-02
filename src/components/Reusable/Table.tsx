@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -17,6 +17,8 @@ import {
   Pagination,
 } from "@heroui/react";
 import { ChevronDown, MoreVertical, Plus, Search } from "lucide-react";
+import Actions from "../TableActions";
+import TableActions from "../TableActions";
 
 interface TableColumn {
   name: string;
@@ -58,12 +60,12 @@ export default function TableComponent({
   initialVisibleColumns = DEFAULT_VISIBLE_COLUMNS,
 }: TableComponentProps) 
  {
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(initialVisibleColumns));
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(new Set(initialVisibleColumns));
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
     column: columns[0]?.uid || "id",
     direction: "ascending",
   });
@@ -161,15 +163,10 @@ export default function TableComponent({
         );
       case "assignedUser":
         const assignedUser = cellValue || { name: 'Unassigned' };
-        const bgColors = getGradientFromName(assignedUser.name);
         return (
           <div className="flex items-center gap-3">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColors} text-white text-lg font-bold`}>
-              {assignedUser.name.charAt(0)}
-            </div>
             <div className="flex flex-col">
               <span className="font-medium">{assignedUser.name}</span>
-              {item.email && <span className="text-sm text-gray-500">{item.email}</span>}
             </div>
           </div>
         );
@@ -209,19 +206,8 @@ export default function TableComponent({
         );
       case "actions":
         return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light" className="mx-auto">
-                  <MoreVertical  className="text-default-500 " />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem key="view">View</DropdownItem>
-                <DropdownItem key="edit">Edit</DropdownItem>
-                <DropdownItem key="delete">Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+          <div>
+          <TableActions/>
           </div>
         );
       default:
@@ -276,7 +262,7 @@ export default function TableComponent({
           <div className="flex gap-3">
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDown className="w-4 h-4" />} variant="flat">
+                <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
                   Status
                 </Button>
               </DropdownTrigger>
@@ -297,7 +283,7 @@ export default function TableComponent({
             </Dropdown>
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDown className="w-4 h-4" />} variant="flat">
+                <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
                   Columns
                 </Button>
               </DropdownTrigger>
@@ -316,7 +302,7 @@ export default function TableComponent({
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="default" endContent={<Plus className="w-4 h-4" />}>
+            <Button color="default" variant="faded" endContent={<Plus className="w-4 h-4" />}>
               Add New
             </Button>
           </div>
@@ -383,7 +369,7 @@ export default function TableComponent({
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "max-h-[500px]",
+        wrapper: "max-h-[500px] min-h-[300px]",
       }}
       selectedKeys={selectedKeys}
       selectionMode="multiple"

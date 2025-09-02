@@ -25,7 +25,7 @@ export function NavbarDemo() {
     <div className="relative w-full sticky top-0 z-50 ">
       <Navbar
         className="
-    bg-gray-100 backdrop-blur-md
+    bg-gray-200 backdrop-blur-md
     text-white 
   "
       >

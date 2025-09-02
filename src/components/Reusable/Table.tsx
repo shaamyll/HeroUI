@@ -33,9 +33,10 @@ interface TableComponentProps {
   data: TableData[];
   statusOptions?: Array<{ name: string; uid: string }>;
   statusColorMap?: Record<string, string>;
+  initialVisibleColumns?: string[];
 }
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+const DEFAULT_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
 export function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -54,11 +55,12 @@ export default function TableComponent({
     paused: "danger",
     vacation: "warning",
   },
+  initialVisibleColumns = DEFAULT_VISIBLE_COLUMNS,
 }: TableComponentProps) 
  {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [visibleColumns, setVisibleColumns] = React.useState(new Set(initialVisibleColumns));
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({

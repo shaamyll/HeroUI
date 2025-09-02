@@ -118,6 +118,8 @@ function Users() {
         vacation: 'warning',
     };
 
+    const initialVisibleColumns = ["name", "role", "status", "actions","age","team","id"];
+
     return (
         <div className='min-h-screen'>
             <div className='mx-auto w-3/4 mt-15'>
@@ -128,6 +130,7 @@ function Users() {
                     data={users}
                     statusOptions={statusOptions}
                     statusColorMap={statusColorMap}
+                    initialVisibleColumns={initialVisibleColumns}
                 />
             </div>
         </div>

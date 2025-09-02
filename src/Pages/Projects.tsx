@@ -139,6 +139,8 @@ function Projects() {
     'Completed': 'success',
   };
 
+  const initialVisibleColumns = ["projectName", "id", "projectStatus", "projectDifficulty", "assignedUser", "actions"]
+
   return (
     <div className='min-h-screen'>
       <div className='mx-auto w-3/4 mt-15'>
@@ -148,6 +150,7 @@ function Projects() {
           data={projects}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
+          initialVisibleColumns={initialVisibleColumns}
         />
       </div>
     </div>

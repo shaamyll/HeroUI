@@ -227,19 +227,20 @@ export default function TableComponent({
         );
       case "isActive":
         return (
-          <div className="flex items-center">
-            {item.isActive ? (
-              <ShieldCheck
-                className="h-5 w-5 cursor-pointer text-green-500 transition-colors"
-                onClick={() => handleStatusChange(item.id, false)}
-              />
-            ) : (
-              <ShieldX
-                className="h-5 w-5 cursor-pointer text-red-500 transition-colors"
-                onClick={() => handleStatusChange(item.id, true)}
-              />
-            )}
-          </div>
+       <div className="flex items-center">
+  {item.isActive ? (
+    <ShieldCheck
+      className="h-6 w-6 cursor-pointer text-green-500 bg-green-100 rounded-lg p-1 shadow-sm transition-colors"
+      onClick={() => handleStatusChange(item.id, false)}
+    />
+  ) : (
+    <ShieldX
+      className="h-6 w-6 cursor-pointer text-red-500 bg-red-100 rounded-lg p-1 shadow-sm transition-colors"
+      onClick={() => handleStatusChange(item.id, true)}
+    />
+  )}
+</div>
+
         );
       case "actions":
         return (

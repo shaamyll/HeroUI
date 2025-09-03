@@ -6,7 +6,6 @@ export let userData = {
     role: "CEO",
     team: "Management",
     status: "active",
-    age: "29",
     email: "tony.reichert@example.com",
   },
   {
@@ -15,7 +14,6 @@ export let userData = {
     role: "Tech Lead",
     team: "Development",
     status: "paused",
-    age: "25",
     email: "zoey.lang@example.com",
   },
   {
@@ -24,7 +22,6 @@ export let userData = {
     role: "Sr. Dev",
     team: "Development",
     status: "active",
-    age: "22",
     email: "jane.fisher@example.com",
   },
   {
@@ -33,7 +30,6 @@ export let userData = {
     role: "C.M.",
     team: "Marketing",
     status: "vacation",
-    age: "28",
     email: "william.howard@example.com",
   },
   {
@@ -42,7 +38,6 @@ export let userData = {
     role: "S. Manager",
     team: "Sales",
     status: "active",
-    age: "24",
     email: "kristen.cooper@example.com",
   },
   {
@@ -50,7 +45,6 @@ export let userData = {
     name: "Brian Kim",
     role: "P. Manager",
     team: "Management",
-    age: "29",
     email: "brian.kim@example.com",
     status: "active",
   },
@@ -60,7 +54,6 @@ export let userData = {
     role: "Designer",
     team: "Design",
     status: "paused",
-    age: "27",
     email: "michael.hunt@example.com",
   },
   {
@@ -69,7 +62,6 @@ export let userData = {
     role: "HR Manager",
     team: "HR",
     status: "active",
-    age: "31",
     email: "samantha.brooks@example.com",
   },
   {
@@ -78,7 +70,6 @@ export let userData = {
     role: "F. Manager",
     team: "Finance",
     status: "vacation",
-    age: "33",
     email: "frank.harrison@example.com",
   },
   {
@@ -87,7 +78,6 @@ export let userData = {
     role: "Ops Manager",
     team: "Operations",
     status: "active",
-    age: "35",
     email: "emma.adams@example.com",
   },
 ]

@@ -16,8 +16,7 @@ import {
   User,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, MoreVertical, Plus, Search } from "lucide-react";
-import Actions from "../TableActions";
+import { ChevronDown, Plus, Search, Check, X, Shield, ShieldCheck, ShieldX } from "lucide-react";
 import TableActions from "../TableActions";
 
 interface TableColumn {
@@ -36,6 +35,7 @@ interface TableComponentProps {
   statusOptions?: Array<{ name: string; uid: string }>;
   statusColorMap?: Record<string, string>;
   initialVisibleColumns?: string[];
+  onStatusChange?: (id: number, isActive: boolean) => void;
 }
 
 const DEFAULT_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
@@ -58,8 +58,8 @@ export default function TableComponent({
     vacation: "warning",
   },
   initialVisibleColumns = DEFAULT_VISIBLE_COLUMNS,
-}: TableComponentProps) 
- {
+  onStatusChange,
+}: TableComponentProps) {
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = useState(new Set(initialVisibleColumns));
@@ -86,15 +86,16 @@ export default function TableComponent({
       filteredData = filteredData.filter((item) =>
         Object.values(item).some(
           (value) =>
-            typeof value === 'string' && 
+            typeof value === 'string' &&
             value.toLowerCase().includes(filterValue.toLowerCase())
         )
       );
     }
-    
+
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
       filteredData = filteredData.filter((item) =>
-        'status' in item && Array.from(statusFilter).includes(item.status),
+        ('status' in item && Array.from(statusFilter).includes(item.status)) ||
+        ('projectStatus' in item && Array.from(statusFilter).includes(item.projectStatus))
       );
     }
 
@@ -114,12 +115,12 @@ export default function TableComponent({
       const columnKey = sortDescriptor.column as string;
       const first = a[columnKey];
       const second = b[columnKey];
-      
+
       if (first === undefined || second === undefined) return 0;
-      
+
       const firstValue = typeof first === 'object' ? first.name : first;
       const secondValue = typeof second === 'object' ? second.name : second;
-      
+
       if (firstValue < secondValue) return sortDescriptor.direction === "ascending" ? -1 : 1;
       if (firstValue > secondValue) return sortDescriptor.direction === "ascending" ? 1 : -1;
       return 0;
@@ -144,10 +145,18 @@ export default function TableComponent({
     return gradients[index];
   }
 
+  const handleStatusChange = (id: number, isActive: boolean) => {
+    // This function will be called when the switch is toggled
+    // The parent component should handle the state update
+    if (onStatusChange) {
+      onStatusChange(id, isActive);
+    }
+  };
+
   const renderCell = React.useCallback((item: any, columnKey: React.Key) => {
     const cellValue = item[columnKey as keyof typeof item];
 
-     switch (columnKey) {
+    switch (columnKey) {
       case "name":
         const bgColor = getGradientFromName(item.name);
         return (
@@ -181,10 +190,10 @@ export default function TableComponent({
       case "projectStatus":
         const status = columnKey === 'status' ? item.status : item.projectStatus;
         return (
-          <Chip 
-            className="capitalize" 
-            color={statusColorMap[status as keyof typeof statusColorMap] || "default"} 
-            size="sm" 
+          <Chip
+            className="capitalize"
+            color={statusColorMap[status as keyof typeof statusColorMap] || "default"}
+            size="sm"
             variant="flat"
           >
             {status}
@@ -192,22 +201,38 @@ export default function TableComponent({
         );
       case "projectDifficulty":
         return (
-          <Chip 
-            className="capitalize" 
+          <Chip
+            className="capitalize"
             color={
-              cellValue?.toLowerCase() === 'hard' ? 'danger' : 
-              cellValue?.toLowerCase() === 'medium' ? 'warning' : 'success'
-            } 
-            size="sm" 
+              cellValue?.toLowerCase() === 'hard' ? 'danger' :
+                cellValue?.toLowerCase() === 'medium' ? 'warning' : 'success'
+            }
+            size="sm"
             variant="flat"
           >
             {cellValue}
           </Chip>
         );
+      case "isActive":
+        return (
+           <div className="flex items-center">
+    {item.isActive ? (
+      <ShieldCheck
+        className="h-5 w-5 cursor-pointer text-green-500 transition-colors"
+        onClick={() => handleStatusChange(item.id, false)}
+      />
+    ) : (
+      <ShieldX
+        className="h-5 w-5 cursor-pointer text-red-500 transition-colors"
+        onClick={() => handleStatusChange(item.id, true)}
+      />
+    )}
+  </div>
+        );
       case "actions":
         return (
-          <div>
-          <TableActions/>
+          <div className="relative flex items-center gap-2">
+            <TableActions item={item} />
           </div>
         );
       default:
@@ -254,7 +279,7 @@ export default function TableComponent({
             isClearable
             className="w-full sm:max-w-[44%]"
             placeholder="Search by name..."
-              startContent={<Search className="w-5 h-5 text-default-400" />}
+            startContent={<Search className="w-5 h-5 text-default-400" />}
             value={filterValue}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
@@ -302,7 +327,7 @@ export default function TableComponent({
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="default" variant="faded" endContent={<Plus className="w-4 h-4" />}>
+            <Button color="primary" variant="solid" endContent={<Plus className="w-4 h-4" />}>
               Add New
             </Button>
           </div>
@@ -336,7 +361,7 @@ export default function TableComponent({
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
+        <span className="w-[30%] text-small text-default-600">
           {selectedKeys === "all"
             ? "All items selected"
             : `${selectedKeys.size} of ${filteredItems.length} selected`}
@@ -351,10 +376,10 @@ export default function TableComponent({
           onChange={setPage}
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
+          <Button isDisabled={pages === 1} size="sm" variant="faded" onPress={onPreviousPage}>
             Previous
           </Button>
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+          <Button isDisabled={pages === 1} size="sm" variant="faded" onPress={onNextPage}>
             Next
           </Button>
         </div>

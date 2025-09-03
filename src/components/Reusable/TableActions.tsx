@@ -1,7 +1,8 @@
 import { Button } from '@heroui/button'
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react'
 import { MoreVertical, Trash2, Edit } from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
+import DeleteModal from "./DeleteModal";
 
 interface TableActionsProps {
   item: any;
@@ -9,14 +10,23 @@ interface TableActionsProps {
 }
 
 function TableActions({ item, onDelete }: TableActionsProps) {
+  console.log(item)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (item?.id && onDelete) {
+      onDelete(item.id);
+    }
+    setIsDeleteModalOpen(false);
+  };
 
   const handleAction = (action: 'edit' | 'delete') => {
     if (action === 'delete' && item?.id) {
-      if (window.confirm('Are you sure you want to delete this item?')) {
-        if (onDelete) {
-          onDelete(item.id); // Let parent handle the deletion
-        }
-      }
+      handleDeleteClick();
     } else if (action === 'edit') {
       // Handle edit if needed
       console.log('Edit item:', item);
@@ -35,7 +45,7 @@ function TableActions({ item, onDelete }: TableActionsProps) {
           <DropdownItem 
             key="edit" 
             startContent={<Edit className="h-4 w-4" />}
-            onPress={() => handleAction('edit')} // Fixed this line
+            onPress={() => handleAction('edit')} 
           >
             Edit
           </DropdownItem>
@@ -50,6 +60,12 @@ function TableActions({ item, onDelete }: TableActionsProps) {
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        itemName={item?.name || 'this item'}
+      />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import TableComponent from '../components/Reusable/TableComponent';
-import { userData } from '../Data/User'
+import { userData } from '../Data/User';
+import { addToast } from '@heroui/react';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -8,11 +9,22 @@ function Users() {
   
     const handleDeleteUser = (userId: number) => {
         const userIndex = userData.users.findIndex(user => user.id === userId);
+        let userName = '';
+        
         if (userIndex !== -1) {
+            const deletedUser = userData.users[userIndex];
+            userName = deletedUser.name || 'User';
             userData.users.splice(userIndex, 1);
+            
+            // Show success toast
+            addToast({
+                title: 'Success',
+                description: `${userName} has been deleted successfully`,
+                color: 'success',
+            });
         }
         
-        // 2. Update React state to reflect the change
+        // Update React state to reflect the change
         setUsers([...userData.users]); 
     };
     

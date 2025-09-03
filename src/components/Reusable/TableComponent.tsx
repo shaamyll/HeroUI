@@ -16,7 +16,7 @@ import {
   Pagination,
 } from "@heroui/react";
 import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
-import TableActions from "../TableActions";
+import TableActions from "./TableActions";
 
 export interface TableColumn {
   render: TableColumn | undefined;

@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
 import Home from './Pages/Home';
-import { NavbarDemo } from './components/Reusable/NavBar';
+import { NavbarComponent } from './components/Reusable/NavBar';
 import Users from './Pages/Users';
 import Projects from './Pages/Projects';
 
 function App() {
   return (
     <>
-      <NavbarDemo />
+      <NavbarComponent />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/users' element={<Users />} />

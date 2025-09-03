@@ -19,7 +19,7 @@ import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
 import TableActions from "../TableActions";
 
 export interface TableColumn {
-  render?: (item: any) => React.ReactNode;
+  render: TableColumn | undefined;
   name: string;
   uid: string;
   sortable?: boolean;
@@ -33,13 +33,11 @@ export interface TableData {
 const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
   if (!data || data.length === 0) return [];
 
-  // Get all unique keys from the data, excluding 'id'
+  // Get all unique keys from the data
   const allKeys = new Set();
   data.forEach(item => {
     Object.keys(item).forEach(key => {
-      if (key !== 'id') { // Exclude the 'id' column
-        allKeys.add(key);
-      }
+      allKeys.add(key);
     });
   });
 
@@ -52,11 +50,6 @@ const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
 
   // Add index and actions columns
   return [
-    {
-      name: "#",
-      uid: "index",
-      sortable: false
-    },
     ...dataColumns,
     {
       name: "ACTIONS",
@@ -74,7 +67,7 @@ interface TableComponentProps {
   onDelete?: (id: number) => void;
 }
 
-export function capitalize(s: string): string {
+export function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
@@ -174,24 +167,7 @@ export default function TableComponent({
       onStatusChange(id, isActive);
     }
   };
-  const renderCell = React.useCallback((item: any, columnKey: React.Key, index: number) => {
-    const column = columns.find(col => col.uid === columnKey);
-    
-    // Use custom render function if provided
-    if (column && column.render) {
-      return column.render(item, index);
-    }
-    
-    // Handle index column
-    if (columnKey === 'index') {
-      console.log('page:', page, 'rowsPerPage:', rowsPerPage, 'index:', index);
-      const pageNum = Number(page) || 1;
-      const rows = Number(rowsPerPage) || 5;
-      const rowIndex = Number(index) || 0;
-      const calculatedIndex = (pageNum - 1) * rows + rowIndex + 1;
-      console.log('Calculated index:', calculatedIndex);
-      return calculatedIndex;
-    }
+  const renderCell = React.useCallback((item: any, columnKey: React.Key) => {
 
     const cellValue = item[columnKey as keyof typeof item];
 
@@ -203,10 +179,7 @@ export default function TableComponent({
             <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColor} text-white text-lg font-bold`}>
               {(item.name || 'U').charAt(0)}
             </div>
-            <div className="flex flex-col">
-              <span className="font-medium">{cellValue}</span>
-              <span className="text-sm text-gray-500">{item.email}</span>
-            </div>
+            <span className="font-medium">{cellValue}</span>
           </div>
         );
       case "assignedUser":
@@ -279,7 +252,7 @@ export default function TableComponent({
           ? (cellValue.name || JSON.stringify(cellValue))
           : cellValue;
     }
-  }, [statusColorMap, onStatusChange, columns]);
+  }, [statusColorMap, onStatusChange]);
   
 
   const onNextPage = React.useCallback(() => {
@@ -441,14 +414,11 @@ export default function TableComponent({
         )}
       </TableHeader>
       <TableBody emptyContent={"No data found"} items={sortedItems}>
-        {(item) => {
-          const itemIndex = sortedItems.findIndex(i => i.id === item.id);
-          return (
-            <TableRow key={item.id || itemIndex}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey, itemIndex)}</TableCell>}
-            </TableRow>
-          );
-        }}
+        {(item) => (
+          <TableRow key={item.id || Math.random()}>
+            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );

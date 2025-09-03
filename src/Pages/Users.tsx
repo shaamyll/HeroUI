@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import TableComponent from '../components/Reusable/TableComponent';
 import { userData } from '../Data/User';
 import { addToast } from '@heroui/react';
@@ -6,28 +6,36 @@ import { addToast } from '@heroui/react';
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
 
-  
-    const handleDeleteUser = (userId: number) => {
-        const userIndex = userData.users.findIndex(user => user.id === userId);
-        let userName = '';
-        
-        if (userIndex !== -1) {
-            const deletedUser = userData.users[userIndex];
-            userName = deletedUser.name || 'User';
-            userData.users.splice(userIndex, 1);
-            
-            // Show success toast
+    const handleDeleteUser = useCallback((id: number) => {
+        setUsers(prevUsers => {
+            const updatedUsers = prevUsers.filter(user => user.id !== id);
             addToast({
                 title: 'Success',
-                description: `${userName} has been deleted successfully`,
-                color: 'success',
+                description: `User with ID ${id} has been deleted successfully.`,
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
             });
-        }
-        
-        // Update React state to reflect the change
-        setUsers([...userData.users]); 
-    };
-    
+            return updatedUsers;
+        });
+    }, []);
+
+    const handleEditUser = useCallback((updatedUser: any) => {
+        setUsers(prevUsers => {
+            const updatedUsers = prevUsers.map(user => 
+                user.id === updatedUser.id ? { ...user, ...updatedUser } : user
+            );
+            addToast({
+                title: 'Success',
+                description: `User ${updatedUser.name} has been updated successfully.`,
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+            });
+            return updatedUsers;
+        });
+    }, []);
+
     const statusOptions = [
         { name: 'Active', uid: 'active' },
         { name: 'Paused', uid: 'paused' },
@@ -40,7 +48,6 @@ function Users() {
         vacation: 'warning',
     };
 
-
     return (
         <div className='min-h-screen'>
             <div className='mx-auto w-3/4 mt-15'>
@@ -51,6 +58,8 @@ function Users() {
                     statusOptions={statusOptions}
                     statusColorMap={statusColorMap}
                     onDelete={handleDeleteUser}
+                    onEdit={handleEditUser}
+                    isSearch={true}
                 />
             </div>
         </div>

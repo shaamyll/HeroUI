@@ -2,10 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { Button } from "@heroui/button";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { cn } from '../lib/utils';
 import { addToast } from "@heroui/react";
 
 type FieldType = 'text' | 'email' | 'number' | 'select' | 'date' | 'checkbox';
+
 
 type FieldConfig = {
   type: FieldType;
@@ -24,6 +27,8 @@ interface FormModalProps<T> {
   config: FormConfig;
   initialData?: T;
   editData?: T;
+  isOpen: boolean;
+  onClose: () => void;
   onSubmit: (data: T) => void;
   title: string;
   submitText?: string;
@@ -31,16 +36,25 @@ interface FormModalProps<T> {
 }
 
 export function FormModal<T extends Record<string, any>>({
-  config,
   initialData = {} as T,
   onSubmit,
   title,
   editData,
+  isOpen,
+  onClose,
   submitText = 'Submit',
-  className,
 }: FormModalProps<T>) {
-  console.log(editData)
-  const [formData, setFormData] = useState<T>(initialData);
+  console.log(initialData)
+  const [formData, setFormData] = useState<T>(editData || initialData);
+
+  useEffect(() => {
+    if (editData) {
+      setFormData(editData);
+    } else {
+      setFormData(initialData);
+    }
+  }, [editData, initialData]);
+
 
   useEffect(() => {
     setFormData(initialData);
@@ -71,75 +85,64 @@ export function FormModal<T extends Record<string, any>>({
     }
   };
 
-  const renderField = (fieldName: string, fieldConfig: FieldConfig) => {
-    const { type, label, required, options, placeholder, disabled } = fieldConfig;
-    const value = formData[fieldName] || '';
+  function toLabel(key: string) {
+    return key.charAt(0).toUpperCase() + key.slice(1);
+  }
 
-    switch (type) {
-      case 'select':
-        return (
-          <LabelInputContainer>
-            <Label htmlFor={fieldName}>
-              {label}
-              {required && <span className="text-red-500">*</span>}
-            </Label>
-            
-          </LabelInputContainer>
-        );
-      
-      case 'checkbox':
-        return (
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id={fieldName}
-              checked={!!value}
-              onChange={(e) => handleChange(fieldName, e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              disabled={disabled}
-            />
-            <Label htmlFor={fieldName}>
-              {label}
-              {required && <span className="text-red-500">*</span>}
-            </Label>
-          </div>
-        );
-      
-      default:
-        return (
-          <LabelInputContainer>
-            <Label htmlFor={fieldName}>
-              {label}
-              {required && <span className="text-red-500">*</span>}
-            </Label>
-            <Input
-              id={fieldName}
-              type={type}
-              value={value as string}
-              onChange={(e) => handleChange(fieldName, e.target.value)}
-              placeholder={placeholder || `Enter ${label.toLowerCase()}`}
-              required={required}
-              disabled={disabled}
-            />
-          </LabelInputContainer>
-        );
-    }
-  };
 
   return (
-    <div className={cn("mx-auto w-full max-w-2xl rounded-lg bg-white p-6 shadow-md dark:bg-gray-800", className)}>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {Object.entries(config).map(([fieldName, fieldConfig]) => (
-            <div key={fieldName} className="col-span-full md:col-span-1">
-              {renderField(fieldName, fieldConfig)}
+    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur">
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1 font-bold text-xl">
+          {title} {initialData?.id ? 'Edit' : 'Add'}
+        </ModalHeader>
+        <ModalBody>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {Object.entries(formData)
+                .filter(([fieldName]) => fieldName !== "id") // exclude ID if you don’t want it editable
+                .map(([fieldName, value]) => (
+                  <div key={fieldName} className="col-span-full md:col-span-1">
+                    <LabelInputContainer>
+                      <Label htmlFor={fieldName}>{toLabel(fieldName)}</Label>
+                      <Input
+                        id={fieldName}
+                        type="text"
+                        value={value as string}
+                        onChange={(e) => handleChange(fieldName, e.target.value)}
+                        placeholder={`Enter ${toLabel(fieldName)}`}
+                      />
+                    </LabelInputContainer>
+                  </div>
+                ))}
+
             </div>
-          ))}
-        </div>
-        
-      </form>
-    </div>
+            <div className="hidden">
+              <button type="submit" id="hidden-submit">Submit</button>
+            </div>
+          </form>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="light" onPress={onClose}>
+            Cancel
+          </Button>
+          <Button
+            color="primary"
+            onPress={() => {
+              const form = document.querySelector('form');
+              if (form) {
+                const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+                if (submitButton) {
+                  submitButton.click();
+                }
+              }
+            }}
+          >
+            {submitText}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

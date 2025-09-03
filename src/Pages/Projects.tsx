@@ -1,32 +1,48 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import TableComponent from '../components/Reusable/TableComponent';
 import { projectData } from '../Data/Projects';
-import { addToast } from '@heroui/toast';
+import { addToast } from '@heroui/react';
 
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
 
     
-      const handleDeleteProject = (projectId: number) => {
-          const userIndex = projectData.projects.findIndex(project => project.id === projectId);
-          let projectName = '';
-          
-          if (userIndex !== -1) {
-              const deletedUser = projectData.projects[userIndex];
-               projectName = deletedUser.projectName || 'User';
-              projectData.projects.splice(userIndex, 1);
-              
-              // Show success toast
-              addToast({
-                  title: 'Success',
-                  description: `${projectName} has been deleted successfully`,
-                  color: 'success',
-              });
-          }
-          
-          // Update React state to reflect the change
-          setProjects([...projectData.projects]); 
-      };
+      const handleDeleteProject = useCallback((projectId: number) => {
+    setProjects(prevProjects => {
+      const updatedProjects = prevProjects.filter(project => project.id !== projectId);
+      const deletedProject = prevProjects.find(project => project.id === projectId);
+      
+      if (deletedProject) {
+        addToast({
+          title: 'Success',
+          description: `Project "${deletedProject.projectName}" has been deleted successfully.`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+      
+      return updatedProjects;
+    });
+  }, []);
+
+  const handleEditProject = useCallback((updatedProject: any) => {
+    setProjects(prevProjects => {
+      const updatedProjects = prevProjects.map(project => 
+        project.id === updatedProject.id ? { ...project, ...updatedProject } : project
+      );
+      
+      addToast({
+        title: 'Success',
+        description: `Project "${updatedProject.projectName}" has been updated successfully.`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      return updatedProjects;
+    });
+  }, []);
 
   const statusOptions = [
     { name: 'In Progress', uid: 'In Progress' },
@@ -50,6 +66,8 @@ function Projects() {
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}
+          onEdit={handleEditProject}
+          isSearch={false}
           onStatusChange={(id, isActive) => {
             setProjects(prevProjects =>
               prevProjects.map(project =>
@@ -57,6 +75,7 @@ function Projects() {
               )
             );
           }}
+          type="project"
         />
       </div>
     </div>

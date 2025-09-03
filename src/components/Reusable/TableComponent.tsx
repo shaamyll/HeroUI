@@ -65,6 +65,9 @@ interface TableComponentProps {
   statusColorMap?: Record<string, string>;
   onStatusChange?: (id: number, isActive: boolean) => void;
   onDelete?: (id: number) => void;
+  onEdit?: (data: any) => void;
+  type?: 'user' | 'project';
+  isSearch: Boolean
 }
 
 export function capitalize(s) {
@@ -77,6 +80,9 @@ export default function TableComponent({
   statusColorMap = {},
   onStatusChange,
   onDelete,
+  onEdit,
+  type,
+  isSearch
 }: TableComponentProps) {
 
   // Generate columns from data
@@ -227,25 +233,25 @@ export default function TableComponent({
         );
       case "isActive":
         return (
-       <div className="flex items-center">
-  {item.isActive ? (
-    <ShieldCheck
-      className="h-6 w-6 cursor-pointer text-green-500 bg-green-100 rounded-lg p-1 shadow-sm transition-colors"
-      onClick={() => handleStatusChange(item.id, false)}
-    />
-  ) : (
-    <ShieldX
-      className="h-6 w-6 cursor-pointer text-red-500 bg-red-100 rounded-lg p-1 shadow-sm transition-colors"
-      onClick={() => handleStatusChange(item.id, true)}
-    />
-  )}
-</div>
+          <div className="flex items-center">
+            {item.isActive ? (
+              <ShieldCheck
+                className="h-6 w-6 cursor-pointer text-green-500 bg-green-100 rounded-lg p-1 shadow-sm transition-colors"
+                onClick={() => handleStatusChange(item.id, false)}
+              />
+            ) : (
+              <ShieldX
+                className="h-6 w-6 cursor-pointer text-red-500 bg-red-100 rounded-lg p-1 shadow-sm transition-colors"
+                onClick={() => handleStatusChange(item.id, true)}
+              />
+            )}
+          </div>
 
         );
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
-            <TableActions item={item} onDelete={onDelete} />
+            <TableActions item={item} onDelete={onDelete} onEdit={onEdit} type={type || 'user'} />
           </div>
         );
       default:
@@ -253,8 +259,7 @@ export default function TableComponent({
           ? (cellValue.name || JSON.stringify(cellValue))
           : cellValue;
     }
-  }, [statusColorMap, onStatusChange]);
-  
+  }, [statusColorMap, onStatusChange, onDelete, onEdit, type]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -291,15 +296,21 @@ export default function TableComponent({
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Search..."
-            startContent={<Search className="w-5 h-5 text-default-400" />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
+          {isSearch ? (
+            <Input
+              isClearable
+              className="w-full sm:max-w-[44%]"
+              placeholder="Search..."
+              startContent={<Search className="w-5 h-5 text-default-400" />}
+              value={filterValue}
+              onClear={() => onClear()}
+              onValueChange={onSearchChange}
+            />
+          ) : (
+            // Placeholder to maintain layout
+            <div className="w-full sm:max-w-[44%]" />
+          )}
+
           <div className="flex gap-3">
             {statusOptions.length > 0 && (
               <Dropdown>
@@ -329,6 +340,7 @@ export default function TableComponent({
             </Button>
           </div>
         </div>
+
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">Total {data.length} items</span>
           <label className="flex items-center text-default-400 text-small">

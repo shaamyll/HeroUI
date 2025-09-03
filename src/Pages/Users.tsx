@@ -1,10 +1,21 @@
+import { useState } from 'react';
 import TableComponent from '../components/Reusable/Table';
-import {userData} from '../Data/User'
+import { userData } from '../Data/User'
 
 function Users() {
+    const [users, setUsers] = useState([...userData.users]);
 
+  
+    const handleDeleteUser = (userId: number) => {
+        const userIndex = userData.users.findIndex(user => user.id === userId);
+        if (userIndex !== -1) {
+            userData.users.splice(userIndex, 1);
+        }
+        
+        // 2. Update React state to reflect the change
+        setUsers([...userData.users]); 
+    };
 
-    
     const columns = [
         { name: 'ID', uid: 'id', sortable: true },
         { name: 'NAME', uid: 'name', sortable: true },
@@ -37,10 +48,11 @@ function Users() {
 
                 <TableComponent 
                     columns={columns}
-                    data={userData.users}
+                    data={users}
                     statusOptions={statusOptions}
                     statusColorMap={statusColorMap}
                     initialVisibleColumns={initialVisibleColumns}
+                    onDelete={handleDeleteUser}
                 />
             </div>
         </div>

@@ -1,26 +1,54 @@
 import { Button } from '@heroui/button'
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/dropdown'
-import { MoreVertical } from 'lucide-react'
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react'
+import { MoreVertical, Trash2, Edit } from 'lucide-react'
 import React from 'react'
 
-function TableActions() {
+interface TableActionsProps {
+  item: any;
+  onDelete?: (id: number) => void;
+}
+
+function TableActions({ item, onDelete }: TableActionsProps) {
+
+   const handleAction = (action: 'edit' | 'delete') => {
+    if (action === 'delete' && item?.id) {
+      if (window.confirm('Are you sure you want to delete this item?')) {
+        if (onDelete) {
+          onDelete(item.id); // Let parent handle the deletion
+        }
+      }
+    } else if (action === 'edit') {
+      // Handle edit if needed
+    }
+  };
   return (
-    <div>
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light" className="mx-auto">
-                  <MoreVertical  className="text-default-500 " />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem key="view">View</DropdownItem>
-                <DropdownItem key="edit">Edit</DropdownItem>
-                <DropdownItem key="delete">Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-    </div>
+    <div className="flex justify-end">
+      <Dropdown>
+        <DropdownTrigger>
+          <Button isIconOnly size="sm" variant="light" className="mx-auto">
+            <MoreVertical className="text-default-500" />
+          </Button>
+        </DropdownTrigger>
+        <DropdownMenu>
+          <DropdownItem 
+            key="edit" 
+            startContent={<Edit className="h-4 w-4" />}
+            onPress={(e) => handleAction(e as unknown as React.MouseEvent, 'edit')}
+          >
+            Edit
+          </DropdownItem>
+          <DropdownItem 
+            key="delete" 
+            className="text-danger" 
+            color="danger"
+            startContent={<Trash2 className="h-4 w-4" />}
+             onPress={() => handleAction('delete')}
+          >
+            Delete
+          </DropdownItem>
+        </DropdownMenu>
+    </Dropdown>
+  </div>
   )
 }
 

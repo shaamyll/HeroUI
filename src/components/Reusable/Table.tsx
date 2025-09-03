@@ -13,10 +13,9 @@ import {
   DropdownMenu,
   DropdownItem,
   Chip,
-  User,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, Plus, Search, Check, X, Shield, ShieldCheck, ShieldX } from "lucide-react";
+import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
 import TableActions from "../TableActions";
 
 interface TableColumn {
@@ -36,9 +35,8 @@ interface TableComponentProps {
   statusColorMap?: Record<string, string>;
   initialVisibleColumns?: string[];
   onStatusChange?: (id: number, isActive: boolean) => void;
+  onDelete?: (id: number) => void;
 }
-
-const DEFAULT_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
 export function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -47,18 +45,11 @@ export function capitalize(s) {
 export default function TableComponent({
   columns,
   data,
-  statusOptions = [
-    { name: "Active", uid: "active" },
-    { name: "Paused", uid: "paused" },
-    { name: "Vacation", uid: "vacation" },
-  ],
-  statusColorMap = {
-    active: "success",
-    paused: "danger",
-    vacation: "warning",
-  },
-  initialVisibleColumns = DEFAULT_VISIBLE_COLUMNS,
+  statusOptions,
+  statusColorMap,
+  initialVisibleColumns,
   onStatusChange,
+  onDelete,
 }: TableComponentProps) {
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
@@ -146,8 +137,6 @@ export default function TableComponent({
   }
 
   const handleStatusChange = (id: number, isActive: boolean) => {
-    // This function will be called when the switch is toggled
-    // The parent component should handle the state update
     if (onStatusChange) {
       onStatusChange(id, isActive);
     }
@@ -232,7 +221,7 @@ export default function TableComponent({
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
-            <TableActions item={item} />
+            <TableActions item={item} onDelete={onDelete} />
           </div>
         );
       default:

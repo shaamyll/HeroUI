@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -18,42 +18,81 @@ import {
 import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
 import TableActions from "../TableActions";
 
-interface TableColumn {
+export interface TableColumn {
+  render?: (item: any) => React.ReactNode;
   name: string;
   uid: string;
   sortable?: boolean;
 }
 
-interface TableData {
+export interface TableData {
   [key: string]: any;
 }
 
+// Helper function to generate columns from data
+const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
+  if (!data || data.length === 0) return [];
+
+  // Get all unique keys from the data, excluding 'id'
+  const allKeys = new Set();
+  data.forEach(item => {
+    Object.keys(item).forEach(key => {
+      if (key !== 'id') { // Exclude the 'id' column
+        allKeys.add(key);
+      }
+    });
+  });
+
+  // Convert keys to column titles
+  const dataColumns = Array.from(allKeys).map(key => ({
+    name: key.split(/(?=[A-Z])/).join(' ').toUpperCase(),
+    uid: key,
+    sortable: true
+  }));
+
+  // Add index and actions columns
+  return [
+    {
+      name: "#",
+      uid: "index",
+      sortable: false
+    },
+    ...dataColumns,
+    {
+      name: "ACTIONS",
+      uid: "actions",
+      sortable: false
+    }
+  ];
+};
+
 interface TableComponentProps {
-  columns: TableColumn[];
   data: TableData[];
   statusOptions?: Array<{ name: string; uid: string }>;
   statusColorMap?: Record<string, string>;
-  initialVisibleColumns?: string[];
   onStatusChange?: (id: number, isActive: boolean) => void;
   onDelete?: (id: number) => void;
 }
 
-export function capitalize(s) {
+export function capitalize(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
 export default function TableComponent({
-  columns,
   data,
-  statusOptions,
-  statusColorMap,
-  initialVisibleColumns,
+  statusOptions = [],
+  statusColorMap = {},
   onStatusChange,
   onDelete,
 }: TableComponentProps) {
+
+  // Generate columns from data
+  const columns = React.useMemo(() => {
+    return generateColumnsFromData(data);
+  }, [data]);
+
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = useState(new Set(initialVisibleColumns));
   const [statusFilter, setStatusFilter] = useState("all");
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [sortDescriptor, setSortDescriptor] = useState({
@@ -63,12 +102,6 @@ export default function TableComponent({
   const [page, setPage] = React.useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
-
-  const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return columns;
-
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
     let filteredData = [...data];
@@ -93,7 +126,7 @@ export default function TableComponent({
     return filteredData;
   }, [data, filterValue, statusFilter, statusOptions.length]);
 
-  const pages = Math.ceil(data.length / rowsPerPage) || 1;
+  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
 
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -141,17 +174,34 @@ export default function TableComponent({
       onStatusChange(id, isActive);
     }
   };
+  const renderCell = React.useCallback((item: any, columnKey: React.Key, index: number) => {
+    const column = columns.find(col => col.uid === columnKey);
+    
+    // Use custom render function if provided
+    if (column && column.render) {
+      return column.render(item, index);
+    }
+    
+    // Handle index column
+    if (columnKey === 'index') {
+      console.log('page:', page, 'rowsPerPage:', rowsPerPage, 'index:', index);
+      const pageNum = Number(page) || 1;
+      const rows = Number(rowsPerPage) || 5;
+      const rowIndex = Number(index) || 0;
+      const calculatedIndex = (pageNum - 1) * rows + rowIndex + 1;
+      console.log('Calculated index:', calculatedIndex);
+      return calculatedIndex;
+    }
 
-  const renderCell = React.useCallback((item: any, columnKey: React.Key) => {
     const cellValue = item[columnKey as keyof typeof item];
 
     switch (columnKey) {
       case "name":
-        const bgColor = getGradientFromName(item.name);
+        const bgColor = getGradientFromName(item.name || 'Unknown');
         return (
           <div className="flex items-center gap-3">
             <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColor} text-white text-lg font-bold`}>
-              {item.name.charAt(0)}
+              {(item.name || 'U').charAt(0)}
             </div>
             <div className="flex flex-col">
               <span className="font-medium">{cellValue}</span>
@@ -204,19 +254,19 @@ export default function TableComponent({
         );
       case "isActive":
         return (
-           <div className="flex items-center">
-    {item.isActive ? (
-      <ShieldCheck
-        className="h-5 w-5 cursor-pointer text-green-500 transition-colors"
-        onClick={() => handleStatusChange(item.id, false)}
-      />
-    ) : (
-      <ShieldX
-        className="h-5 w-5 cursor-pointer text-red-500 transition-colors"
-        onClick={() => handleStatusChange(item.id, true)}
-      />
-    )}
-  </div>
+          <div className="flex items-center">
+            {item.isActive ? (
+              <ShieldCheck
+                className="h-5 w-5 cursor-pointer text-green-500 transition-colors"
+                onClick={() => handleStatusChange(item.id, false)}
+              />
+            ) : (
+              <ShieldX
+                className="h-5 w-5 cursor-pointer text-red-500 transition-colors"
+                onClick={() => handleStatusChange(item.id, true)}
+              />
+            )}
+          </div>
         );
       case "actions":
         return (
@@ -225,9 +275,12 @@ export default function TableComponent({
           </div>
         );
       default:
-        return typeof cellValue === 'object' ? cellValue.name : cellValue;
+        return typeof cellValue === 'object' && cellValue !== null
+          ? (cellValue.name || JSON.stringify(cellValue))
+          : cellValue;
     }
-  }, [statusColorMap]);
+  }, [statusColorMap, onStatusChange, columns]);
+  
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -267,67 +320,49 @@ export default function TableComponent({
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by name..."
+            placeholder="Search..."
             startContent={<Search className="w-5 h-5 text-default-400" />}
             value={filterValue}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+            {statusOptions.length > 0 && (
+              <Dropdown>
+                <DropdownTrigger className="hidden sm:flex">
+                  <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
+                    Status
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Status Filter"
+                  closeOnSelect={false}
+                  selectedKeys={statusFilter}
+                  selectionMode="multiple"
+                  onSelectionChange={setStatusFilter}
+                >
+                  {statusOptions.map((status) => (
+                    <DropdownItem key={status.uid} className="capitalize">
+                      {capitalize(status.name)}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            )}
             <Button color="primary" variant="solid" endContent={<Plus className="w-4 h-4" />}>
               Add New
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {data.length} data</span>
+          <span className="text-default-400 text-small">Total {data.length} items</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
-              className="bg-transparent outline-solid outline-transparent text-default-400 text-small"
+              className="bg-transparent outline-none text-default-400 text-small ml-2"
               onChange={onRowsPerPageChange}
+              value={rowsPerPage}
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -340,11 +375,12 @@ export default function TableComponent({
   }, [
     filterValue,
     statusFilter,
-    visibleColumns,
     onRowsPerPageChange,
     data.length,
     onSearchChange,
     hasSearchFilter,
+    statusOptions.length,
+    rowsPerPage,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -374,12 +410,12 @@ export default function TableComponent({
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter]);
 
   return (
     <Table
       isHeaderSticky
-      aria-label="Example table with custom cells, pagination and sorting"
+      aria-label="Dynamic table with all columns"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
@@ -393,7 +429,7 @@ export default function TableComponent({
       onSelectionChange={setSelectedKeys}
       onSortChange={setSortDescriptor}
     >
-      <TableHeader columns={headerColumns}>
+      <TableHeader columns={columns}>
         {(column) => (
           <TableColumn
             key={column.uid}
@@ -405,13 +441,15 @@ export default function TableComponent({
         )}
       </TableHeader>
       <TableBody emptyContent={"No data found"} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item.id}>
-            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
+        {(item) => {
+          const itemIndex = sortedItems.findIndex(i => i.id === item.id);
+          return (
+            <TableRow key={item.id || itemIndex}>
+              {(columnKey) => <TableCell>{renderCell(item, columnKey, itemIndex)}</TableCell>}
+            </TableRow>
+          );
+        }}
       </TableBody>
     </Table>
   );
 }
-

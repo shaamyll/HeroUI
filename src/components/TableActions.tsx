@@ -10,7 +10,7 @@ interface TableActionsProps {
 
 function TableActions({ item, onDelete }: TableActionsProps) {
 
-   const handleAction = (action: 'edit' | 'delete') => {
+  const handleAction = (action: 'edit' | 'delete') => {
     if (action === 'delete' && item?.id) {
       if (window.confirm('Are you sure you want to delete this item?')) {
         if (onDelete) {
@@ -19,8 +19,10 @@ function TableActions({ item, onDelete }: TableActionsProps) {
       }
     } else if (action === 'edit') {
       // Handle edit if needed
+      console.log('Edit item:', item);
     }
   };
+
   return (
     <div className="flex justify-end">
       <Dropdown>
@@ -33,7 +35,7 @@ function TableActions({ item, onDelete }: TableActionsProps) {
           <DropdownItem 
             key="edit" 
             startContent={<Edit className="h-4 w-4" />}
-            onPress={(e) => handleAction(e as unknown as React.MouseEvent, 'edit')}
+            onPress={() => handleAction('edit')} // Fixed this line
           >
             Edit
           </DropdownItem>
@@ -42,13 +44,13 @@ function TableActions({ item, onDelete }: TableActionsProps) {
             className="text-danger" 
             color="danger"
             startContent={<Trash2 className="h-4 w-4" />}
-             onPress={() => handleAction('delete')}
+            onPress={() => handleAction('delete')}
           >
             Delete
           </DropdownItem>
         </DropdownMenu>
-    </Dropdown>
-  </div>
+      </Dropdown>
+    </div>
   )
 }
 

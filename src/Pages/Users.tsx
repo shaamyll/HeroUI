@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import TableComponent from '../components/Reusable/Table';
+import TableComponent from '../components/Reusable/TableComponent';
 import { userData } from '../Data/User'
 
 function Users() {
@@ -15,18 +15,7 @@ function Users() {
         // 2. Update React state to reflect the change
         setUsers([...userData.users]); 
     };
-
-    const columns = [
-        { name: 'ID', uid: 'id', sortable: true },
-        { name: 'NAME', uid: 'name', sortable: true },
-        { name: 'AGE', uid: 'age', sortable: true },
-        { name: 'ROLE', uid: 'role', sortable: true },
-        { name: 'TEAM', uid: 'team' },
-        { name: 'EMAIL', uid: 'email' },
-        { name: 'STATUS', uid: 'status', sortable: true },
-        { name: 'ACTIONS', uid: 'actions' },
-    ];
-
+    
     const statusOptions = [
         { name: 'Active', uid: 'active' },
         { name: 'Paused', uid: 'paused' },
@@ -39,7 +28,6 @@ function Users() {
         vacation: 'warning',
     };
 
-    const initialVisibleColumns = ["name", "role", "status", "actions","age","team","id"];
 
     return (
         <div className='min-h-screen'>
@@ -47,11 +35,9 @@ function Users() {
                 <h3 className='ms-auto text-2xl font-bold mb-5'>USERS TABLE :</h3>
 
                 <TableComponent 
-                    columns={columns}
                     data={users}
                     statusOptions={statusOptions}
                     statusColorMap={statusColorMap}
-                    initialVisibleColumns={initialVisibleColumns}
                     onDelete={handleDeleteUser}
                 />
             </div>

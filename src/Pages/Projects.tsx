@@ -49,7 +49,7 @@ function Projects() {
       const projectWithId = {
         ...newProject,
         id: Math.max(0, ...prevProjects.map(p => p.id)) + 1, // Generate a new ID
-        isActive: true // Default to active when creating a new project
+         projectStatus: 'In Progress' 
       };
       
       addToast({

@@ -7,6 +7,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@herou
 import { cn } from '../lib/utils';
 import { addToast } from "@heroui/react";
 import { Select, SelectItem } from "@heroui/react";
+import { userData } from '../../Data/User';
 
 type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
 
@@ -47,23 +48,34 @@ export function FormModal<T extends Record<string, any>>({
   onClose,
   config
 }: FormModalProps<T>) {
-  console.log(config)
-  console.log(initialData)
+  // Import user data
+  
+  console.log('Config:', config)
+  console.log('Initial Data:', initialData)
   // Initialize form data with values from initialData or empty strings from config
   const [formData, setFormData] = useState<T>(() => {
     const data = {} as T;
     // Always use config to determine which fields to include
     Object.entries(config).forEach(([key, fieldConfig]) => {
-      // For select fields, ensure we're using the correct value format
-      if (fieldConfig.type === 'select' && fieldConfig.options && initialData && initialData[key as keyof T]) {
-        const value = initialData[key as keyof T];
-        // Find the matching option value
-        const matchingOption = fieldConfig.options.find(opt => opt.label === value || opt.value === value);
-        data[key as keyof T] = (matchingOption?.value || value) as any;
+      const initialValue = initialData?.[key as keyof T];
+      
+      if (fieldConfig.type === 'select' && fieldConfig.options) {
+        if (key === 'assignedUser' && initialValue) {
+          // Special handling for assignedUser object
+          data[key as keyof T] = (initialValue as any)?.id?.toString() || '';
+        } else if (initialValue) {
+          // For other select fields
+          const matchingOption = fieldConfig.options.find(opt => 
+            opt.label === initialValue || opt.value === initialValue
+          );
+          data[key as keyof T] = (matchingOption?.value || initialValue) as any;
+        } else {
+          data[key as keyof T] = '' as any;
+        }
       } else {
         // For other fields, use the value as is
-        data[key as keyof T] = (initialData && initialData[key as keyof T] !== undefined)
-          ? initialData[key as keyof T]
+        data[key as keyof T] = (initialValue !== undefined)
+          ? initialValue
           : '' as any;
       }
     });
@@ -101,10 +113,24 @@ export function FormModal<T extends Record<string, any>>({
   const handleChange = (field: string, value: any) => {
     // Only update if the field exists in the config
     if (field in config) {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value
-      }));
+      setFormData(prev => {
+        const newData = { ...prev };
+        
+        if (field === 'assignedUser') {
+          // For assignedUser, we need to store the selected user ID
+          const selectedUser = userData.users.find(u => u.id.toString() === value);
+          if (selectedUser) {
+            newData[field as keyof T] = {
+              id: selectedUser.id,
+              name: selectedUser.name
+            } as any;
+          }
+        } else {
+          newData[field as keyof T] = value;
+        }
+        
+        return newData;
+      });
     }
   };
 
@@ -145,9 +171,9 @@ export function FormModal<T extends Record<string, any>>({
                     {fieldConfig.type === 'select' && fieldConfig.options ? (
                       <Select
                         variant="bordered"
-                        className="w-full transition-all duration-200 ease-in-out shadow-md"
+                        className="w-full transition-all duration-200 ease-in-out"
                         classNames={{
-                          trigger: "h-10 px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm  focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200",
+                          trigger: "h-10 px-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200",
                           value: "text-gray-900",
                           popoverContent: "p-0 rounded-md shadow-lg",
                         }}
@@ -169,7 +195,7 @@ export function FormModal<T extends Record<string, any>>({
                       </Select>
                     ) : (
                       <Input
-                      className="shadow-md border-2"
+                      className="border-2"
                         id={fieldName}
                         type={fieldConfig.type || 'text'}
                         value={(formData[fieldName as keyof T] as string) || ''}

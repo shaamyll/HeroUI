@@ -1,3 +1,5 @@
+import { userData } from '../../Data/User';
+
 // User form config
 export const userFormConfig: FormConfig = {
   name: { type: "text", label: "Name", required: true },
@@ -35,17 +37,21 @@ export const userFormConfig: FormConfig = {
   }
 };
 
+// Generate user options from user data
+const getUserOptions = () => {
+  return userData.users.map(user => ({
+    label: user.name,
+    value: user.id.toString()
+  }));
+};
+
 export const projectFormConfig: FormConfig = {
   projectName: { type: "text", label: "Project Name", required: true },
   assignedUser: {
     type: "select",
     label: "Assigned User",
     required: true,
-    options: [
-      // You'll need to fetch actual users here
-      { label: "Zoey Lang", value: "2" },
-      // Add more users as needed
-    ],
+    options: getUserOptions()
   },
   timePeriod: { 
     type: "text", 
@@ -58,9 +64,9 @@ export const projectFormConfig: FormConfig = {
     label: "Project Status",
     required: true,
     options: [
-      { label: "In Progress", value: "in_progress" },
-      { label: "Completed", value: "completed" },
-      { label: "On Hold", value: "on_hold" },
+      { label: "In Progress", value: "In Progress" },
+      { label: "Completed", value: "Completed" },
+      { label: "On Hold", value: "On Hold" },
     ],
   },
   isActive: {

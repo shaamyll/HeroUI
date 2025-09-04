@@ -1,45 +1,64 @@
 import { Button } from '@heroui/button'
-import React from 'react'
 import FormModal from './FormModal'
-import { useDisclosure } from '@heroui/react';
+import { useDisclosure, addToast } from '@heroui/react';
 import { projectFormConfig, userFormConfig } from '../FormConfigs/formConfigs';
 import { Plus } from 'lucide-react';
 
-function AddNew({type,onSubmit}) {
-
-
-      const { isOpen: isAddModalOpen, onOpen: onAddModalOpen, onClose: onAddModalClose } = useDisclosure();
-      
-      const handleAddClick = () => {
-        onAddModalOpen();
-      };
-    
-      const handleSubmit = (formData: any) => {
-        try {
-          onAddModalClose();
-        } catch (error) {
-          console.error('Error submitting form:', error);
-        }
-      };
-      
-    return (
-        <div>
-            <Button color="primary" variant="solid" onPress={handleAddClick} endContent={<Plus className="w-4 h-4" />}>
-                Add New
-            </Button>
-
-            
-            {/* 👇 Add FormModal here */}
-            <FormModal
-              type={type}
-              config={type === "user" ? userFormConfig : projectFormConfig}
-              isOpen={isAddModalOpen}
-              onClose={onAddModalClose}
-              initialData={{}}
-              onSubmit={handleSubmit}
-            />
-        </div>
-    )
+interface AddNewProps {
+  type: 'user' | 'project';
+  onSubmit: (formData: any) => void;
 }
 
-export default AddNew
+function AddNew({ type, onSubmit }: AddNewProps) {
+  console.log(type)
+  const { isOpen: isAddModalOpen, onOpen: onAddModalOpen, onClose: onAddModalClose } = useDisclosure();
+  
+  const handleAddClick = () => {
+    onAddModalOpen();
+  };
+
+  const handleSubmit = (formData: any) => {
+    try {
+      console.log('Form submitted with data:', formData);
+      console.log("Type",type)
+      // Check if onSubmit is a function before calling it
+        onSubmit(formData);
+      onAddModalClose();
+      
+      // Show success toast
+      addToast({
+        title: 'Success',
+        description: `New ${type} added successfully`,
+        color: 'success',
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      
+      // Show error toast
+      addToast({
+        title: 'Error',
+        description: `Failed to add new ${type}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        color: 'danger',
+      });
+    }
+  };
+  
+  return (
+    <div>
+      <Button color="primary" variant="solid" onPress={handleAddClick} endContent={<Plus className="w-4 h-4" />}>
+        Add New
+      </Button>
+      
+      <FormModal
+        type={type}
+        config={type === "user" ? userFormConfig : projectFormConfig}
+        isOpen={isAddModalOpen}
+        onClose={onAddModalClose}
+        initialData={null}
+        onSubmit={handleSubmit}
+      />
+    </div>
+  )
+}
+
+export default AddNew;

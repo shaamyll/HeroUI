@@ -68,6 +68,7 @@ import AddNew from "./AddNew";
     onStatusChange?: (id: number, isActive: boolean) => void;
     onDelete?: (id: number) => void;
     onEdit?: (data: any) => void;
+    onAdd?: (data: any) => void;
     type?: 'user' | 'project';
     isSearch: Boolean
   }
@@ -83,6 +84,7 @@ import AddNew from "./AddNew";
     onStatusChange,
     onDelete,
     onEdit,
+    onAdd,
     type,
     isSearch
   }: TableComponentProps) {
@@ -323,7 +325,7 @@ import AddNew from "./AddNew";
                 </Dropdown>
               )}
               {/* Add new Data to Table */}
-             <AddNew type={type} onSubmit={onsubmit}/>
+             <AddNew type={type} onSubmit={onAdd}/>
             </div>
 
           </div>

@@ -32,7 +32,6 @@ interface FormModalProps<T> {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: T) => void;
-  title: string;
   submitText?: string;
   className?: string;
 }
@@ -41,30 +40,24 @@ export function FormModal<T extends Record<string, any>>({
   type,
   initialData,
   onSubmit,
-  title,
   isOpen,
   onClose,
   config
 }: FormModalProps<T>) {
-  // Helper function to find user ID by name
-  const getUserIdByName = (name: string): number | null => {
-    const user = userData.users.find(u => u.name === name);
-    return user ? user.id : null;
-  };
 
   // Initialize form data with values from initialData or empty strings from config
   const [formData, setFormData] = useState<T>(() => {
     const data = {} as T;
-    
+
     // Always use config to determine which fields to include
     Object.entries(config).forEach(([key, fieldConfig]) => {
       let initialValue = initialData?.[key as keyof T];
-      
+
 
       if (fieldConfig.type === 'select' && fieldConfig.options) {
         if (initialValue !== undefined) {
           // For select fields, ensure we're using the value, not the label
-          const matchingOption = fieldConfig.options.find(opt => 
+          const matchingOption = fieldConfig.options.find(opt =>
             opt.label === initialValue || opt.value === initialValue
           );
           data[key as keyof T] = (matchingOption?.value || initialValue) as any;
@@ -86,27 +79,50 @@ export function FormModal<T extends Record<string, any>>({
     setFormData(prevData => {
       const newData = { ...prevData };
       let hasChanges = false;
-        
+
       // Update with initialData values if they exist
       if (initialData) {
         // Update all fields from initialData
         Object.entries(initialData).forEach(([key, value]) => {
           if (key in config) {
-            // For assignedUser, convert to assignedUserName if needed
-            if (key === 'assignedUser' && typeof value === 'string') {
-              const userName = userData.users.find(u => u.id === parseInt(value))?.name;
-              if (userName) {
-                newData['assignedUserName' as keyof T] = userName as any;
+            // Special handling for assignedUser field
+            if (key === 'assignedUser') {
+              // If value is a number or numeric string (ID), convert to user name
+              if (typeof value === 'number' || (typeof value === 'string' && !isNaN(parseInt(value)))) {
+                const userId = typeof value === 'string' ? parseInt(value) : value;
+                const user = userData.users.find(u => u.id === userId);
+
+                if (user) {
+                  // Set assignedUser to the user name
+                  newData[key as keyof T] = user.name as any;
+
+                  // Also update assignedUserName if it exists in the form
+                  if ('assignedUserName' in newData) {
+                    (newData as any).assignedUserName = user.name;
+                  }
+                  hasChanges = true;
+                }
+              }
+              // If value is already a string (name), use it directly
+              else if (typeof value === 'string') {
+                newData[key as keyof T] = value;
+
+                // Also update assignedUserName if it exists in the form
+                if ('assignedUserName' in newData) {
+                  (newData as any).assignedUserName = value;
+                }
                 hasChanges = true;
               }
-            } else {
+            }
+            // Handle all other fields normally
+            else {
               newData[key as keyof T] = value;
               hasChanges = true;
             }
           }
         });
       }
-      
+
       return hasChanges ? newData : prevData;
     });
   }, [initialData, config]);
@@ -116,17 +132,26 @@ export function FormModal<T extends Record<string, any>>({
     if (field in config) {
       setFormData(prev => {
         const newData = { ...prev };
-        
+
         // If the field is assignedUser, convert it to assignedUserName
         if (field === 'assignedUser') {
-          const userName = userData.users.find(u => u.id === parseInt(value))?.name;
-          if (userName) {
-            newData['assignedUserName' as keyof T] = userName as any;
+          // Find the selected user by ID
+          const userId = parseInt(value, 10);
+          const selectedUser = userData.users.find(u => u.id === userId);
+
+          if (selectedUser) {
+            // Store the USER NAME (not ID) in the form data
+            newData[field as keyof T] = selectedUser.name as any;
+
+            // Also update the assignedUserName field if it exists
+            if ('assignedUserName' in newData) {
+              (newData as any).assignedUserName = selectedUser.name;
+            }
           }
         } else {
           newData[field as keyof T] = value;
         }
-        
+
         console.log(newData);
         return newData;
       });
@@ -154,7 +179,7 @@ export function FormModal<T extends Record<string, any>>({
     <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-gray-100">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 font-bold text-xl">
-          {title} {initialData?.id ? 'Edit' : 'Add'} {type}
+          {initialData?.id ? 'Edit' : 'Add'} {type}
         </ModalHeader>
         <ModalBody>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -183,7 +208,7 @@ export function FormModal<T extends Record<string, any>>({
                         }}
                       >
                         {fieldConfig.options.map((option) => (
-                          <SelectItem 
+                          <SelectItem
                             key={option.value}
                             className="px-4 py-2 text-sm text-gray-700 cursor-pointer transition-colors duration-150"
                           >
@@ -222,10 +247,9 @@ export function FormModal<T extends Record<string, any>>({
             onPress={() => {
               const form = document.querySelector('form');
               if (form) {
-                const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-                if (submitButton) {
-                  submitButton.click();
-                }
+                // Create and dispatch a submit event
+                const event = new Event('submit', { cancelable: true, bubbles: true });
+                form.dispatchEvent(event);
               }
             }}
           >

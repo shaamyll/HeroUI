@@ -1,12 +1,9 @@
 export const projectData = {
-     projects : [
+  projects: [
     {
       id: 1,
       projectName: "Website Redesign",
-      assignedUser: {
-        name: "Zoey Lang",
-        id: 2,
-      },
+      assignedUserName: "Zoey Lang",
       timePeriod: "Q3 2024",
       projectStatus: "In Progress",
       isActive: true,
@@ -14,90 +11,63 @@ export const projectData = {
     {
       id: 2,
       projectName: "Mobile App Development",
-      assignedUser: {
-        name: "Jane Fisher",
-        id: 3,
-      },
+      assignedUserName: "Jane Fisher",
       timePeriod: "Q4 2024",
       projectStatus: "On Hold",
     },
     {
       id: 3,
       projectName: "Marketing Campaign Launch",
-      assignedUser: {
-        name: "William Howard",
-        id: 4,
-      },
+      assignedUserName: "William Howard",
       timePeriod: "Q3 2024",
       projectStatus: "Completed",
     },
     {
       id: 4,
       projectName: "New Server Migration",
-      assignedUser: {
-        name: "Tony Reichert",
-        id: 1,
-      },
+      assignedUserName: "Tony Reichert",
       timePeriod: "Q1 2025",
       projectStatus: "In Progress",
     },
     {
       id: 5,
       projectName: "Internal HR System Update",
-      assignedUser: {
-        name: "Samantha Brooks",
-        id: 8,
-      },
+      assignedUserName: "Samantha Brooks",
       timePeriod: "Q2 2025",
       projectStatus: "Completed",
     },
     {
       id: 6,
       projectName: "Customer Support System",
-      assignedUser: {
-        name: "Kristen Copper",
-        id: 5,
-      },
+      assignedUserName: "Kristen Copper",
       timePeriod: "Q3 2024",
       projectStatus: "Completed",
     },
     {
       id: 7,
       projectName: "Brand Guideline Creation",
-      assignedUser: {
-        name: "Michael Hunt",
-        id: 7,
-      },
+      assignedUserName: "Michael Hunt",
       timePeriod: "Q4 2024",
       projectStatus: "In Progress",
     },
     {
       id: 8,
       projectName: "Financial Audit",
-      assignedUser: {
-        name: "Frank Harrison",
-        id: 9,
-      },
+      assignedUserName: "Frank Harrison",
       timePeriod: "Q1 2025",
       projectStatus: "On Hold",
     },
     {
       id: 9,
       projectName: "New Product Launch",
-      assignedUser: {
-        name: "Emma Adams",
-        id: 10,
-      },
+      assignedUserName: "Emma Adams",
       timePeriod: "Q2 2025",
       projectStatus: "In Progress",
     },
     {
       id: 10,
       projectName: "Internal Wiki Development",
-      assignedUser: {
-        name: "Brian Kim",
-        id: 6,
-      },
+      assignedUserName: "Brian Kim",
       timePeriod: "Q3 2025",
       projectStatus: "Completed",
     },

@@ -11,7 +11,6 @@ import { userData } from '../../Data/User';
 
 type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
 
-
 type FieldConfig = {
   type: FieldType;
   label: string;
@@ -43,28 +42,28 @@ export function FormModal<T extends Record<string, any>>({
   initialData,
   onSubmit,
   title,
-  Data,
   isOpen,
   onClose,
   config
 }: FormModalProps<T>) {
-  // Import user data
-  
-  console.log('Config:', config)
-  console.log('Initial Data:', initialData)
+  // Helper function to find user ID by name
+  const getUserIdByName = (name: string): number | null => {
+    const user = userData.users.find(u => u.name === name);
+    return user ? user.id : null;
+  };
+
   // Initialize form data with values from initialData or empty strings from config
   const [formData, setFormData] = useState<T>(() => {
     const data = {} as T;
+    
     // Always use config to determine which fields to include
     Object.entries(config).forEach(([key, fieldConfig]) => {
-      const initialValue = initialData?.[key as keyof T];
+      let initialValue = initialData?.[key as keyof T];
       
+
       if (fieldConfig.type === 'select' && fieldConfig.options) {
-        if (key === 'assignedUser' && initialValue) {
-          // Special handling for assignedUser object
-          data[key as keyof T] = (initialValue as any)?.id?.toString() || '';
-        } else if (initialValue) {
-          // For other select fields
+        if (initialValue !== undefined) {
+          // For select fields, ensure we're using the value, not the label
           const matchingOption = fieldConfig.options.find(opt => 
             opt.label === initialValue || opt.value === initialValue
           );
@@ -87,7 +86,7 @@ export function FormModal<T extends Record<string, any>>({
     setFormData(prevData => {
       const newData = { ...prevData };
       let hasChanges = false;
-
+      
       // Ensure all config fields exist in form data
       Object.keys(config).forEach(key => {
         if (!(key in newData)) {
@@ -95,17 +94,27 @@ export function FormModal<T extends Record<string, any>>({
           hasChanges = true;
         }
       });
-
+      
       // Update with initialData values if they exist
       if (initialData) {
+        // Update all fields from initialData
         Object.entries(initialData).forEach(([key, value]) => {
           if (key in config) {
-            newData[key as keyof T] = value;
-            hasChanges = true;
+            // For assignedUser, convert to assignedUserName if needed
+            if (key === 'assignedUser' && typeof value === 'string') {
+              const userName = userData.users.find(u => u.id === parseInt(value))?.name;
+              if (userName) {
+                newData['assignedUserName' as keyof T] = userName as any;
+                hasChanges = true;
+              }
+            } else {
+              newData[key as keyof T] = value;
+              hasChanges = true;
+            }
           }
         });
       }
-
+      
       return hasChanges ? newData : prevData;
     });
   }, [initialData, config]);
@@ -116,19 +125,22 @@ export function FormModal<T extends Record<string, any>>({
       setFormData(prev => {
         const newData = { ...prev };
         
+        // If the field is assignedUser, convert it to assignedUserName
         if (field === 'assignedUser') {
-          // For assignedUser, we need to store the selected user ID
-          const selectedUser = userData.users.find(u => u.id.toString() === value);
-          if (selectedUser) {
-            newData[field as keyof T] = {
-              id: selectedUser.id,
-              name: selectedUser.name
-            } as any;
+          const userName = userData.users.find(u => u.id === parseInt(value))?.name;
+          if (userName) {
+            newData['assignedUserName' as keyof T] = userName as any;
           }
         } else {
           newData[field as keyof T] = value;
         }
         
+        // Remove the old assignedUser field if it exists
+        if (field === 'assignedUser' && 'assignedUser' in newData) {
+          delete (newData as any).assignedUser;
+        }
+        
+        console.log(newData);
         return newData;
       });
     }
@@ -150,7 +162,6 @@ export function FormModal<T extends Record<string, any>>({
   function toLabel(key: string) {
     return key.charAt(0).toUpperCase() + key.slice(1);
   }
-
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-gray-100">
@@ -187,7 +198,7 @@ export function FormModal<T extends Record<string, any>>({
                         {fieldConfig.options.map((option) => (
                           <SelectItem 
                             key={option.value}
-                            className="px-4 py-2 text-sm text-gray-700  cursor-pointer transition-colors duration-150"
+                            className="px-4 py-2 text-sm text-gray-700 cursor-pointer transition-colors duration-150"
                           >
                             {option.label}
                           </SelectItem>
@@ -195,7 +206,7 @@ export function FormModal<T extends Record<string, any>>({
                       </Select>
                     ) : (
                       <Input
-                      className="border-2"
+                        className="border-2"
                         id={fieldName}
                         type={fieldConfig.type || 'text'}
                         value={(formData[fieldName as keyof T] as string) || ''}
@@ -208,7 +219,6 @@ export function FormModal<T extends Record<string, any>>({
                   </LabelInputContainer>
                 </div>
               ))}
-
             </div>
             <div className="hidden">
               <button type="submit" id="hidden-submit">Submit</button>
@@ -220,7 +230,7 @@ export function FormModal<T extends Record<string, any>>({
             Cancel
           </Button>
           <Button
-          className="shadow-md"
+            className="shadow-md"
             color="primary"
             onPress={() => {
               const form = document.querySelector('form');

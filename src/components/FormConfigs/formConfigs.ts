@@ -47,11 +47,14 @@ const getUserOptions = () => {
 
 export const projectFormConfig: FormConfig = {
   projectName: { type: "text", label: "Project Name", required: true },
-  assignedUser: {
+  assignedUserName: {
     type: "select",
     label: "Assigned User",
     required: true,
-    options: getUserOptions()
+    options: userData.users.map(user => ({
+      label: user.name,
+      value: user.name
+    }))
   },
   timePeriod: { 
     type: "text", 

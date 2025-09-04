@@ -1,4 +1,4 @@
-  import React, { useCallback, useState } from "react";
+  import React, { useState } from "react";
   import {
     Table,
     TableHeader,
@@ -18,8 +18,6 @@
   } from "@heroui/react";
   import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
   import TableActions from "./TableActions";
-  import FormModal from "./FormModal";
-  import { projectFormConfig, userFormConfig } from "../FormConfigs/formConfigs";
 import AddNew from "./AddNew";
 
   export interface TableColumn {
@@ -178,7 +176,6 @@ import AddNew from "./AddNew";
       }
     };
     const renderCell = React.useCallback((item: any, columnKey: React.Key) => {
-
       const cellValue = item[columnKey as keyof typeof item];
 
       switch (columnKey) {
@@ -193,15 +190,15 @@ import AddNew from "./AddNew";
             </div>
           );
         case "assignedUser":
-          const assignedUser = cellValue || { name: 'Unassigned' };
+             const assignedUser = cellValue || { name: 'Unassigned' };
           return (
             <div className="flex items-center gap-3">
               <div className="flex flex-col">
                 <span className="font-medium">{assignedUser.name}</span>
               </div>
             </div>
-          );
-        case "role":
+          )
+                  case "role":
           return (
             <div className="flex flex-col">
               <p className="text-bold text-small capitalize">{cellValue}</p>
@@ -219,20 +216,6 @@ import AddNew from "./AddNew";
               variant="flat"
             >
               {status}
-            </Chip>
-          );
-        case "projectDifficulty":
-          return (
-            <Chip
-              className="capitalize"
-              color={
-                cellValue?.toLowerCase() === 'hard' ? 'danger' :
-                  cellValue?.toLowerCase() === 'medium' ? 'warning' : 'success'
-              }
-              size="sm"
-              variant="flat"
-            >
-              {cellValue}
             </Chip>
           );
         case "isActive":

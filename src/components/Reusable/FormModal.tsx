@@ -86,15 +86,7 @@ export function FormModal<T extends Record<string, any>>({
     setFormData(prevData => {
       const newData = { ...prevData };
       let hasChanges = false;
-      
-      // Ensure all config fields exist in form data
-      Object.keys(config).forEach(key => {
-        if (!(key in newData)) {
-          newData[key as keyof T] = '' as any;
-          hasChanges = true;
-        }
-      });
-      
+        
       // Update with initialData values if they exist
       if (initialData) {
         // Update all fields from initialData
@@ -133,11 +125,6 @@ export function FormModal<T extends Record<string, any>>({
           }
         } else {
           newData[field as keyof T] = value;
-        }
-        
-        // Remove the old assignedUser field if it exists
-        if (field === 'assignedUser' && 'assignedUser' in newData) {
-          delete (newData as any).assignedUser;
         }
         
         console.log(newData);
@@ -182,7 +169,7 @@ export function FormModal<T extends Record<string, any>>({
                     {fieldConfig.type === 'select' && fieldConfig.options ? (
                       <Select
                         variant="bordered"
-                        className="w-full transition-all duration-200 ease-in-out"
+                        className="w-full transition-all duration-200 ease-in-out bg-gray-50"
                         classNames={{
                           trigger: "h-10 px-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200",
                           value: "text-gray-900",

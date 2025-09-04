@@ -33,17 +33,33 @@ export const userFormConfig: FormConfig = {
   },
 };
 
-// Project form config
 export const projectFormConfig: FormConfig = {
   projectName: { type: "text", label: "Project Name", required: true },
+  assignedUser: {
+    type: "select",
+    label: "Assigned User",
+    required: true,
+    options: [
+      // You'll need to fetch actual users here
+      { label: "Zoey Lang", value: "2" },
+      // Add more users as needed
+    ],
+  },
+  timePeriod: { 
+    type: "text", 
+    label: "Time Period", 
+    required: true,
+    placeholder: "e.g., Q3 2024"
+  },
   projectStatus: {
     type: "select",
     label: "Project Status",
     required: true,
     options: [
-      { label: "Active", value: "active" },
+      { label: "Not Started", value: "not_started" },
+      { label: "In Progress", value: "in_progress" },
       { label: "Completed", value: "completed" },
-      { label: "On Hold", value: "onHold" },
+      { label: "On Hold", value: "on_hold" },
     ],
   },
   projectDifficulty: {
@@ -54,6 +70,15 @@ export const projectFormConfig: FormConfig = {
       { label: "Easy", value: "easy" },
       { label: "Medium", value: "medium" },
       { label: "Hard", value: "hard" },
+    ],
+  },
+  isActive: {
+    type: "select",
+    label: "Active Status",
+    required: true,
+    options: [
+      { label: "Active", value: "true" },
+      { label: "Inactive", value: "false" },
     ],
   },
 };

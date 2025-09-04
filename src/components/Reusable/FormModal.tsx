@@ -6,6 +6,7 @@ import { Button } from "@heroui/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { cn } from '../lib/utils';
 import { addToast } from "@heroui/react";
+import { Select, SelectItem } from "@heroui/react";
 
 type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
 
@@ -24,8 +25,9 @@ type FormConfig = {
 };
 
 interface FormModalProps<T> {
+  type: 'user' | 'project';
   config: FormConfig;
-  initialData?: T;
+  initialData?: T | null;
   editData?: T;
   isOpen: boolean;
   onClose: () => void;
@@ -36,34 +38,66 @@ interface FormModalProps<T> {
 }
 
 export function FormModal<T extends Record<string, any>>({
-  initialData = {} as T,
+  type,
+  initialData,
   onSubmit,
   title,
   Data,
   isOpen,
   onClose,
+  config
 }: FormModalProps<T>) {
+  console.log(config)
   console.log(initialData)
-  const [formData, setFormData] = useState<T>(Data || initialData);
+  // Initialize form data with values from initialData or empty strings from config
+  const [formData, setFormData] = useState<T>(() => {
+    const data = {} as T;
+    // Always use config to determine which fields to include
+    Object.entries(config).forEach(([key, fieldConfig]) => {
+      // Use initialData value if it exists and is not empty, otherwise use empty string
+      data[key as keyof T] = (initialData && initialData[key as keyof T] !== undefined)
+        ? initialData[key as keyof T]
+        : '' as any;
+    });
+    return data;
+  });
 
+  // Update form data when config or initialData changes
   useEffect(() => {
-    if (Data) {
-      setFormData(Data);
-    } else {
-      setFormData(initialData);
-    }
-  }, [Data, initialData]);
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      let hasChanges = false;
 
+      // Ensure all config fields exist in form data
+      Object.keys(config).forEach(key => {
+        if (!(key in newData)) {
+          newData[key as keyof T] = '' as any;
+          hasChanges = true;
+        }
+      });
 
-  useEffect(() => {
-    setFormData(initialData);
-  }, [initialData]);
+      // Update with initialData values if they exist
+      if (initialData) {
+        Object.entries(initialData).forEach(([key, value]) => {
+          if (key in config) {
+            newData[key as keyof T] = value;
+            hasChanges = true;
+          }
+        });
+      }
+
+      return hasChanges ? newData : prevData;
+    });
+  }, [initialData, config]);
 
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    // Only update if the field exists in the config
+    if (field in config) {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -85,30 +119,52 @@ export function FormModal<T extends Record<string, any>>({
 
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur">
+    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-gray-100">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 font-bold text-xl">
-          {title} {initialData?.id ? 'Edit' : 'Add'}
+          {title} {initialData?.id ? 'Edit' : 'Add'} {type}
         </ModalHeader>
         <ModalBody>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {Object.entries(formData)
-                .filter(([fieldName]) => fieldName !== "id") // exclude ID if you don’t want it editable
-                .map(([fieldName, value]) => (
-                  <div key={fieldName} className="col-span-full md:col-span-1">
-                    <LabelInputContainer>
-                      <Label htmlFor={fieldName}>{toLabel(fieldName)}</Label>
+              {Object.entries(config).map(([fieldName, fieldConfig]) => (
+                <div key={fieldName} className="col-span-full md:col-span-1">
+                  <LabelInputContainer>
+                    <Label htmlFor={fieldName}>
+                      {fieldConfig.label || toLabel(fieldName)}
+                      {fieldConfig.required && <span className="text-red-500 ml-1">*</span>}
+                    </Label>
+                    {fieldConfig.type === 'select' && fieldConfig.options ? (
+                      <Select
+                        variant="bordered"
+                        className="w-full  bg-white"
+                        placeholder={`Select ${fieldConfig.label || fieldName}`}
+                        selectedKeys={[formData[fieldName as keyof T] as string]}
+                        onSelectionChange={(keys) => {
+                          const selected = Array.from(keys)[0] as string;
+                          handleChange(fieldName, selected);
+                        }}
+                      >
+                        {fieldConfig.options.map((option) => (
+                          <SelectItem key={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    ) : (
                       <Input
                         id={fieldName}
-                        type="text"
-                        value={value as string}
+                        type={fieldConfig.type || 'text'}
+                        value={(formData[fieldName as keyof T] as string) || ''}
                         onChange={(e) => handleChange(fieldName, e.target.value)}
-                        placeholder={`Enter ${toLabel(fieldName)}`}
+                        placeholder={fieldConfig.placeholder || `Enter ${fieldConfig.label || toLabel(fieldName)}`}
+                        required={fieldConfig.required}
+                        disabled={fieldConfig.disabled}
                       />
-                    </LabelInputContainer>
-                  </div>
-                ))}
+                    )}
+                  </LabelInputContainer>
+                </div>
+              ))}
 
             </div>
             <div className="hidden">
@@ -132,7 +188,7 @@ export function FormModal<T extends Record<string, any>>({
               }
             }}
           >
-           Save Changes
+            Save Changes
           </Button>
         </ModalFooter>
       </ModalContent>

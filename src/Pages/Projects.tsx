@@ -44,6 +44,26 @@ function Projects() {
     });
   }, []);
 
+  const handleAddProject = useCallback((newProject: any) => {
+    setProjects(prevProjects => {
+      const projectWithId = {
+        ...newProject,
+        id: Math.max(0, ...prevProjects.map(p => p.id)) + 1, // Generate a new ID
+        isActive: true // Default to active when creating a new project
+      };
+      
+      addToast({
+        title: 'Success',
+        description: `Project "${newProject.projectName}" has been added successfully.`,
+        color: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      return [...prevProjects, projectWithId];
+    });
+  }, []);
+
   const statusOptions = [
     { name: 'In Progress', uid: 'In Progress' },
     { name: 'On Hold', uid: 'On Hold' },
@@ -68,6 +88,7 @@ function Projects() {
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}
           onEdit={handleEditProject}
+          on
           isSearch={false}
           onStatusChange={(id, isActive) => {
             setProjects(prevProjects =>
@@ -76,6 +97,7 @@ function Projects() {
               )
             );
           }}
+          onAdd={handleAddProject}
         />
       </div>
     </div>

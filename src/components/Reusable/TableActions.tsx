@@ -1,8 +1,8 @@
 import { Button } from '@heroui/button';
-import { 
-  Dropdown, 
-  DropdownItem, 
-  DropdownMenu, 
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
   DropdownTrigger,
   useDisclosure
 } from '@heroui/react';
@@ -10,6 +10,7 @@ import { MoreVertical, Trash2, Edit } from 'lucide-react';
 import React, { useState } from 'react';
 import DeleteModal from "./DeleteModal";
 import FormModal from "./FormModal";
+import { projectFormConfig, userFormConfig } from '../FormConfigs/formConfigs';
 
 interface TableActionsProps {
   item: any;
@@ -18,46 +19,22 @@ interface TableActionsProps {
   type: 'user' | 'project';
 }
 
+
+
 function TableActions({ item, onDelete, onEdit, type }: TableActionsProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { isOpen: isEditModalOpen, onOpen: onEditModalOpen, onClose: onEditModalClose } = useDisclosure();
 
-  const formConfig = {
-    name: {
-      type: 'text',
-      label: 'Name',
-      required: true,
-      placeholder: 'Enter name'
-    },
-    email: {
-      type: 'email',
-      label: 'Email',
-      required: true,
-      placeholder: 'Enter email'
-    },
-    role: {
-      type: 'text',
-      label: 'Role',
-      required: true,
-      placeholder: 'Enter role'
-    },
-    team: {
-      type: 'text',
-      label: 'Team',
-      required: true,
-      placeholder: 'Enter team'
-    },
-    status: {
-      type: 'select',
-      label: 'Status',
-      required: true,
-      options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Paused', value: 'paused' },
-        { label: 'Vacation', value: 'vacation' }
-      ]
+  const [isEdit, setIsEdit] = useState(false);
+
+  // When component mounts or item changes, update isEdit
+  React.useEffect(() => {
+    if (item && item.id) {
+      setIsEdit(true);   // Edit mode
+    } else {
+      setIsEdit(false);  // Add mode
     }
-  };
+  }, [item]);
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
@@ -90,16 +67,16 @@ function TableActions({ item, onDelete, onEdit, type }: TableActionsProps) {
           </Button>
         </DropdownTrigger>
         <DropdownMenu>
-          <DropdownItem 
-            key="edit" 
+          <DropdownItem
+            key="edit"
             startContent={<Edit className="h-4 w-4" />}
             onPress={handleEditClick}
           >
             Edit
           </DropdownItem>
-          <DropdownItem 
-            key="delete" 
-            className="text-danger" 
+          <DropdownItem
+            key="delete"
+            className="text-danger"
             color="danger"
             startContent={<Trash2 className="h-4 w-4" />}
             onPress={handleDeleteClick}
@@ -116,15 +93,16 @@ function TableActions({ item, onDelete, onEdit, type }: TableActionsProps) {
         itemName={item?.name || item?.projectName || 'this item'}
       />
 
-<FormModal
-        isOpen={isEditModalOpen}
-        onClose={onEditModalClose}
-        config={formConfig}
-        initialData={item}
-        onSubmit={handleSubmitEdit}
-        title={`Edit ${type === 'user' ? 'User' : 'Project'}`}
-        submitText="Save Changes"
-      />
+          <FormModal
+            type={type}
+            config={type === "user" ? userFormConfig : projectFormConfig}
+            isOpen={isEditModalOpen}
+            onClose={onEditModalClose}
+            initialData={isEdit ? item : {}}   // if edit -> pass item, else empty object
+            editData={isEdit ? item : undefined} // only pass editData when editing
+            onSubmit={handleSubmitEdit}
+          />
+
     </div>
   );
 }

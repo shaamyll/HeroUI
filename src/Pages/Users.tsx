@@ -10,9 +10,9 @@ function Users() {
         setUsers(prevUsers => {
             const updatedUsers = prevUsers.filter(user => user.id !== id);
             addToast({
-                title: 'Success',
+                title: 'Deleted',
                 description: `User with ID ${id} has been deleted successfully.`,
-                status: 'success',
+                color: 'danger',
                 duration: 5000,
                 isClosable: true,
             });
@@ -22,13 +22,13 @@ function Users() {
 
     const handleEditUser = useCallback((updatedUser: any) => {
         setUsers(prevUsers => {
-            const updatedUsers = prevUsers.map(user => 
+            const updatedUsers = prevUsers.map(user =>
                 user.id === updatedUser.id ? { ...user, ...updatedUser } : user
             );
             addToast({
                 title: 'Success',
                 description: `User ${updatedUser.name} has been updated successfully.`,
-                status: 'success',
+                color: 'success',
                 duration: 5000,
                 isClosable: true,
             });
@@ -53,7 +53,8 @@ function Users() {
             <div className='mx-auto w-3/4 mt-15'>
                 <h3 className='ms-auto text-2xl font-bold mb-5'>USERS TABLE :</h3>
 
-                <TableComponent 
+                <TableComponent
+                    type="user"
                     data={users}
                     statusOptions={statusOptions}
                     statusColorMap={statusColorMap}

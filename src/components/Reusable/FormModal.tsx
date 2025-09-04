@@ -7,7 +7,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@herou
 import { cn } from '../lib/utils';
 import { addToast } from "@heroui/react";
 
-type FieldType = 'text' | 'email' | 'number' | 'select' | 'date' | 'checkbox';
+type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
 
 
 type FieldConfig = {
@@ -39,21 +39,20 @@ export function FormModal<T extends Record<string, any>>({
   initialData = {} as T,
   onSubmit,
   title,
-  editData,
+  Data,
   isOpen,
   onClose,
-  submitText = 'Submit',
 }: FormModalProps<T>) {
   console.log(initialData)
-  const [formData, setFormData] = useState<T>(editData || initialData);
+  const [formData, setFormData] = useState<T>(Data || initialData);
 
   useEffect(() => {
-    if (editData) {
-      setFormData(editData);
+    if (Data) {
+      setFormData(Data);
     } else {
       setFormData(initialData);
     }
-  }, [editData, initialData]);
+  }, [Data, initialData]);
 
 
   useEffect(() => {
@@ -71,11 +70,6 @@ export function FormModal<T extends Record<string, any>>({
     e.preventDefault();
     try {
       onSubmit(formData);
-      addToast({
-        title: 'Success',
-        description: `${title} ${initialData?.id ? 'updated' : 'created'} successfully`,
-        color: 'success',
-      });
     } catch (error) {
       addToast({
         title: 'Error',
@@ -138,7 +132,7 @@ export function FormModal<T extends Record<string, any>>({
               }
             }}
           >
-            {submitText}
+           Save Changes
           </Button>
         </ModalFooter>
       </ModalContent>

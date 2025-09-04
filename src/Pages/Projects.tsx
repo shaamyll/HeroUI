@@ -14,9 +14,9 @@ function Projects() {
       
       if (deletedProject) {
         addToast({
-          title: 'Success',
+          title: 'Deleted Successfully',
           description: `Project "${deletedProject.projectName}" has been deleted successfully.`,
-          status: 'success',
+          color: 'danger',
           duration: 5000,
           isClosable: true,
         });
@@ -35,7 +35,7 @@ function Projects() {
       addToast({
         title: 'Success',
         description: `Project "${updatedProject.projectName}" has been updated successfully.`,
-        status: 'success',
+        color: 'success',
         duration: 5000,
         isClosable: true,
       });
@@ -62,6 +62,7 @@ function Projects() {
       <div className='mx-auto w-3/4 mt-15'>
         <h3 className='ms-auto text-2xl font-bold mb-5'>PROJECTS TABLE :</h3>
         <TableComponent
+        type="project"
           data={projects}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
@@ -75,7 +76,6 @@ function Projects() {
               )
             );
           }}
-          type="project"
         />
       </div>
     </div>

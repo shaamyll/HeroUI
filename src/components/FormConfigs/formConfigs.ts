@@ -7,18 +7,10 @@ export const userFormConfig: FormConfig = {
     label: "Role",
     required: true,
     options: [
+      { label: "CEO", value: "CEO" },
       { label: "Developer", value: "Developer" },
-      { label: "P. Manager", value: "P. Manager" },
-      { label: "Designer", value: "Designer" },
-    ],
-  },
-  status: {
-    type: "select",
-    label: "Status",
-    required: true,
-    options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
+      { label: "Tester", value: "Tester" },
+      { label: "Manager", value: "Manager" }
     ],
   },
   team: {
@@ -27,10 +19,20 @@ export const userFormConfig: FormConfig = {
     required: true,
     options: [
       { label: "Management", value: "Management" },
-      { label: "Engineering", value: "Engineering" },
-      { label: "QA", value: "QA" },
+      { label: "Development", value: "Development" },
+      { label: "Testing", value: "Testing" }
     ],
   },
+  status: {
+    type: "select",
+    label: "Status",
+    required: true,
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Paused", value: "paused" },
+      { label: "Vacation", value: "vacation" }
+    ],
+  }
 };
 
 export const projectFormConfig: FormConfig = {
@@ -56,20 +58,9 @@ export const projectFormConfig: FormConfig = {
     label: "Project Status",
     required: true,
     options: [
-      { label: "Not Started", value: "not_started" },
       { label: "In Progress", value: "in_progress" },
       { label: "Completed", value: "completed" },
       { label: "On Hold", value: "on_hold" },
-    ],
-  },
-  projectDifficulty: {
-    type: "select",
-    label: "Difficulty",
-    required: true,
-    options: [
-      { label: "Easy", value: "easy" },
-      { label: "Medium", value: "medium" },
-      { label: "Hard", value: "hard" },
     ],
   },
   isActive: {

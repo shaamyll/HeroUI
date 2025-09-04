@@ -54,10 +54,18 @@ export function FormModal<T extends Record<string, any>>({
     const data = {} as T;
     // Always use config to determine which fields to include
     Object.entries(config).forEach(([key, fieldConfig]) => {
-      // Use initialData value if it exists and is not empty, otherwise use empty string
-      data[key as keyof T] = (initialData && initialData[key as keyof T] !== undefined)
-        ? initialData[key as keyof T]
-        : '' as any;
+      // For select fields, ensure we're using the correct value format
+      if (fieldConfig.type === 'select' && fieldConfig.options && initialData && initialData[key as keyof T]) {
+        const value = initialData[key as keyof T];
+        // Find the matching option value
+        const matchingOption = fieldConfig.options.find(opt => opt.label === value || opt.value === value);
+        data[key as keyof T] = (matchingOption?.value || value) as any;
+      } else {
+        // For other fields, use the value as is
+        data[key as keyof T] = (initialData && initialData[key as keyof T] !== undefined)
+          ? initialData[key as keyof T]
+          : '' as any;
+      }
     });
     return data;
   });
@@ -137,22 +145,31 @@ export function FormModal<T extends Record<string, any>>({
                     {fieldConfig.type === 'select' && fieldConfig.options ? (
                       <Select
                         variant="bordered"
-                        className="w-full  bg-white"
+                        className="w-full transition-all duration-200 ease-in-out shadow-md"
+                        classNames={{
+                          trigger: "h-10 px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm  focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200",
+                          value: "text-gray-900",
+                          popoverContent: "p-0 rounded-md shadow-lg",
+                        }}
                         placeholder={`Select ${fieldConfig.label || fieldName}`}
-                        selectedKeys={[formData[fieldName as keyof T] as string]}
+                        selectedKeys={formData[fieldName as keyof T] ? [String(formData[fieldName as keyof T])] : []}
                         onSelectionChange={(keys) => {
                           const selected = Array.from(keys)[0] as string;
                           handleChange(fieldName, selected);
                         }}
                       >
                         {fieldConfig.options.map((option) => (
-                          <SelectItem key={option.value}>
+                          <SelectItem 
+                            key={option.value}
+                            className="px-4 py-2 text-sm text-gray-700  cursor-pointer transition-colors duration-150"
+                          >
                             {option.label}
                           </SelectItem>
                         ))}
                       </Select>
                     ) : (
                       <Input
+                      className="shadow-md border-2"
                         id={fieldName}
                         type={fieldConfig.type || 'text'}
                         value={(formData[fieldName as keyof T] as string) || ''}
@@ -173,10 +190,11 @@ export function FormModal<T extends Record<string, any>>({
           </form>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={onClose}>
+          <Button className="shadow-md" variant="light" onPress={onClose}>
             Cancel
           </Button>
           <Button
+          className="shadow-md"
             color="primary"
             onPress={() => {
               const form = document.querySelector('form');

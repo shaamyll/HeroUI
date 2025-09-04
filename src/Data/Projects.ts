@@ -9,7 +9,6 @@ export const projectData = {
       },
       timePeriod: "Q3 2024",
       projectStatus: "In Progress",
-      projectDifficulty: "Medium",
       isActive: true,
     },
     {
@@ -21,7 +20,6 @@ export const projectData = {
       },
       timePeriod: "Q4 2024",
       projectStatus: "On Hold",
-      projectDifficulty: "Hard",
     },
     {
       id: 3,
@@ -32,7 +30,6 @@ export const projectData = {
       },
       timePeriod: "Q3 2024",
       projectStatus: "Completed",
-      projectDifficulty: "Easy",
     },
     {
       id: 4,
@@ -43,7 +40,6 @@ export const projectData = {
       },
       timePeriod: "Q1 2025",
       projectStatus: "In Progress",
-      projectDifficulty: "Hard",
     },
     {
       id: 5,
@@ -54,7 +50,6 @@ export const projectData = {
       },
       timePeriod: "Q2 2025",
       projectStatus: "Completed",
-      projectDifficulty: "Medium",
     },
     {
       id: 6,
@@ -65,7 +60,6 @@ export const projectData = {
       },
       timePeriod: "Q3 2024",
       projectStatus: "Completed",
-      projectDifficulty: "Medium",
     },
     {
       id: 7,
@@ -76,7 +70,6 @@ export const projectData = {
       },
       timePeriod: "Q4 2024",
       projectStatus: "In Progress",
-      projectDifficulty: "Easy",
     },
     {
       id: 8,
@@ -87,7 +80,6 @@ export const projectData = {
       },
       timePeriod: "Q1 2025",
       projectStatus: "On Hold",
-      projectDifficulty: "Hard",
     },
     {
       id: 9,
@@ -98,7 +90,6 @@ export const projectData = {
       },
       timePeriod: "Q2 2025",
       projectStatus: "In Progress",
-      projectDifficulty: "Hard",
     },
     {
       id: 10,
@@ -109,7 +100,6 @@ export const projectData = {
       },
       timePeriod: "Q3 2025",
       projectStatus: "Completed",
-      projectDifficulty: "Medium",
     },
   ]
 }

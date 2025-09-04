@@ -20,6 +20,7 @@
   import TableActions from "./TableActions";
   import FormModal from "./FormModal";
   import { projectFormConfig, userFormConfig } from "../FormConfigs/formConfigs";
+import AddNew from "./AddNew";
 
   export interface TableColumn {
     render: TableColumn | undefined;
@@ -87,14 +88,6 @@
     type,
     isSearch
   }: TableComponentProps) {
-
-    const { isOpen, onClose } = useDisclosure();
-  const handleSubmit = (formData: any) => {
-    if (onEdit) {
-      onEdit({ ...formData, id: item.id });
-    }
-    // onEditModalClose();
-  };
 
     // Generate columns from data
     const columns = React.useMemo(() => {
@@ -346,20 +339,9 @@
                   </DropdownMenu>
                 </Dropdown>
               )}
-              <Button color="primary" variant="solid" endContent={<Plus className="w-4 h-4" />}>
-                Add New
-              </Button>
+              {/* Add new Data to Table */}
+             <AddNew type={type} onSubmit={onsubmit}/>
             </div>
-
-            {/* 👇 Add FormModal here */}
-            <FormModal
-              type={type}
-              config={type === "user" ? userFormConfig : projectFormConfig}
-              isOpen={isOpen}
-              onClose={onClose}
-              initialData={{}}
-              onSubmit={handleSubmit}
-            />
 
           </div>
 

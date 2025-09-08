@@ -11,6 +11,8 @@ import {
   MobileNavMenu,
 } from "../ui/resizable-navbar";
 import { useState } from "react";
+import ShinyText from "../ui/ShinyText";
+import { Button } from "@heroui/button";
 
 export function NavbarComponent() {
   const navItems = [
@@ -37,18 +39,12 @@ export function NavbarComponent() {
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
           <div className="hidden md:flex items-center gap-4">
-            <NavbarButton
-              variant="primary"
-              className=" hover:bg-gray-200"
-            >
-              Login
-            </NavbarButton>
-            <NavbarButton
-              variant="primary"
-              className=" text-black hover:bg-gray-200"
-            >
-              Book a call
-            </NavbarButton>
+              <NavbarButton color="primary" variant="secondary">
+               Login
+              </NavbarButton>
+              <NavbarButton color="primary" variant="gradient">
+               SignUp
+              </NavbarButton>
           </div>
         </NavBody>
 
@@ -65,7 +61,7 @@ export function NavbarComponent() {
           <MobileNavMenu
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
-            className="bg-black/95 backdrop-blur-md"
+            className="bg-gray-200 backdrop-blur-md"
           >
             {navItems.map((item, idx) => (
               <a
@@ -82,16 +78,9 @@ export function NavbarComponent() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 variant="secondary"
                 color="default"
-                className="w-full text-white border-white/30 hover:bg-gray-500"
-              >
-                Login
-              </NavbarButton>
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
               >
-                Book a call
+                Login
               </NavbarButton>
             </div>
           </MobileNavMenu>

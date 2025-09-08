@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import TableComponent from '../components/Reusable/TableComponent';
 import { projectData } from '../Data/Projects';
 import { addToast } from '@heroui/react';
+import { motion } from 'framer-motion';
 
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
@@ -80,7 +81,14 @@ function Projects() {
   return (
     <div className='min-h-screen'>
       <div className='mx-auto w-3/4 mt-15'>
-        <h3 className='ms-auto text-2xl font-bold mb-5'>PROJECTS TABLE :</h3>
+      <motion.h3
+  className="ms-auto text-2xl font-bold mb-5"
+  initial={{ opacity: 0, x: -50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.6, ease: "easeOut" }}
+>
+  PROJECTS TABLE :
+</motion.h3>
         <TableComponent
         type="project"
           data={projects}

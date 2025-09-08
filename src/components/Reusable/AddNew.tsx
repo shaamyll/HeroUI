@@ -45,9 +45,15 @@ function AddNew({ type, onSubmit }: AddNewProps) {
   
   return (
     <div>
-      <Button color="primary" variant="solid" onPress={handleAddClick} endContent={<Plus className="w-4 h-4" />}>
-        Add New
-      </Button>
+<Button
+  onPress={handleAddClick}
+  endContent={<Plus className="w-4 h-4" />}
+  className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white font-medium shadow-md hover:opacity-90 transition"
+>
+  Add New
+</Button>
+
+
       
       <FormModal
         type={type}

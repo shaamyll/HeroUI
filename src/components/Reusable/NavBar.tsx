@@ -27,7 +27,7 @@ export function NavbarComponent() {
     <div className="relative w-full sticky top-0 z-50 ">
       <Navbar
         className="
-    bg-gray-200 backdrop-blur-md
+    bg-white backdrop-blur-lg
     text-white 
   "
       >
@@ -39,12 +39,12 @@ export function NavbarComponent() {
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
           <div className="hidden md:flex items-center gap-4">
-              <NavbarButton color="primary" variant="secondary">
-               Login
-              </NavbarButton>
-              <NavbarButton color="primary" variant="gradient">
-               SignUp
-              </NavbarButton>
+            <NavbarButton color="primary" variant="secondary">
+              Login
+            </NavbarButton>
+            <NavbarButton color="primary" variant="gradient">
+              SignUp
+            </NavbarButton>
           </div>
         </NavBody>
 

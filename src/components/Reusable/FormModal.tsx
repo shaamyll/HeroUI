@@ -8,6 +8,7 @@ import { cn } from '../lib/utils';
 import { addToast } from "@heroui/react";
 import { Select, SelectItem } from "@heroui/react";
 import { userData } from '../../Data/User';
+import { StatefulButton } from "./StatefulButton";
 
 type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
 
@@ -241,20 +242,20 @@ export function FormModal<T extends Record<string, any>>({
           <Button className="shadow-md" variant="light" onPress={onClose}>
             Cancel
           </Button>
-          <Button
-            className="shadow-md"
-            color="primary"
-            onPress={() => {
+          {/* Replace the save button with StatefulButton */}
+          <StatefulButton
+            onClick={() => {
               const form = document.querySelector('form');
               if (form) {
-                // Create and dispatch a submit event
                 const event = new Event('submit', { cancelable: true, bubbles: true });
                 form.dispatchEvent(event);
               }
             }}
+            color="primary"
+            className="shadow-md"
           >
             Save Changes
-          </Button>
+          </StatefulButton>
         </ModalFooter>
       </ModalContent>
     </Modal>

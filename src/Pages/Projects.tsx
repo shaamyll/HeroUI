@@ -7,12 +7,12 @@ import { motion } from 'framer-motion';
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
 
-    
-      const handleDeleteProject = useCallback((projectId: number) => {
+
+  const handleDeleteProject = useCallback((projectId: number) => {
     setProjects(prevProjects => {
       const updatedProjects = prevProjects.filter(project => project.id !== projectId);
       const deletedProject = prevProjects.find(project => project.id === projectId);
-      
+
       if (deletedProject) {
         addToast({
           title: 'Deleted Successfully',
@@ -22,17 +22,17 @@ function Projects() {
           isClosable: true,
         });
       }
-      
+
       return updatedProjects;
     });
   }, []);
 
   const handleEditProject = useCallback((updatedProject: any) => {
     setProjects(prevProjects => {
-      const updatedProjects = prevProjects.map(project => 
+      const updatedProjects = prevProjects.map(project =>
         project.id === updatedProject.id ? { ...project, ...updatedProject } : project
       );
-      
+
       addToast({
         title: 'Success',
         description: `Project "${updatedProject.projectName}" has been updated successfully.`,
@@ -40,7 +40,7 @@ function Projects() {
         duration: 5000,
         isClosable: true,
       });
-      
+
       return updatedProjects;
     });
   }, []);
@@ -50,9 +50,9 @@ function Projects() {
       const projectWithId = {
         ...newProject,
         id: Math.max(0, ...prevProjects.map(p => p.id)) + 1, // Generate a new ID
-         projectStatus: 'In Progress' 
+        projectStatus: 'In Progress'
       };
-      
+
       addToast({
         title: 'Success',
         description: `Project "${newProject.projectName}" has been added successfully.`,
@@ -60,7 +60,7 @@ function Projects() {
         duration: 5000,
         isClosable: true,
       });
-      
+
       return [...prevProjects, projectWithId];
     });
   }, []);
@@ -81,16 +81,16 @@ function Projects() {
   return (
     <div className='min-h-screen'>
       <div className='mx-auto w-3/4 mt-15'>
-      <motion.h3
-  className="ms-auto text-2xl font-bold mb-5"
-  initial={{ opacity: 0, x: -50 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ duration: 0.6, ease: "easeOut" }}
->
-  PROJECTS TABLE :
-</motion.h3>
+        <motion.h3
+          className="ms-auto text-2xl font-bold mb-5"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          PROJECTS TABLE :
+        </motion.h3>
         <TableComponent
-        type="project"
+          type="project"
           data={projects}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}

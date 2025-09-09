@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -35,7 +35,6 @@ export interface TableData {
 // Helper function to generate columns from data
 const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
   if (!data || data.length === 0) return [];
-
   // Get all unique keys from the data
   const allKeys = new Set();
   data.forEach(item => {
@@ -43,14 +42,12 @@ const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
       allKeys.add(key);
     });
   });
-
   // Convert keys to column titles
   const dataColumns = Array.from(allKeys).map(key => ({
     name: key.split(/(?=[A-Z])/).join(' ').toUpperCase(),
     uid: key,
     sortable: true
   }));
-
   // Add index and actions columns
   return [
     ...dataColumns,
@@ -71,7 +68,8 @@ interface TableComponentProps {
   onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
-  isSearch: Boolean
+  isSearch: Boolean;
+  isLoading?: Boolean; // Add isLoading prop
 }
 
 export function capitalize(s) {
@@ -89,7 +87,6 @@ export default function TableComponent({
   type,
   isSearch
 }: TableComponentProps) {
-
   // Generate columns from data
   const columns = React.useMemo(() => {
     return generateColumnsFromData(data);
@@ -104,12 +101,10 @@ export default function TableComponent({
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
-
   const hasSearchFilter = Boolean(filterValue);
 
   const filteredItems = React.useMemo(() => {
     let filteredData = [...data];
-
     if (hasSearchFilter) {
       filteredData = filteredData.filter((item) =>
         Object.values(item).some(
@@ -119,19 +114,16 @@ export default function TableComponent({
         )
       );
     }
-
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
       filteredData = filteredData.filter((item) =>
         ('status' in item && Array.from(statusFilter).includes(item.status)) ||
         ('projectStatus' in item && Array.from(statusFilter).includes(item.projectStatus))
       );
     }
-
     return filteredData;
   }, [data, filterValue, statusFilter, statusOptions.length]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
-
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -143,12 +135,9 @@ export default function TableComponent({
       const columnKey = sortDescriptor.column as string;
       const first = a[columnKey];
       const second = b[columnKey];
-
       if (first === undefined || second === undefined) return 0;
-
       const firstValue = typeof first === 'object' ? first.name : first;
       const secondValue = typeof second === 'object' ? second.name : second;
-
       if (firstValue < secondValue) return sortDescriptor.direction === "ascending" ? -1 : 1;
       if (firstValue > secondValue) return sortDescriptor.direction === "ascending" ? 1 : -1;
       return 0;
@@ -205,7 +194,6 @@ export default function TableComponent({
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">{cellValue}</p>
-            <p className="text-bold text-tiny capitalize text-default-400">{item.team}</p>
           </div>
         );
       case "status":
@@ -236,7 +224,6 @@ export default function TableComponent({
               />
             )}
           </div>
-
         );
       case "actions":
         return (
@@ -300,7 +287,6 @@ export default function TableComponent({
             // Placeholder to maintain layout
             <div className="w-full sm:max-w-[44%]" />
           )}
-
           <div className="flex gap-3">
             {statusOptions.length > 0 && (
               <Dropdown>
@@ -328,9 +314,7 @@ export default function TableComponent({
             {/* Add new Data to Table */}
             <AddNew type={type} onSubmit={onAdd} />
           </div>
-
         </div>
-
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">Total {data.length} items</span>
           <label className="flex items-center text-default-400 text-small">

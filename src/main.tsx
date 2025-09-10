@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
    <BrowserRouter>
     <Providers>
-        <main className="text-foreground bg-white">
+        <main className="text-foreground bg-gray-100">
 				<App />
 			</main>
     </Providers>

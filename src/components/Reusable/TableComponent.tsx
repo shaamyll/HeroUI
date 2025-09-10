@@ -282,6 +282,26 @@ export default function TableComponent({
               value={filterValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}
+              classNames={{
+                inputWrapper: [
+                  "border-1",
+                  "border-[#d2d2d7]", // Apple's border color
+                  "bg-white", // Apple's background color
+                  "hover:bg-[#e8e8ed]", // Hover state
+                  "focus:bg-[#ffffff]", // Focus state
+                  "data-[focus=true]:bg-[#ffffff]", // White background on focus
+                  "data-[hover=true]:bg-[#e8e8ed]", // Consistent hover
+                  "group-data-[focus=true]:shadow-none", // Remove shadow on focus
+                ],
+                input: [
+                  "text-[#1d1d1f]", // Apple's text color
+                  "placeholder:text-[#86868b]", // Apple's placeholder color
+                ],
+                clearButton: [
+                  "text-[#86868b]", // Apple's gray for clear button
+                  "hover:text-[#1d1d1f]", // Darker on hover
+                ],
+              }}
             />
           ) : (
             // Placeholder to maintain layout
@@ -320,7 +340,7 @@ export default function TableComponent({
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
-              className="bg-transparent outline-none text-default-400 text-small ml-2"
+              className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
               onChange={onRowsPerPageChange}
               value={rowsPerPage}
             >

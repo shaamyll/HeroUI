@@ -239,12 +239,12 @@ export function FormModal<T extends Record<string, any>>({
           </form>
         </ModalBody>
         <ModalFooter>
-          <Button className="shadow-md" variant="light" onPress={onClose}>
+          <Button className="shadow-md bg-gradient-to-r from-gray-300 to-white" variant="light" onPress={onClose}>
             Cancel
           </Button>
           {/* Replace the save button with StatefulButton */}
-          <StatefulButton
-            onClick={() => {
+          <Button
+            onPress={() => {
               const form = document.querySelector('form');
               if (form) {
                 const event = new Event('submit', { cancelable: true, bubbles: true });
@@ -252,10 +252,10 @@ export function FormModal<T extends Record<string, any>>({
               }
             }}
             color="primary"
-            className="shadow-md"
+            className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white font-medium shadow-md hover:opacity-90 transition"
           >
             Save Changes
-          </StatefulButton>
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

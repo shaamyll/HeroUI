@@ -81,14 +81,17 @@ function Users() {
     return (
         <div className='min-h-screen'>
             <div className='mx-auto w-3/4 mt-15'>
-                <div>
+                <div className="w-full bg-purple-950 rounded-2xl p-6 mb-5">
                     <motion.h3
-                        className="ms-auto text-2xl font-bold mb-5"
+                        className="text-2xl font-bold text-white pb-10"
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
-                    >USERS TABLE : </motion.h3>
+                    >
+                        Users table :
+                    </motion.h3>
                 </div>
+
                 <div>
                     <TableComponent
                         type="user"
@@ -97,7 +100,7 @@ function Users() {
                         statusColorMap={statusColorMap}
                         onDelete={handleDeleteUser}
                         onEdit={handleEditUser}
-                        onAdd={handleAddUser} // Pass the new handler here
+                        onAdd={handleAddUser}
                         isSearch={true}
                     />
                 </div>

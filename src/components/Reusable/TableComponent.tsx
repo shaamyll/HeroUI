@@ -397,6 +397,7 @@ export default function TableComponent({
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
+      className=" w-full mx-auto"
     >
       <Table
         isHeaderSticky
@@ -404,7 +405,7 @@ export default function TableComponent({
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "min-h-[400px]",
+          wrapper: "min-h-[400px] w-full mx-auto"
         }}
         selectedKeys={selectedKeys}
         selectionMode="multiple"

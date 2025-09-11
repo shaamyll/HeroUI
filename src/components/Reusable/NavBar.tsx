@@ -11,8 +11,7 @@ import {
   MobileNavMenu,
 } from "../ui/resizable-navbar";
 import { useState } from "react";
-import ShinyText from "../ui/ShinyText";
-import { Button } from "@heroui/button";
+
 
 export function NavbarComponent() {
   const navItems = [

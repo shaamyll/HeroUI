@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'Halvetica';
+  src:
+    url('/src/assets/fonts/HelveticaNeueMedium.otf') format('otf'),
+    url('/src/assets/fonts/HelveticaNeueMedium.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}

@@ -66,10 +66,20 @@ function Users() {
         });
     }, []);
 
+    const headerData = [
+        { name: 'ID', headerId: 'id', sortable: true },
+        { name: 'Name', headerId: 'name', sortable: true },
+        { name: 'Role', headerId: 'role', sortable: true },
+        { name: 'Team', headerId: 'team', sortable: true },
+        { name: 'Status', headerId: 'status', sortable: true },
+        { name: 'Email', headerId: 'email', sortable: true },
+        { name: 'Actions', headerId: 'actions', sortable: false }
+    ]
+
     const statusOptions = [
         { name: 'Active', uid: 'active' },
         { name: 'Paused', uid: 'paused' },
-        { name: 'Vacation', uid: 'vacation' },
+        { uid: 'vacation' },
     ];
 
     const statusColorMap = {
@@ -95,6 +105,7 @@ function Users() {
                 <div>
                     <TableComponent
                         type="user"
+                        headerData={headerData}
                         data={users}
                         statusOptions={statusOptions}
                         statusColorMap={statusColorMap}

@@ -48,7 +48,7 @@ function AddNew({ type, onSubmit }: AddNewProps) {
 <Button
   onPress={handleAddClick}
   endContent={<Plus className="w-4 h-4" />}
-  className="bg-gradient-to-r from-purple-800 to-purple-900 text-white font-medium shadow-md hover:opacity-90 transition"
+  className="bg-purple-900 text-white font-medium shadow-md hover:opacity-90 transition"
 >
   Add New
 </Button>

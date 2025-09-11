@@ -77,6 +77,15 @@ function Projects() {
     'Completed': 'success',
   };
 
+      const headerData = [
+        { name: 'ID', headerId: 'id', sortable: true },
+        { name: 'Project', headerId: 'projectName', sortable: true },
+        { name: 'Assigned To', headerId: 'assignedUserName', sortable: true },
+        { name: 'Time Period', headerId: 'timePeriod', sortable: true },
+        { name: 'Status', headerId: 'projectStatus', sortable: true },
+        { name: 'Actions', headerId: 'actions', sortable: false }
+    ]
+
 
   return (
     <div className='min-h-screen'>
@@ -94,11 +103,11 @@ function Projects() {
         <TableComponent
           type="project"
           data={projects}
+          headerData={headerData}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}
           onEdit={handleEditProject}
-          on
           isSearch={false}
           onStatusChange={(id, isActive) => {
             setProjects(prevProjects =>

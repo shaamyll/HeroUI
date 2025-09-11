@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -14,17 +14,16 @@ import {
   DropdownItem,
   Chip,
   Pagination,
-  useDisclosure,
 } from "@heroui/react";
-import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
+import { ChevronDown, Search, ShieldCheck, ShieldX } from "lucide-react";
 import TableActions from "./TableActions";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 
 export interface TableColumn {
-  render: TableColumn | undefined;
+  render?: TableColumn | undefined;
   name: string;
-  uid: string;
+  headerId: string;  // Changed from uid to headerId
   sortable?: boolean;
 }
 
@@ -32,35 +31,10 @@ export interface TableData {
   [key: string]: any;
 }
 
-// Helper function to generate columns from data
-const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
-  if (!data || data.length === 0) return [];
-  // Get all unique keys from the data
-  const allKeys = new Set();
-  data.forEach(item => {
-    Object.keys(item).forEach(key => {
-      allKeys.add(key);
-    });
-  });
-  // Convert keys to column titles
-  const dataColumns = Array.from(allKeys).map(key => ({
-    name: key.split(/(?=[A-Z])/).join(' ').toUpperCase(),
-    uid: key,
-    sortable: true
-  }));
-  // Add index and actions columns
-  return [
-    ...dataColumns,
-    {
-      name: "ACTIONS",
-      uid: "actions",
-      sortable: false
-    }
-  ];
-};
 
 interface TableComponentProps {
   data: TableData[];
+  headerData?: Array<{ name: string; headerId: string; sortable?: boolean }>;
   statusOptions?: Array<{ name: string; uid: string }>;
   statusColorMap?: Record<string, string>;
   onStatusChange?: (id: number, isActive: boolean) => void;
@@ -68,16 +42,17 @@ interface TableComponentProps {
   onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
-  isSearch: Boolean;
-  isLoading?: Boolean; // Add isLoading prop
+  isSearch: boolean;
+  isLoading?: boolean;
 }
 
-export function capitalize(s) {
+export function capitalize(s:string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
 export default function TableComponent({
   data,
+  headerData = [],
   statusOptions = [],
   statusColorMap = {},
   onStatusChange,
@@ -87,18 +62,28 @@ export default function TableComponent({
   type,
   isSearch
 }: TableComponentProps) {
-  // Generate columns from data
-  const columns = React.useMemo(() => {
-    return generateColumnsFromData(data);
-  }, [data]);
+  console.log(headerData)
+  
+  //  headerData for columns Headers
+  const columns = React.useMemo<TableColumn[]>(() => {
+    return headerData.map(col => ({
+      name: col.name,
+      headerId: col.headerId,  // Map to headerId
+      render: undefined,
+      sortable: col.sortable || false
+    }));
+  }, [headerData]);
 
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [statusFilter, setStatusFilter] = useState("all");
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [sortDescriptor, setSortDescriptor] = useState({
-    column: columns[0]?.uid || "id",
-    direction: "ascending",
+  const [sortDescriptor, setSortDescriptor] = useState<{
+    column: string;
+    direction: 'ascending' | 'descending';
+  }>({
+    column: columns[0]?.headerId || "id",
+    direction: "ascending" as const,
   });
   const [page, setPage] = React.useState(1);
   const hasSearchFilter = Boolean(filterValue);
@@ -193,7 +178,7 @@ export default function TableComponent({
       case "role":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
+            <p className="text-bold text-small ">{cellValue}</p>
           </div>
         );
       case "status":
@@ -201,7 +186,7 @@ export default function TableComponent({
         const status = columnKey === 'status' ? item.status : item.projectStatus;
         return (
           <Chip
-            className="capitalize"
+            className=""
             color={statusColorMap[status as keyof typeof statusColorMap] || "default"}
             size="sm"
             variant="flat"
@@ -418,9 +403,10 @@ export default function TableComponent({
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn
-              key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
+              key={column.headerId}
+              align={column.headerId === "actions" ? "center" : "start"}
               allowsSorting={column.sortable}
+              className="text-sm"
             >
               {column.name}
             </TableColumn>

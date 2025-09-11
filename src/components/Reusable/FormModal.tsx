@@ -177,7 +177,7 @@ export function FormModal<T extends Record<string, any>>({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-gray-100">
+    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-white">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 font-bold text-xl">
           {initialData?.id ? 'Edit' : 'Add'} {type}

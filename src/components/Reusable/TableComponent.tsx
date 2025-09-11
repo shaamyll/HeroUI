@@ -175,7 +175,7 @@ export default function TableComponent({
         const bgColor = getGradientFromName(item.name || 'Unknown');
         return (
           <div className="flex items-center gap-3">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColor} text-white text-lg font-bold`}>
+            <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${bgColor} text-white text-lg font-bold`}>
               {(item.name || 'U').charAt(0)}
             </div>
             <span className="font-medium">{cellValue}</span>
@@ -366,11 +366,23 @@ export default function TableComponent({
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-600">
+        {/* <span className="w-[30%] text-small text-default-600">
           {selectedKeys === "all"
             ? "All items selected"
             : `${selectedKeys.size} of ${filteredItems.length} selected`}
-        </span>
+        </span> */}
+         <label className="flex items-center  text-small text-black">
+            Rows per page:
+            <select
+              className="bg-transparent outline-none text-black text-small ml-2 border-1rounded-md px-2 py-1"
+              onChange={onRowsPerPageChange}
+              value={rowsPerPage}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+            </select>
+            </label>
         <Pagination
           isCompact
           showControls
@@ -404,7 +416,8 @@ export default function TableComponent({
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "max-h-[500px] min-h-[300px] ",
+          wrapper: "max-h-[500px] min-h-[300px]",
+          table: "min-w-full"
         }}
         selectedKeys={selectedKeys}
         selectionMode="multiple"

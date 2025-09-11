@@ -404,7 +404,7 @@ export default function TableComponent({
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "max-h-[500px] min-h-[300px]",
+          wrapper: "max-h-[500px] min-h-[300px] ",
         }}
         selectedKeys={selectedKeys}
         selectionMode="multiple"

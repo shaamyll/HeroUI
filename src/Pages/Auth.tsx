@@ -50,7 +50,7 @@ function Auth() {
                             </Button>
 
                             <div className="text-center mt-4">
-                                <a href="#" className="text-gray-600 text-sm font-medium">
+                                <a href="#" className="text-gray-600 text-sm ">
                                     Forgot your password?
                                 </a>
                             </div>

@@ -11,14 +11,15 @@ import {
   MobileNavMenu,
 } from "../ui/resizable-navbar";
 import { useState } from "react";
-import ShinyText from "../ui/ShinyText";
-import { Button } from "@heroui/button";
+
 
 export function NavbarComponent() {
   const navItems = [
     { name: "Home", link: "/" },
     { name: "Users", link: "/users" },
     { name: "Projects", link: "/projects" },
+    { name: "Dashboard", link: "/dashboard" },
+    { name: "Login", link: "/login" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,7 +28,7 @@ export function NavbarComponent() {
     <div className="relative w-full sticky top-0 z-50 ">
       <Navbar
         className="
-    bg-gray-100 backdrop-blur-lg
+    bg-white backdrop-blur-lg
     text-white 
   "
       >
@@ -39,7 +40,7 @@ export function NavbarComponent() {
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
           <div className="hidden md:flex items-center gap-4">
-            <NavbarButton color="primary" variant="secondary">
+            <NavbarButton color="primary" variant="secondary" href="/auth">
               Login
             </NavbarButton>
             <NavbarButton color="primary" variant="gradient">

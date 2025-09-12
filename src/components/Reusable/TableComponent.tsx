@@ -95,7 +95,7 @@ export default function TableComponent({
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [statusFilter, setStatusFilter] = useState("all");
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState({
     column: columns[0]?.uid || "id",
     direction: "ascending",
@@ -344,7 +344,7 @@ export default function TableComponent({
               onChange={onRowsPerPageChange}
               value={rowsPerPage}
             >
-              <option value="5">5</option>
+              {/* <option value="5">5</option> */}
               <option value="10">10</option>
               <option value="15">15</option>
             </select>
@@ -404,7 +404,7 @@ export default function TableComponent({
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "max-h-[500px] min-h-[300px]",
+          wrapper: "min-h-[400px]",
         }}
         selectedKeys={selectedKeys}
         selectionMode="multiple"

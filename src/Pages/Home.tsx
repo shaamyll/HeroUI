@@ -4,7 +4,7 @@ import TextType from '../components/ui/TextType';
 
 function Home() {
   return (
-    <div className='min-h-screen bg-gray-100'>
+    <div className='min-h-screen bg-gray-200'>
       <div className='mx-auto w-4/5 mt-20'>
         <div className='flex flex-col lg:flex-row items-center justify-between gap-12'>
           {/* Left Column - Text Content */}

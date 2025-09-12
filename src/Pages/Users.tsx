@@ -4,6 +4,7 @@ import { userData } from '../Data/User';
 import { addToast, Chip, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
+import CustomDropdown from '../components/Reusable/CustomDropdown';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -191,7 +192,7 @@ function Users() {
 
     return (
         <div className="min-h-screen">
-            <div className="max-w-[1400px] mx-auto mt-10 px-4">
+            <div className="max-w-[1400px] mx-auto mt-10">
                 {/* Header */}
                 <div className="w-full bg-[#37125d] rounded-2xl p-6 mb-5">
                     <motion.h3
@@ -202,6 +203,7 @@ function Users() {
                     >
                         Users Table :
                     </motion.h3>
+                    {/* <CustomDropdown/> */}
                 </div>
 
                 {/* Table */}

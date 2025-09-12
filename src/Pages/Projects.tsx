@@ -164,10 +164,10 @@ function Projects() {
 
   return (
     <div className='min-h-screen'>
-      <div className="max-w-[1400px] mx-auto mt-10 px-4">
-        <div className="w-full bg-purple-950 rounded-2xl p-6 mb-5">
+      <div className="max-w-[1400px] mx-auto mt-10">
+        <div className="w-full bg-purple-950 rounded-2xl p-6 ">
           <motion.h3
-            className="text-2xl font-bold text-white pb-10"
+            className="text-2xl font-bold text-white pb-8"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}

@@ -30,7 +30,6 @@ export interface TableContent {
   [key: string]: any;
 }
 
-
 interface TableComponentProps {
   TableContent: TableContent[];
   TableSkeleton?: Array<{ name: string; headerId: string; sortable?: boolean }>;
@@ -190,14 +189,23 @@ export default function TableComponent({
     setPage(1); // Reset to first page when filters change
   }, [activeFilters]);
 
-  const topContent = React.useMemo(() => {
-    return (
-      <div className="flex flex-col gap-4 my-4">
-        <div className="flex justify-between gap-3 items-end">
+
+ const topContent = React.useMemo(() => {
+  return (
+    <div className="flex flex-col gap-4 my-4">
+      {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Title - Always visible */}
+        <div className="bg-gray-100 sm:bg-gray-50 rounded-lg p-2 px-3 flex-shrink-0">
+          <span className="font-medium">{type}s ({TableContent.length})</span>
+        </div>
+        
+        {/* Desktop-only Search Bar */}
+        <div className="hidden sm:flex flex-grow">
           {isSearch ? (
             <Input
               isClearable
-              className="w-full sm:max-w-[44%]"
+              className="w-full"
               placeholder="Search..."
               startContent={<Search className="w-5 h-5 text-default-400" />}
               value={filterValue}
@@ -205,60 +213,84 @@ export default function TableComponent({
               onValueChange={onSearchChange}
             />
           ) : (
-            // Placeholder to maintain layout
-            <div className="w-full sm:max-w-[44%]" />
+            <div className="min-h-[2.5rem]" />
           )}
-          <div className="flex gap-3">
-            {filters.length > 0 && (
-              filters.map((filter) => (
-                <Dropdown key={filter.uid}>
-                  <DropdownTrigger className="hidden sm:flex">
-                    <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
-                      {filter.name}
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    disallowEmptySelection={false}
-                    aria-label={`${filter.name} Filter`}
-                    closeOnSelect={true}
-                    selectedKeys={activeFilters[filter.uid] || new Set()}
-                    selectionMode="single"
-                    onSelectionChange={(keys) => handleFilterChange(filter.uid, new Set(Array.from(keys as Set<string>)))}
-                  >
-                    {filter.content.map((option) => (
-                      <DropdownItem key={option.uid} className="capitalize">
-                        {capitalize(option.name)}
-                        {activeFilters[filter.uid]?.has(option.uid)}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-              ))
-            )}
-            {/* Add new Data to Table */}
-            <AddNew type={type} onSubmit={onAdd} />
-          </div>
         </div>
-
+        
+        {/* Add New Button - Always visible */}
+        <div className="flex-shrink-0">
+          <AddNew type={type} onSubmit={onAdd} />
+        </div>
       </div>
-    );
-  }, [
-    filterValue,
-    activeFilters,
-    onRowsPerPageChange,
-    TableContent.length,
-    onSearchChange,
-    hasSearchFilter,
-    statusOptions.length,
-    rowsPerPage,
-  ]);
+      
+      {/* Mobile-only Search Bar */}
+      {isSearch && (
+        <div className="sm:hidden w-full">
+          <Input
+            isClearable
+            className="w-full"
+            placeholder="Search..."
+            startContent={<Search className="w-5 h-5 text-default-400" />}
+            value={filterValue}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
+          />
+        </div>
+      )}
+      
+      {/* Filters - Always visible below search */}
+      <div className="flex flex-wrap gap-3 w-full">
+        {filters.length > 0 && (
+          filters.map((filter) => (
+            <Dropdown key={filter.uid}>
+              <DropdownTrigger>
+                <Button 
+                  endContent={<ChevronDown className="w-4 h-4" />} 
+                  variant="faded"
+                  className="w-full sm:w-[200px] justify-between truncate bg-gray-50" 
+                >
+                  <span className="truncate">{filter.name}</span>
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection={false}
+                aria-label={`${filter.name} Filter`}
+                closeOnSelect={true}
+                selectedKeys={activeFilters[filter.uid] || new Set()}
+                selectionMode="single"
+                className="w-full sm:w-[200px]"
+                onSelectionChange={(keys) => handleFilterChange(filter.uid, new Set(Array.from(keys as Set<string>)))}
+              >
+                {filter.content.map((option) => (
+                  <DropdownItem key={option.uid} className="capitalize truncate">
+                    {capitalize(option.name)}
+                    {activeFilters[filter.uid]?.has(option.uid)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}, [
+  filterValue,
+  activeFilters,
+  onRowsPerPageChange,
+  TableContent.length,
+  onSearchChange,
+  hasSearchFilter,
+  statusOptions.length,
+  rowsPerPage,
+]);
 
+  
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-8 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-600">
         <div className="flex justify-between items-center">
-          {/* <span className="text-default-400 text-small">Total {data.length} items</span> */}
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select

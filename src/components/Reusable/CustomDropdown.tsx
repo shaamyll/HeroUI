@@ -11,22 +11,16 @@ import {
 function CustomDropdown({
   items = [],
   placeholder = "Select an option",
-  defaultSelectedKey = new Set(),
+  defaultselectedKeys = new Set(),
   onSelectionChange,
-  buttonVariant = "bordered",
-  buttonClassName = "capitalize",
+  buttonClassName,
   dropdownClassname,
   searchPlaceholder = "Search items...",
-  disabled = false,
-  size = "md",
-  color = "default",
-  variant = "flat",
   disallowEmptySelection = true,
-  selectionMode = "single",
+  matchWidth = false,
   isSearch,
-  ...props
 }) {
-  const [selectedKey, setSelectedKey] = useState(defaultSelectedKey);
+  const [selectedKeys, setselectedKeys] = useState(defaultselectedKeys);
   const [searchValue, setSearchValue] = useState("");
 
   // Filter items based on search value
@@ -40,22 +34,23 @@ function CustomDropdown({
 
   // Get display value for selected items
   const selectedValue = React.useMemo(() => {
-    if (selectedKey.size === 0) return placeholder;
+    if (selectedKeys.size === 0) return placeholder;
     
-    const selectedItems = items.filter(item => selectedKey.has(item.key));
+    const selectedItems = items.filter(item => selectedKeys.has(item.key));
     return selectedItems.map(item => item.label).join(", ");
-  }, [selectedKey, items, placeholder]);
+  }, [selectedKeys, items, placeholder]);
 
   // Handle selection change
   const handleSelectionChange = (keys) => {
-    setSelectedKey(keys);
+    setselectedKeys(keys);
     if (onSelectionChange) {
       onSelectionChange(keys);
     }
   };
 
+
   return (
-    <div {...props}>
+    <div>
       <Dropdown>
         <DropdownTrigger>
           <Button
@@ -66,15 +61,14 @@ function CustomDropdown({
           </Button>
         </DropdownTrigger>
         <DropdownMenu
-        className={dropdownClassname}
           disallowEmptySelection={disallowEmptySelection}
-          selectedKey={selectedKey}
-          selectionMode={selectionMode}
+          selectedKeys={selectedKeys}
+          selectionMode="single"
           variant="faded"
           onSelectionChange={handleSelectionChange}
           topContent={
             isSearch ? (
-              <div className=" pb-2">
+              <div className="pb-2">
                 <Input
                   placeholder={searchPlaceholder}
                   value={searchValue}
@@ -91,6 +85,7 @@ function CustomDropdown({
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <DropdownItem
+                className={dropdownClassname}
                 key={item.key}
                 description={item.description}
                 startContent={item.startContent}

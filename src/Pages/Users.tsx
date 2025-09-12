@@ -94,7 +94,7 @@ function Users() {
 
     type UserStatus = keyof typeof statusColorMap;
 
-    const TableSkeleton = [
+    const TableStructure = [
         { name: 'ID', headerId: 'id', sortable: true },
         {
             name: 'Name',
@@ -209,7 +209,7 @@ function Users() {
                 {/* Table */}
                 <TableComponent
                     type="user"
-                    TableSkeleton={TableSkeleton}
+                    TableStructure={TableStructure}
                     TableContent={users}
                     filters={filterContent}
                     statusOptions={statusOptions}

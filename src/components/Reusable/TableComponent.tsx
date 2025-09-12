@@ -32,7 +32,7 @@ export interface TableContent {
 
 interface TableComponentProps {
   TableContent: TableContent[];
-  TableSkeleton?: Array<{ name: string; headerId: string; sortable?: boolean }>;
+  TableStructure?: Array<{ name: string; headerId: string; sortable?: boolean }>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
@@ -52,7 +52,7 @@ export function capitalize(s: string) {
 
 export default function TableComponent({
   TableContent,
-  TableSkeleton = [],
+  TableStructure = [],
   statusOptions = [],
   filters = [],
   onAdd,
@@ -60,17 +60,17 @@ export default function TableComponent({
   isSearch,
   isSelectRows
 }: TableComponentProps) {
-  console.log(TableSkeleton)
+  console.log(TableStructure)
 
   //  headerData for columns Headers
   const columns = React.useMemo<TableColumn[]>((): any => {
-    return TableSkeleton.map(col => ({
+    return TableStructure.map(col => ({
       name: col.name,
       headerId: col.headerId,
       render: col.render,
       sortable: col.sortable || false,
     }));
-  }, [TableSkeleton]);
+  }, [TableStructure]);
 
 
   const [filterValue, setFilterValue] = useState("");

@@ -139,10 +139,10 @@ export function FormModal<T extends Record<string, any>>({
             const selectedKey = Array.from(value)[0] as string;
             const fieldConfig = config[field];
             const selectedOption = fieldConfig.options?.find(opt => opt.key === selectedKey);
-            
+
             if (selectedOption) {
               newData[field as keyof T] = selectedOption.label as any;
-              
+
               // Also update the assignedUserName field if it exists
               if ('assignedUserName' in newData) {
                 (newData as any).assignedUserName = selectedOption.label;
@@ -166,7 +166,7 @@ export function FormModal<T extends Record<string, any>>({
           const selectedKey = Array.from(value)[0] as string;
           const fieldConfig = config[field];
           const selectedOption = fieldConfig.options?.find(opt => opt.key === selectedKey);
-          
+
           if (selectedOption) {
             // Store the value or label based on your needs
             newData[field as keyof T] = (selectedOption.value || selectedOption.label) as any;
@@ -219,19 +219,17 @@ export function FormModal<T extends Record<string, any>>({
                         items={fieldConfig.options}
                         placeholder={fieldConfig.placeholder || `Select ${fieldConfig.label || fieldName}`}
                         searchPlaceholder={fieldConfig.searchPlaceholder || `Search ${fieldConfig.label || fieldName}...`}
-                        defaultSelectedKeys={formData[fieldName as keyof T] ? 
-                          new Set([String(formData[fieldName as keyof T])]) : 
-                          new Set()
-                        }
-                        onSelectionChange={(keys) => handleChange(fieldName, keys)}
-                        buttonClassName="w-full justify-start"
-                        dropdownClassname="w-full "
+                        defaultSelectedKey={formData[fieldName as keyof T] ? String(formData[fieldName as keyof T]) : null}
+                        onSelectionChange={(key) => handleChange(fieldName, key)}
+                        buttonClassName="w-full flex justify-start"  
+                        dropdownClassname="w-full h-[50px]"  
+                        matchWidth={true}
                         disabled={fieldConfig.disabled}
                         isSearch={true}
                       />
                     ) : (
                       <Input
-                      variant="bordered"
+                        variant="bordered"
                         id={fieldName}
                         type={fieldConfig.type || 'text'}
                         value={(formData[fieldName as keyof T] as string) || ''}

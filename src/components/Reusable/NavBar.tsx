@@ -11,14 +11,15 @@ import {
   MobileNavMenu,
 } from "../ui/resizable-navbar";
 import { useState } from "react";
-import ShinyText from "../ui/ShinyText";
-import { Button } from "@heroui/button";
+
 
 export function NavbarComponent() {
   const navItems = [
     { name: "Home", link: "/" },
     { name: "Users", link: "/users" },
     { name: "Projects", link: "/projects" },
+    { name: "Dashboard", link: "/dashboard" },
+    { name: "Login", link: "/login" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import TableComponent from '../components/Reusable/TableComponent';
 import { projectData } from '../Data/Projects';
-import { addToast } from '@heroui/react';
+import { addToast, Chip, Progress } from '@heroui/react';
 import { motion } from 'framer-motion';
+import TableActions from '../components/Reusable/TableActions';
 
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
@@ -75,16 +76,77 @@ function Projects() {
     'In Progress': 'primary',
     'On Hold': 'warning',
     'Completed': 'success',
-  };
+  } as const;
 
-      const headerData = [
-        { name: 'ID', headerId: 'id', sortable: true },
-        { name: 'Project', headerId: 'projectName', sortable: true },
-        { name: 'Assigned To', headerId: 'assignedUserName', sortable: true },
-        { name: 'Time Period', headerId: 'timePeriod', sortable: true },
-        { name: 'Status', headerId: 'projectStatus', sortable: true },
-        { name: 'Actions', headerId: 'actions', sortable: false }
-    ]
+    type projectStatus = keyof typeof statusColorMap;
+
+const projectHeaderData = [
+  { name: "ID", headerId: "id", sortable: true },
+  {
+    name: "Project",
+    headerId: "projectName",
+    sortable: true,
+    render: (item: any) => (
+      <div className="flex items-center gap-3">
+        <span className="">{item.projectName}</span>
+      </div>
+    ),
+  },
+  {
+    name: "Assigned To",
+    headerId: "assignedUserName",
+    sortable: true,
+    render: (item: any) => (
+      <div className="flex items-center gap-3">
+        <Chip color="secondary" size="sm" variant="faded">
+          {item.assignedUserName}
+        </Chip>
+      </div>
+    ),
+  },
+  { name: "Time Period", headerId: "timePeriod", sortable: true },
+  {
+    name: "Status",
+    headerId: "projectStatus",
+    sortable: true,
+    render: (item: any) => (
+      <Chip color={statusColorMap[item.projectStatus as projectStatus]} size="sm" variant="dot">
+        {item.projectStatus}
+      </Chip>
+    ),
+  },
+  {
+    name: "Progress",
+    headerId: "progress",
+    sortable: true,
+    render: (item: any) => (
+      <div className="flex items-center gap-2">
+        <Progress
+          value={item.progress}
+          color="primary"
+          className="w-20 h-10"
+          showValueLabel={true}
+        />
+        <span className="text-xs">{item.progress}%</span>
+      </div>
+    ),
+  },
+  {
+    name: "Actions",
+    headerId: "actions",
+    sortable: false,
+    className: "text-center w-28",
+    render: (item: any) => (
+      <TableActions
+        item={item}
+        onDelete={handleDeleteProject} 
+        onEdit={handleEditProject}     
+        type="project"
+      />
+    ),
+  },
+];
+
 
 
   return (
@@ -103,12 +165,13 @@ function Projects() {
         <TableComponent
           type="project"
           data={projects}
-          headerData={headerData}
+          headerData={projectHeaderData}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}
           onEdit={handleEditProject}
-          isSearch={false}
+          isSearch={true}
+          isSelectRows={false}
           onStatusChange={(id, isActive) => {
             setProjects(prevProjects =>
               prevProjects.map(project =>

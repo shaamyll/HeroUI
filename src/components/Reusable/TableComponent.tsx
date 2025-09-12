@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -12,19 +12,18 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Chip,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, Search, ShieldCheck, ShieldX } from "lucide-react";
-import TableActions from "./TableActions";
+import { ChevronDown, Search } from "lucide-react";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 
 export interface TableColumn {
-  render?: TableColumn | undefined;
+  render?: (item: any) => React.ReactNode;
   name: string;
-  headerId: string;  // Changed from uid to headerId
+  headerId: string;
   sortable?: boolean;
+  isSelectRows: boolean
 }
 
 export interface TableData {
@@ -36,6 +35,7 @@ interface TableComponentProps {
   data: TableData[];
   headerData?: Array<{ name: string; headerId: string; sortable?: boolean }>;
   statusOptions?: Array<{ name: string; uid: string }>;
+  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
   onStatusChange?: (id: number, isActive: boolean) => void;
   onDelete?: (id: number) => void;
@@ -43,10 +43,11 @@ interface TableComponentProps {
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
   isSearch: boolean;
+  isSelectRows: boolean;
   isLoading?: boolean;
 }
 
-export function capitalize(s:string) {
+export function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
@@ -54,25 +55,24 @@ export default function TableComponent({
   data,
   headerData = [],
   statusOptions = [],
-  statusColorMap = {},
-  onStatusChange,
-  onDelete,
-  onEdit,
+  filters = [],
   onAdd,
   type,
-  isSearch
+  isSearch,
+  isSelectRows
 }: TableComponentProps) {
   console.log(headerData)
-  
+
   //  headerData for columns Headers
-  const columns = React.useMemo<TableColumn[]>(() => {
+  const columns = React.useMemo<TableColumn[]>((): any => {
     return headerData.map(col => ({
       name: col.name,
-      headerId: col.headerId,  // Map to headerId
-      render: undefined,
-      sortable: col.sortable || false
+      headerId: col.headerId,
+      render: col.render,
+      sortable: col.sortable || false,
     }));
   }, [headerData]);
+
 
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
@@ -109,6 +109,7 @@ export default function TableComponent({
   }, [data, filterValue, statusFilter, statusOptions.length]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
+  
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -129,100 +130,6 @@ export default function TableComponent({
     });
   }, [sortDescriptor, items]);
 
-  const gradients = [
-    "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500",
-    "bg-gradient-to-r from-green-400 to-blue-500",
-    "bg-gradient-to-r from-purple-500 to-pink-500",
-    "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500",
-    "bg-gradient-to-r from-cyan-500 to-blue-500",
-    "bg-gradient-to-r from-orange-400 to-pink-500",
-  ];
-
-  function getGradientFromName(name: string) {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % gradients.length;
-    return gradients[index];
-  }
-
-  const handleStatusChange = (id: number, isActive: boolean) => {
-    if (onStatusChange) {
-      onStatusChange(id, isActive);
-    }
-  };
-  const renderCell = React.useCallback((item: any, columnKey: React.Key) => {
-    const cellValue = item[columnKey as keyof typeof item];
-
-    switch (columnKey) {
-      case "name":
-        const bgColor = getGradientFromName(item.name || 'Unknown');
-        return (
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColor} text-white text-lg font-bold`}>
-              {(item.name || 'U').charAt(0)}
-            </div>
-            <span className="font-medium">{cellValue}</span>
-          </div>
-        );
-      case "assignedUser":
-        const assignedUser = cellValue || { name: 'Unassigned' };
-        return (
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col">
-              <span className="font-medium">{assignedUser.name}</span>
-            </div>
-          </div>
-        )
-      case "role":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small ">{cellValue}</p>
-          </div>
-        );
-      case "status":
-      case "projectStatus":
-        const status = columnKey === 'status' ? item.status : item.projectStatus;
-        return (
-          <Chip
-            className=""
-            color={statusColorMap[status as keyof typeof statusColorMap] || "default"}
-            size="sm"
-            variant="flat"
-          >
-            {status}
-          </Chip>
-        );
-      case "isActive":
-        return (
-          <div className="flex items-center">
-            {item.isActive ? (
-              <ShieldCheck
-                className="h-6 w-6 cursor-pointer text-green-500 bg-green-100 rounded-lg p-1 shadow-sm transition-colors"
-                onClick={() => handleStatusChange(item.id, false)}
-              />
-            ) : (
-              <ShieldX
-                className="h-6 w-6 cursor-pointer text-red-500 bg-red-100 rounded-lg p-1 shadow-sm transition-colors"
-                onClick={() => handleStatusChange(item.id, true)}
-              />
-            )}
-          </div>
-        );
-      case "actions":
-        return (
-          <div className="relative flex items-center gap-2">
-            <TableActions item={item} onDelete={onDelete} onEdit={onEdit} type={type || 'user'} />
-          </div>
-        );
-      default:
-        return typeof cellValue === 'object' && cellValue !== null
-          ? (cellValue.name || JSON.stringify(cellValue))
-          : cellValue;
-    }
-  }, [statusColorMap, onStatusChange, onDelete, onEdit, type]);
-
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
       setPage(page + 1);
@@ -235,12 +142,12 @@ export default function TableComponent({
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e) => {
+  const onRowsPerPageChange = React.useCallback((e: any) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value) => {
+  const onSearchChange = React.useCallback((value: any) => {
     if (value) {
       setFilterValue(value);
       setPage(1);
@@ -256,7 +163,7 @@ export default function TableComponent({
 
   const topContent = React.useMemo(() => {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 my-4">
         <div className="flex justify-between gap-3 items-end">
           {isSearch ? (
             <Input
@@ -267,74 +174,42 @@ export default function TableComponent({
               value={filterValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}
-              classNames={{
-                inputWrapper: [
-                  "border-1",
-                  "border-[#d2d2d7]", // Apple's border color
-                  "bg-white", // Apple's background color
-                  "hover:bg-[#e8e8ed]", // Hover state
-                  "focus:bg-[#ffffff]", // Focus state
-                  "data-[focus=true]:bg-[#ffffff]", // White background on focus
-                  "data-[hover=true]:bg-[#e8e8ed]", // Consistent hover
-                  "group-data-[focus=true]:shadow-none", // Remove shadow on focus
-                ],
-                input: [
-                  "text-[#1d1d1f]", // Apple's text color
-                  "placeholder:text-[#86868b]", // Apple's placeholder color
-                ],
-                clearButton: [
-                  "text-[#86868b]", // Apple's gray for clear button
-                  "hover:text-[#1d1d1f]", // Darker on hover
-                ],
-              }}
             />
           ) : (
             // Placeholder to maintain layout
             <div className="w-full sm:max-w-[44%]" />
           )}
           <div className="flex gap-3">
-            {statusOptions.length > 0 && (
-              <Dropdown>
-                <DropdownTrigger className="hidden sm:flex">
-                  <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
-                    Status
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Status Filter"
-                  closeOnSelect={false}
-                  selectedKeys={statusFilter}
-                  selectionMode="multiple"
-                  onSelectionChange={setStatusFilter}
-                >
-                  {statusOptions.map((status) => (
-                    <DropdownItem key={status.uid} className="capitalize">
-                      {capitalize(status.name)}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
+            {filters.length > 0 && (
+              filters.map((filter) => (
+                <Dropdown>
+                  <DropdownTrigger className="hidden sm:flex">
+                    <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
+                      {filter.name}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    disallowEmptySelection
+                    aria-label="Status Filter"
+                    closeOnSelect={false}
+                    selectedKeys={statusFilter}
+                    selectionMode="multiple"
+                    onSelectionChange={setStatusFilter}
+                  >
+                    {filter.content.map((status) => (
+                      <DropdownItem key={status.uid} className="capitalize">
+                        {capitalize(status.name)}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              ))
             )}
             {/* Add new Data to Table */}
             <AddNew type={type} onSubmit={onAdd} />
           </div>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {data.length} items</span>
-          <label className="flex items-center text-default-400 text-small">
-            Rows per page:
-            <select
-              className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
-              onChange={onRowsPerPageChange}
-              value={rowsPerPage}
-            >
-              {/* <option value="5">5</option> */}
-              <option value="10">10</option>
-              <option value="15">15</option>
-            </select>
-          </label>
-        </div>
+
       </div>
     );
   }, [
@@ -350,11 +225,23 @@ export default function TableComponent({
 
   const bottomContent = React.useMemo(() => {
     return (
-      <div className="py-2 px-2 flex justify-between items-center">
+      <div className="py-8 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-600">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`}
+        <div className="flex justify-between items-center">
+          {/* <span className="text-default-400 text-small">Total {data.length} items</span> */}
+          <label className="flex items-center text-default-400 text-small">
+            Rows per page:
+            <select
+              className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
+              onChange={onRowsPerPageChange}
+              value={rowsPerPage}
+            >
+              {/* <option value="5">5</option> */}
+              <option value="10">10</option>
+              <option value="15">15</option>
+            </select>
+          </label>
+        </div>
         </span>
         <Pagination
           isCompact
@@ -377,6 +264,18 @@ export default function TableComponent({
     );
   }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter]);
 
+  // Default cell renderer (only used if no `render` provided from parent)
+  const defaultRenderCell = useCallback(
+    (item: any, columnKey: string) => {
+      const cellValue = item[columnKey];
+      if (typeof cellValue === "object" && cellValue !== null) {
+        return cellValue.name || JSON.stringify(cellValue);
+      }
+      return cellValue;
+    },
+    []
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -384,27 +283,60 @@ export default function TableComponent({
       transition={{ duration: 0.5, ease: "easeOut" }}
       className=" w-full mx-auto"
     >
+      {topContent}
+      {/* Selection Action Bar directly above the table */}
+      {isSelectRows && (selectedKeys === "all" || selectedKeys.size > 0) && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-3 rounded-md my-2"
+        >
+          <span>
+            {selectedKeys === "all"
+              ? `All ${filteredItems.length} items selected`
+              : `${selectedKeys.size} of ${filteredItems.length} selected`}
+          </span>
+          <div className="flex gap-3">
+            <Button size="sm" variant="flat" className="bg-white text-black">
+              Print Code
+            </Button>
+            <Button size="sm" color="danger">
+              Delete Selected
+            </Button>
+            <Button
+              size="sm"
+              variant="light"
+              onPress={() => setSelectedKeys(new Set([]))}
+              className="underline"
+            >
+              Clear Selection
+            </Button>
+          </div>
+        </motion.div>
+      )}
       <Table
         isHeaderSticky
         aria-label="Dynamic table with all columns"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "min-h-[400px] w-full mx-auto"
+             classNames={{
+          wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
+          table: "min-w-full",
+          tr: isSelectRows ? "cursor-pointer hover:bg-gray-50" : "",
         }}
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
+        selectionMode={isSelectRows ? "multiple" : "none"}
+        selectedKeys={isSelectRows ? selectedKeys : undefined}
+        onSelectionChange={isSelectRows ? setSelectedKeys : undefined}
         sortDescriptor={sortDescriptor}
-        topContent={topContent}
         topContentPlacement="outside"
-        onSelectionChange={setSelectedKeys}
         onSortChange={setSortDescriptor}
       >
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn
               key={column.headerId}
-              align={column.headerId === "actions" ? "center" : "start"}
               allowsSorting={column.sortable}
               className="text-sm"
             >
@@ -412,13 +344,24 @@ export default function TableComponent({
             </TableColumn>
           )}
         </TableHeader>
+
         <TableBody emptyContent={"No data found"} items={sortedItems}>
           {(item) => (
             <TableRow key={item.id || Math.random()}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              {(columnKey) => {
+                const col = columns.find((c) => c.headerId === columnKey);
+                return (
+                  <TableCell>
+                    {col?.render
+                      ? col.render(item)
+                      : defaultRenderCell(item, columnKey as string)}
+                  </TableCell>
+                );
+              }}
             </TableRow>
           )}
         </TableBody>
+
       </Table>
     </motion.div>
   );

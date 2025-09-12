@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -12,99 +12,84 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Chip,
   Pagination,
-  useDisclosure,
 } from "@heroui/react";
-import { ChevronDown, Plus, Search, ShieldCheck, ShieldX } from "lucide-react";
-import TableActions from "./TableActions";
+import { ChevronDown, Search } from "lucide-react";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 
 export interface TableColumn {
-  render: TableColumn | undefined;
+  render?: (item: any) => React.ReactNode;
   name: string;
-  uid: string;
+  headerId: string;
   sortable?: boolean;
+  isSelectRows: boolean
 }
 
-export interface TableData {
+export interface TableContent {
   [key: string]: any;
 }
 
-// Helper function to generate columns from data
-const generateColumnsFromData = (data: TableData[]): TableColumn[] => {
-  if (!data || data.length === 0) return [];
-  // Get all unique keys from the data
-  const allKeys = new Set();
-  data.forEach(item => {
-    Object.keys(item).forEach(key => {
-      allKeys.add(key);
-    });
-  });
-  // Convert keys to column titles
-  const dataColumns = Array.from(allKeys).map(key => ({
-    name: key.split(/(?=[A-Z])/).join(' ').toUpperCase(),
-    uid: key,
-    sortable: true
-  }));
-  // Add index and actions columns
-  return [
-    ...dataColumns,
-    {
-      name: "ACTIONS",
-      uid: "actions",
-      sortable: false
-    }
-  ];
-};
-
 interface TableComponentProps {
-  data: TableData[];
+  TableContent: TableContent[];
+  TableSkeleton?: Array<{ name: string; headerId: string; sortable?: boolean }>;
   statusOptions?: Array<{ name: string; uid: string }>;
+  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
   onStatusChange?: (id: number, isActive: boolean) => void;
   onDelete?: (id: number) => void;
   onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
-  isSearch: Boolean;
-  isLoading?: Boolean; // Add isLoading prop
+  isSearch: boolean;
+  isSelectRows: boolean;
+  isLoading?: boolean;
 }
 
-export function capitalize(s) {
+export function capitalize(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
 }
 
 export default function TableComponent({
-  data,
+  TableContent,
+  TableSkeleton = [],
   statusOptions = [],
-  statusColorMap = {},
-  onStatusChange,
-  onDelete,
-  onEdit,
+  filters = [],
   onAdd,
   type,
-  isSearch
+  isSearch,
+  isSelectRows
 }: TableComponentProps) {
-  // Generate columns from data
-  const columns = React.useMemo(() => {
-    return generateColumnsFromData(data);
-  }, [data]);
+  console.log(TableSkeleton)
+
+  //  headerData for columns Headers
+  const columns = React.useMemo<TableColumn[]>((): any => {
+    return TableSkeleton.map(col => ({
+      name: col.name,
+      headerId: col.headerId,
+      render: col.render,
+      sortable: col.sortable || false,
+    }));
+  }, [TableSkeleton]);
+
 
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [sortDescriptor, setSortDescriptor] = useState({
-    column: columns[0]?.uid || "id",
-    direction: "ascending",
+  const [sortDescriptor, setSortDescriptor] = useState<{
+    column: string;
+    direction: 'ascending' | 'descending';
+  }>({
+    column: columns[0]?.headerId || "id",
+    direction: "ascending" as const,
   });
   const [page, setPage] = React.useState(1);
   const hasSearchFilter = Boolean(filterValue);
 
   const filteredItems = React.useMemo(() => {
-    let filteredData = [...data];
+    let filteredData = [...TableContent];
+    // Apply search filter
     if (hasSearchFilter) {
       filteredData = filteredData.filter((item) =>
         Object.values(item).some(
@@ -114,16 +99,32 @@ export default function TableComponent({
         )
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredData = filteredData.filter((item) =>
-        ('status' in item && Array.from(statusFilter).includes(item.status)) ||
-        ('projectStatus' in item && Array.from(statusFilter).includes(item.projectStatus))
-      );
-    }
+
+    // Apply all active filters
+    filteredData = filteredData.filter(item => {
+      return Object.entries(activeFilters).every(([filterKey, filterValues]) => {
+        // Skip if no filter values are selected for this filter
+        if (filterValues.size === 0) return true;
+        
+        // Check if the item has the filter key and its value is in the selected filters
+        const itemValue = item[filterKey];
+        if (itemValue === undefined) return false;
+        
+        // Handle both single values and arrays of values
+        const itemValues = Array.isArray(itemValue) ? itemValue : [itemValue];
+        return Array.from(filterValues).some(value => 
+          itemValues.some(itemVal => 
+            String(itemVal).toLowerCase() === String(value).toLowerCase()
+          )
+        );
+      });
+    });
+
     return filteredData;
-  }, [data, filterValue, statusFilter, statusOptions.length]);
+  }, [TableContent, filterValue, hasSearchFilter, activeFilters]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
+  
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -144,100 +145,6 @@ export default function TableComponent({
     });
   }, [sortDescriptor, items]);
 
-  const gradients = [
-    "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500",
-    "bg-gradient-to-r from-green-400 to-blue-500",
-    "bg-gradient-to-r from-purple-500 to-pink-500",
-    "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500",
-    "bg-gradient-to-r from-cyan-500 to-blue-500",
-    "bg-gradient-to-r from-orange-400 to-pink-500",
-  ];
-
-  function getGradientFromName(name: string) {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % gradients.length;
-    return gradients[index];
-  }
-
-  const handleStatusChange = (id: number, isActive: boolean) => {
-    if (onStatusChange) {
-      onStatusChange(id, isActive);
-    }
-  };
-  const renderCell = React.useCallback((item: any, columnKey: React.Key) => {
-    const cellValue = item[columnKey as keyof typeof item];
-
-    switch (columnKey) {
-      case "name":
-        const bgColor = getGradientFromName(item.name || 'Unknown');
-        return (
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${bgColor} text-white text-lg font-bold`}>
-              {(item.name || 'U').charAt(0)}
-            </div>
-            <span className="font-medium">{cellValue}</span>
-          </div>
-        );
-      case "assignedUser":
-        const assignedUser = cellValue || { name: 'Unassigned' };
-        return (
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col">
-              <span className="font-medium">{assignedUser.name}</span>
-            </div>
-          </div>
-        )
-      case "role":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
-          </div>
-        );
-      case "status":
-      case "projectStatus":
-        const status = columnKey === 'status' ? item.status : item.projectStatus;
-        return (
-          <Chip
-            className="capitalize"
-            color={statusColorMap[status as keyof typeof statusColorMap] || "default"}
-            size="sm"
-            variant="flat"
-          >
-            {status}
-          </Chip>
-        );
-      case "isActive":
-        return (
-          <div className="flex items-center">
-            {item.isActive ? (
-              <ShieldCheck
-                className="h-6 w-6 cursor-pointer text-green-500 bg-green-100 rounded-lg p-1 shadow-sm transition-colors"
-                onClick={() => handleStatusChange(item.id, false)}
-              />
-            ) : (
-              <ShieldX
-                className="h-6 w-6 cursor-pointer text-red-500 bg-red-100 rounded-lg p-1 shadow-sm transition-colors"
-                onClick={() => handleStatusChange(item.id, true)}
-              />
-            )}
-          </div>
-        );
-      case "actions":
-        return (
-          <div className="relative flex items-center gap-2">
-            <TableActions item={item} onDelete={onDelete} onEdit={onEdit} type={type || 'user'} />
-          </div>
-        );
-      default:
-        return typeof cellValue === 'object' && cellValue !== null
-          ? (cellValue.name || JSON.stringify(cellValue))
-          : cellValue;
-    }
-  }, [statusColorMap, onStatusChange, onDelete, onEdit, type]);
-
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
       setPage(page + 1);
@@ -250,12 +157,12 @@ export default function TableComponent({
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e) => {
+  const onRowsPerPageChange = React.useCallback((e: any) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value) => {
+  const onSearchChange = React.useCallback((value: any) => {
     if (value) {
       setFilterValue(value);
       setPage(1);
@@ -269,74 +176,121 @@ export default function TableComponent({
     setPage(1);
   }, []);
 
-  const topContent = React.useMemo(() => {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
+  const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
+    // If the same item is clicked again, clear the filter for this key
+    const newValue = activeFilters[filterKey]?.has(Array.from(selected)[0]) 
+      ? new Set<string>() 
+      : selected;
+      
+    setActiveFilters(prev => ({
+      ...prev,
+      [filterKey]: newValue
+    }));
+    setPage(1); // Reset to first page when filters change
+  }, [activeFilters]);
+
+
+ const topContent = React.useMemo(() => {
+  return (
+    <div className="flex flex-col gap-4 my-4">
+      {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Title - Always visible */}
+        <div className="bg-gray-100 sm:bg-gray-50 rounded-lg p-2 px-3 flex-shrink-0">
+          <span className="font-medium">{type}s ({TableContent.length})</span>
+        </div>
+        
+        {/* Desktop-only Search Bar */}
+        <div className="hidden sm:flex flex-grow">
           {isSearch ? (
             <Input
               isClearable
-              className="w-full sm:max-w-[44%]"
+              className="w-full"
               placeholder="Search..."
               startContent={<Search className="w-5 h-5 text-default-400" />}
               value={filterValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}
-              classNames={{
-                inputWrapper: [
-                  "border-1",
-                  "border-[#d2d2d7]", // Apple's border color
-                  "bg-white", // Apple's background color
-                  "hover:bg-[#e8e8ed]", // Hover state
-                  "focus:bg-[#ffffff]", // Focus state
-                  "data-[focus=true]:bg-[#ffffff]", // White background on focus
-                  "data-[hover=true]:bg-[#e8e8ed]", // Consistent hover
-                  "group-data-[focus=true]:shadow-none", // Remove shadow on focus
-                ],
-                input: [
-                  "text-[#1d1d1f]", // Apple's text color
-                  "placeholder:text-[#86868b]", // Apple's placeholder color
-                ],
-                clearButton: [
-                  "text-[#86868b]", // Apple's gray for clear button
-                  "hover:text-[#1d1d1f]", // Darker on hover
-                ],
-              }}
             />
           ) : (
-            // Placeholder to maintain layout
-            <div className="w-full sm:max-w-[44%]" />
+            <div className="min-h-[2.5rem]" />
           )}
-          <div className="flex gap-3">
-            {statusOptions.length > 0 && (
-              <Dropdown>
-                <DropdownTrigger className="hidden sm:flex">
-                  <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
-                    Status
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Status Filter"
-                  closeOnSelect={false}
-                  selectedKeys={statusFilter}
-                  selectionMode="multiple"
-                  onSelectionChange={setStatusFilter}
-                >
-                  {statusOptions.map((status) => (
-                    <DropdownItem key={status.uid} className="capitalize">
-                      {capitalize(status.name)}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-            )}
-            {/* Add new Data to Table */}
-            <AddNew type={type} onSubmit={onAdd} />
-          </div>
         </div>
+        
+        {/* Add New Button - Always visible */}
+        <div className="flex-shrink-0">
+          <AddNew type={type} onSubmit={onAdd} />
+        </div>
+      </div>
+      
+      {/* Mobile-only Search Bar */}
+      {isSearch && (
+        <div className="sm:hidden w-full">
+          <Input
+            isClearable
+            className="w-full"
+            placeholder="Search..."
+            startContent={<Search className="w-5 h-5 text-default-400" />}
+            value={filterValue}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
+          />
+        </div>
+      )}
+      
+      {/* Filters - Always visible below search */}
+      <div className="flex flex-wrap gap-3 w-full">
+        {filters.length > 0 && (
+          filters.map((filter) => (
+            <Dropdown key={filter.uid}>
+              <DropdownTrigger>
+                <Button 
+                  endContent={<ChevronDown className="w-4 h-4" />} 
+                  variant="faded"
+                  className="w-full sm:w-[200px] justify-between truncate bg-gray-50" 
+                >
+                  <span className="truncate">{filter.name}</span>
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection={false}
+                aria-label={`${filter.name} Filter`}
+                closeOnSelect={true}
+                selectedKeys={activeFilters[filter.uid] || new Set()}
+                selectionMode="single"
+                className="w-full sm:w-[200px]"
+                onSelectionChange={(keys) => handleFilterChange(filter.uid, new Set(Array.from(keys as Set<string>)))}
+              >
+                {filter.content.map((option) => (
+                  <DropdownItem key={option.uid} className="capitalize truncate">
+                    {capitalize(option.name)}
+                    {activeFilters[filter.uid]?.has(option.uid)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}, [
+  filterValue,
+  activeFilters,
+  onRowsPerPageChange,
+  TableContent.length,
+  onSearchChange,
+  hasSearchFilter,
+  statusOptions.length,
+  rowsPerPage,
+]);
+
+  
+  const bottomContent = React.useMemo(() => {
+    return (
+      <div className="pb-10 px-2 flex justify-between items-center">
+        <span className="w-[30%] text-small text-default-600">
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {data.length} items</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -350,26 +304,6 @@ export default function TableComponent({
             </select>
           </label>
         </div>
-      </div>
-    );
-  }, [
-    filterValue,
-    statusFilter,
-    onRowsPerPageChange,
-    data.length,
-    onSearchChange,
-    hasSearchFilter,
-    statusOptions.length,
-    rowsPerPage,
-  ]);
-
-  const bottomContent = React.useMemo(() => {
-    return (
-      <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-600">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`}
         </span>
         <Pagination
           isCompact
@@ -392,46 +326,104 @@ export default function TableComponent({
     );
   }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter]);
 
+  // Default cell renderer (only used if no `render` provided from parent)
+  const defaultRenderCell = useCallback(
+    (item: any, columnKey: string) => {
+      const cellValue = item[columnKey];
+      if (typeof cellValue === "object" && cellValue !== null) {
+        return cellValue.name || JSON.stringify(cellValue);
+      }
+      return cellValue;
+    },
+    []
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
+      className=" w-full mx-auto"
     >
+      {topContent}
+      {/* Selection Action Bar directly above the table */}
+      {isSelectRows && (selectedKeys === "all" || selectedKeys.size > 0) && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-3 rounded-md my-2"
+        >
+          <span>
+            {selectedKeys === "all"
+              ? `All ${filteredItems.length} items selected`
+              : `${selectedKeys.size} of ${filteredItems.length} selected`}
+          </span>
+          <Button
+              size="sm"
+              variant="light"
+              onPress={() => setSelectedKeys(new Set([]))}
+              className="underline"
+            >
+              Clear Selection
+            </Button>
+          <div className="flex gap-3">
+            <Button size="sm" variant="flat" className="bg-white text-black">
+              Print Code
+            </Button>
+            <Button size="sm" color="danger">
+              Delete Selected
+            </Button>
+          </div>
+        </motion.div>
+      )}
       <Table
         isHeaderSticky
         aria-label="Dynamic table with all columns"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "min-h-[400px]",
+             classNames={{
+          wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
+          table: "min-w-full",
+          tr: isSelectRows ? "cursor-pointer hover:bg-gray-50" : "",
         }}
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
+        selectionMode={isSelectRows ? "multiple" : "none"}
+        selectedKeys={isSelectRows ? selectedKeys : undefined}
+        onSelectionChange={isSelectRows ? setSelectedKeys : undefined}
         sortDescriptor={sortDescriptor}
-        topContent={topContent}
         topContentPlacement="outside"
-        onSelectionChange={setSelectedKeys}
         onSortChange={setSortDescriptor}
       >
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn
-              key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
+              key={column.headerId}
               allowsSorting={column.sortable}
+              className="text-sm"
             >
               {column.name}
             </TableColumn>
           )}
         </TableHeader>
+
         <TableBody emptyContent={"No data found"} items={sortedItems}>
           {(item) => (
             <TableRow key={item.id || Math.random()}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              {(columnKey) => {
+                const col = columns.find((c) => c.headerId === columnKey);
+                return (
+                  <TableCell>
+                    {col?.render
+                      ? col.render(item)
+                      : defaultRenderCell(item, columnKey as string)}
+                  </TableCell>
+                );
+              }}
             </TableRow>
           )}
         </TableBody>
+
       </Table>
     </motion.div>
   );

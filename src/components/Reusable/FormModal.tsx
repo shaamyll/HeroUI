@@ -1,24 +1,23 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 import { Button } from "@heroui/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { cn } from '../lib/utils';
-import { addToast } from "@heroui/react";
-import { Select, SelectItem } from "@heroui/react";
+import { addToast, Input } from "@heroui/react";
 import { userData } from '../../Data/User';
-import { StatefulButton } from "./StatefulButton";
+import CustomDropdown from "../Reusable/CustomDropdown"; // Import your SearchableDropdown
 
-type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
+type FieldType = 'text' | 'email' | 'number' | 'searchable-select' | 'date';
 
 type FieldConfig = {
   type: FieldType;
   label: string;
   required?: boolean;
-  options?: { label: string; value: string }[];
+  options?: { key: string; label: string; value?: string; description?: string }[];
   placeholder?: string;
   disabled?: boolean;
+  searchPlaceholder?: string;
 };
 
 type FormConfig = {
@@ -54,14 +53,13 @@ export function FormModal<T extends Record<string, any>>({
     Object.entries(config).forEach(([key, fieldConfig]) => {
       let initialValue = initialData?.[key as keyof T];
 
-
-      if (fieldConfig.type === 'select' && fieldConfig.options) {
+      if (fieldConfig.type === 'searchable-select' && fieldConfig.options) {
         if (initialValue !== undefined) {
-          // For select fields, ensure we're using the value, not the label
+          // For searchable-select fields, ensure we're using the key
           const matchingOption = fieldConfig.options.find(opt =>
-            opt.label === initialValue || opt.value === initialValue
+            opt.label === initialValue || opt.value === initialValue || opt.key === initialValue
           );
-          data[key as keyof T] = (matchingOption?.value || initialValue) as any;
+          data[key as keyof T] = (matchingOption?.key || initialValue) as any;
         } else {
           data[key as keyof T] = '' as any;
         }
@@ -136,18 +134,42 @@ export function FormModal<T extends Record<string, any>>({
 
         // If the field is assignedUser, convert it to assignedUserName
         if (field === 'assignedUser') {
-          // Find the selected user by ID
-          const userId = parseInt(value, 10);
-          const selectedUser = userData.users.find(u => u.id === userId);
-
-          if (selectedUser) {
-            // Store the USER NAME (not ID) in the form data
-            newData[field as keyof T] = selectedUser.name as any;
-
-            // Also update the assignedUserName field if it exists
-            if ('assignedUserName' in newData) {
-              (newData as any).assignedUserName = selectedUser.name;
+          // For searchable dropdown, value will be the selected key
+          if (config[field].type === 'searchable-select') {
+            const selectedKey = Array.from(value)[0] as string;
+            const fieldConfig = config[field];
+            const selectedOption = fieldConfig.options?.find(opt => opt.key === selectedKey);
+            
+            if (selectedOption) {
+              newData[field as keyof T] = selectedOption.label as any;
+              
+              // Also update the assignedUserName field if it exists
+              if ('assignedUserName' in newData) {
+                (newData as any).assignedUserName = selectedOption.label;
+              }
             }
+          } else {
+            // Original logic for non-searchable dropdowns
+            const userId = parseInt(value, 10);
+            const selectedUser = userData.users.find(u => u.id === userId);
+
+            if (selectedUser) {
+              newData[field as keyof T] = selectedUser.name as any;
+
+              if ('assignedUserName' in newData) {
+                (newData as any).assignedUserName = selectedUser.name;
+              }
+            }
+          }
+        } else if (config[field].type === 'searchable-select') {
+          // Handle other searchable-select fields
+          const selectedKey = Array.from(value)[0] as string;
+          const fieldConfig = config[field];
+          const selectedOption = fieldConfig.options?.find(opt => opt.key === selectedKey);
+          
+          if (selectedOption) {
+            // Store the value or label based on your needs
+            newData[field as keyof T] = (selectedOption.value || selectedOption.label) as any;
           }
         } else {
           newData[field as keyof T] = value;
@@ -166,7 +188,7 @@ export function FormModal<T extends Record<string, any>>({
     } catch (error) {
       addToast({
         title: 'Error',
-        description: `Failed to ${initialData?.id ? 'update' : 'create'} ${title.toLowerCase()}`,
+        description: `Failed to ${initialData?.id ? 'update' : 'create'} ${type.toLowerCase()}`,
         color: 'danger',
       });
     }
@@ -192,34 +214,24 @@ export function FormModal<T extends Record<string, any>>({
                       {fieldConfig.label || toLabel(fieldName)}
                       {fieldConfig.required && <span className="text-red-500 ml-1">*</span>}
                     </Label>
-                    {fieldConfig.type === 'select' && fieldConfig.options ? (
-                      <Select
-                        variant="bordered"
-                        className="w-full transition-all duration-200 ease-in-out bg-gray-50"
-                        classNames={{
-                          trigger: "h-10 px-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200",
-                          value: "text-gray-900",
-                          popoverContent: "p-0 rounded-md shadow-lg",
-                        }}
-                        placeholder={`Select ${fieldConfig.label || fieldName}`}
-                        selectedKeys={formData[fieldName as keyof T] ? [String(formData[fieldName as keyof T])] : []}
-                        onSelectionChange={(keys) => {
-                          const selected = Array.from(keys)[0] as string;
-                          handleChange(fieldName, selected);
-                        }}
-                      >
-                        {fieldConfig.options.map((option) => (
-                          <SelectItem
-                            key={option.value}
-                            className="px-4 py-2 text-sm text-gray-700 cursor-pointer transition-colors duration-150"
-                          >
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </Select>
+                    {fieldConfig.type === 'searchable-select' && fieldConfig.options ? (
+                      <CustomDropdown
+                        items={fieldConfig.options}
+                        placeholder={fieldConfig.placeholder || `Select ${fieldConfig.label || fieldName}`}
+                        searchPlaceholder={fieldConfig.searchPlaceholder || `Search ${fieldConfig.label || fieldName}...`}
+                        defaultSelectedKeys={formData[fieldName as keyof T] ? 
+                          new Set([String(formData[fieldName as keyof T])]) : 
+                          new Set()
+                        }
+                        onSelectionChange={(keys) => handleChange(fieldName, keys)}
+                        buttonClassName="w-full justify-start"
+                        dropdownClassname="w-full "
+                        disabled={fieldConfig.disabled}
+                        isSearch={true}
+                      />
                     ) : (
                       <Input
-                        className="border-2"
+                      variant="bordered"
                         id={fieldName}
                         type={fieldConfig.type || 'text'}
                         value={(formData[fieldName as keyof T] as string) || ''}
@@ -242,7 +254,6 @@ export function FormModal<T extends Record<string, any>>({
           <Button className="shadow-md bg-gradient-to-r from-gray-300 to-white" variant="light" onPress={onClose}>
             Cancel
           </Button>
-          {/* Replace the save button with StatefulButton */}
           <Button
             onPress={() => {
               const form = document.querySelector('form');
@@ -277,3 +288,38 @@ const LabelInputContainer = ({
 };
 
 export default FormModal;
+
+// Example usage with SearchableDropdown:
+/*
+const formConfig = {
+  name: {
+    type: 'text',
+    label: 'Name',
+    required: true,
+    placeholder: 'Enter name'
+  },
+  assignedUser: {
+    type: 'searchable-select',
+    label: 'Assigned User',
+    required: true,
+    placeholder: 'Select a user',
+    searchPlaceholder: 'Search users...',
+    options: userData.users.map(user => ({
+      key: user.id.toString(),
+      label: user.name,
+      value: user.name,
+      description: user.email
+    }))
+  },
+  status: {
+    type: 'searchable-select',
+    label: 'Status',
+    required: true,
+    options: [
+      { key: 'active', label: 'Active', description: 'Currently active' },
+      { key: 'inactive', label: 'Inactive', description: 'Currently inactive' },
+      { key: 'pending', label: 'Pending', description: 'Awaiting approval' }
+    ]
+  }
+};
+*/

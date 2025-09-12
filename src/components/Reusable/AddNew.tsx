@@ -48,13 +48,11 @@ function AddNew({ type, onSubmit }: AddNewProps) {
 <Button
   onPress={handleAddClick}
   endContent={<Plus className="w-4 h-4" />}
-  className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white font-medium shadow-md hover:opacity-90 transition"
+  className="bg-[#37125d] text-white font-medium shadow-md hover:opacity-90 transition"
 >
   Add New
 </Button>
 
-
-      
       <FormModal
         type={type}
         config={type === "user" ? userFormConfig : projectFormConfig}

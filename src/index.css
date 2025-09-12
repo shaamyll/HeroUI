@@ -15,14 +15,12 @@
 @layer base {
   html {
     font-family: Nunito, system-ui, sans-serif;
+    font-size: large
   }
 }
 
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     @apply bg-background text-foreground;
     background-color: rgb(234, 234, 234);

@@ -151,7 +151,7 @@ const projectHeaderData = [
 
   return (
     <div className='min-h-screen'>
-      <div className='mx-auto w-3/4 mt-15'>
+      <div className="max-w-[1400px] mx-auto mt-10 px-4">
         <div className="w-full bg-purple-950 rounded-2xl p-6 mb-5">
           <motion.h3
             className="text-2xl font-bold text-white pb-10"

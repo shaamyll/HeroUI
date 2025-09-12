@@ -93,13 +93,13 @@ function Users() {
 
     type UserStatus = keyof typeof statusColorMap;
 
-    const TableData = [
+    const TableSkeleton = [
         { name: 'ID', headerId: 'id', sortable: true },
         {
             name: 'Name',
             headerId: 'name',
             sortable: true,
-            render: (item: any) => ( //cell custom
+            render: (item: any) => ( //cell customization
                 <div className="flex items-center gap-3">
                     <div
                         className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md ${getGradientFromName(
@@ -215,8 +215,8 @@ function Users() {
                 {/* Table */}
                 <TableComponent
                     type="user"
-                    headerData={TableData}
-                    data={users}
+                    TableSkeleton={TableSkeleton}
+                    TableContent={users}
                     filters={filterContent}
                     statusOptions={statusOptions}
                     statusColorMap={statusColorMap}

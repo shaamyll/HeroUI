@@ -80,7 +80,7 @@ function Projects() {
 
     type projectStatus = keyof typeof statusColorMap;
 
-const projectHeaderData = [
+const TableSkeleton = [
   { name: "ID", headerId: "id", sortable: true },
   {
     name: "Project",
@@ -164,8 +164,8 @@ const projectHeaderData = [
         </div>
         <TableComponent
           type="project"
-          data={projects}
-          headerData={projectHeaderData}
+          TableContent={projects}
+          TableSkeleton={TableSkeleton}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}

@@ -26,14 +26,14 @@ export interface TableColumn {
   isSelectRows: boolean
 }
 
-export interface TableData {
+export interface TableContent {
   [key: string]: any;
 }
 
 
 interface TableComponentProps {
-  data: TableData[];
-  headerData?: Array<{ name: string; headerId: string; sortable?: boolean }>;
+  TableContent: TableContent[];
+  TableSkeleton?: Array<{ name: string; headerId: string; sortable?: boolean }>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
@@ -52,8 +52,8 @@ export function capitalize(s: string) {
 }
 
 export default function TableComponent({
-  data,
-  headerData = [],
+  TableContent,
+  TableSkeleton = [],
   statusOptions = [],
   filters = [],
   onAdd,
@@ -61,17 +61,17 @@ export default function TableComponent({
   isSearch,
   isSelectRows
 }: TableComponentProps) {
-  console.log(headerData)
+  console.log(TableSkeleton)
 
   //  headerData for columns Headers
   const columns = React.useMemo<TableColumn[]>((): any => {
-    return headerData.map(col => ({
+    return TableSkeleton.map(col => ({
       name: col.name,
       headerId: col.headerId,
       render: col.render,
       sortable: col.sortable || false,
     }));
-  }, [headerData]);
+  }, [TableSkeleton]);
 
 
   const [filterValue, setFilterValue] = useState("");
@@ -89,7 +89,8 @@ export default function TableComponent({
   const hasSearchFilter = Boolean(filterValue);
 
   const filteredItems = React.useMemo(() => {
-    let filteredData = [...data];
+    let filteredData = [...TableContent];
+    console.log("filtered",filteredData)
     if (hasSearchFilter) {
       filteredData = filteredData.filter((item) =>
         Object.values(item).some(
@@ -106,7 +107,7 @@ export default function TableComponent({
       );
     }
     return filteredData;
-  }, [data, filterValue, statusFilter, statusOptions.length]);
+  }, [TableContent, filterValue, statusFilter, statusOptions.length]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
   
@@ -216,7 +217,7 @@ export default function TableComponent({
     filterValue,
     statusFilter,
     onRowsPerPageChange,
-    data.length,
+    TableContent.length,
     onSearchChange,
     hasSearchFilter,
     statusOptions.length,

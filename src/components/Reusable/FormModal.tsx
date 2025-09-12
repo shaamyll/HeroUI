@@ -223,7 +223,6 @@ export function FormModal<T extends Record<string, any>>({
                         onSelectionChange={(key) => handleChange(fieldName, key)}
                         buttonClassName="w-full flex justify-start"  
                         dropdownClassname="w-full h-[50px]"  
-                        matchWidth={true}
                         disabled={fieldConfig.disabled}
                         isSearch={true}
                       />

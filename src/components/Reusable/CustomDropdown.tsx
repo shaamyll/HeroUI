@@ -7,6 +7,7 @@ import {
   Button,
   Input
 } from "@heroui/react";
+import { ChevronDown } from "lucide-react";
 
 function CustomDropdown({
   items = [],
@@ -17,7 +18,6 @@ function CustomDropdown({
   dropdownClassname,
   searchPlaceholder = "Search items...",
   disallowEmptySelection = true,
-  matchWidth = false,
   isSearch,
 }) {
   const [selectedKeys, setselectedKeys] = useState(defaultselectedKeys);
@@ -56,6 +56,7 @@ function CustomDropdown({
           <Button
             className={buttonClassName}
             variant="bordered"
+            endContent={<ChevronDown className="w-4 h-4" />} 
           >
             {selectedValue}
           </Button>

@@ -191,7 +191,7 @@ function Users() {
     ];
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen px-2">
             <div className="max-w-[1400px] mx-auto mt-10">
                 {/* Header */}
                 <div className="w-full bg-[#37125d] rounded-2xl p-6 mb-5">

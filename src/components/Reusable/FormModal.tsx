@@ -8,6 +8,7 @@ import { cn } from '../lib/utils';
 import { addToast } from "@heroui/react";
 import { Select, SelectItem } from "@heroui/react";
 import { userData } from '../../Data/User';
+import { StatefulButton } from "./StatefulButton";
 
 type FieldType = 'text' | 'email' | 'number' | 'select' | 'date';
 
@@ -176,7 +177,7 @@ export function FormModal<T extends Record<string, any>>({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-gray-100">
+    <Modal isOpen={isOpen} onClose={onClose} size="3xl" backdrop="blur" className="bg-white">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 font-bold text-xl">
           {initialData?.id ? 'Edit' : 'Add'} {type}
@@ -238,20 +239,20 @@ export function FormModal<T extends Record<string, any>>({
           </form>
         </ModalBody>
         <ModalFooter>
-          <Button className="shadow-md" variant="light" onPress={onClose}>
+          <Button className="shadow-md bg-gradient-to-r from-gray-300 to-white" variant="light" onPress={onClose}>
             Cancel
           </Button>
+          {/* Replace the save button with StatefulButton */}
           <Button
-            className="shadow-md"
-            color="primary"
             onPress={() => {
               const form = document.querySelector('form');
               if (form) {
-                // Create and dispatch a submit event
                 const event = new Event('submit', { cancelable: true, bubbles: true });
                 form.dispatchEvent(event);
               }
             }}
+            color="primary"
+            className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white font-medium shadow-md hover:opacity-90 transition"
           >
             Save Changes
           </Button>

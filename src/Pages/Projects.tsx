@@ -3,10 +3,34 @@ import TableComponent from '../components/Reusable/TableComponent';
 import { projectData } from '../Data/Projects';
 import { addToast } from '@heroui/react';
 import { motion } from 'framer-motion';
+import DashboardHeader from "../components/common/DashboardHeader";
 
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
 
+  // ✅ Tabs and Actions should be here (top-level, not inside a callback)
+  const tabs = [
+    { id: "overview", name: "Overview", path: "/projects/overview" },
+    { id: "active", name: "Active", path: "/projects/active" },
+    { id: "completed", name: "Completed", path: "/projects/completed" },
+  ];
+
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const actionButtons = [
+    {
+      id: "add-project",
+      label: "Add Project",
+      onClick: () => {
+        addToast({
+          title: "Add Project",
+          description: "Add project button clicked.",
+          color: "primary",
+        });
+      },
+      variant: "primary",
+    },
+  ];
 
   const handleDeleteProject = useCallback((projectId: number) => {
     setProjects(prevProjects => {
@@ -49,7 +73,7 @@ function Projects() {
     setProjects(prevProjects => {
       const projectWithId = {
         ...newProject,
-        id: Math.max(0, ...prevProjects.map(p => p.id)) + 1, // Generate a new ID
+        id: Math.max(0, ...prevProjects.map(p => p.id)) + 1,
         projectStatus: 'In Progress'
       };
 
@@ -77,9 +101,20 @@ function Projects() {
     'Completed': 'success',
   };
 
-
   return (
     <div className='min-h-screen'>
+      {/* ✅ Dashboard Header */}
+      <DashboardHeader
+        moduleName="projects"
+        title="Projects Dashboard"
+        subtitle="Manage and track your projects efficiently"
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        actionButtons={actionButtons}
+        userPermissions={["create", "edit", "delete"]}
+      />
+
       <div className='mx-auto w-3/4 mt-15'>
         <motion.h3
           className="ms-auto text-2xl font-bold mb-5"
@@ -89,6 +124,7 @@ function Projects() {
         >
           PROJECTS TABLE :
         </motion.h3>
+
         <TableComponent
           type="project"
           data={projects}
@@ -96,7 +132,6 @@ function Projects() {
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}
           onEdit={handleEditProject}
-          on
           isSearch={false}
           onStatusChange={(id, isActive) => {
             setProjects(prevProjects =>

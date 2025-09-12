@@ -8,13 +8,14 @@ import {
   Input
 } from "@heroui/react";
 
-function customDropdown({
+function CustomDropdown({
   items = [],
   placeholder = "Select an option",
   defaultSelectedKey = new Set(),
   onSelectionChange,
   buttonVariant = "bordered",
   buttonClassName = "capitalize",
+  dropdownClassname,
   searchPlaceholder = "Search items...",
   disabled = false,
   size = "md",
@@ -22,6 +23,7 @@ function customDropdown({
   variant = "flat",
   disallowEmptySelection = true,
   selectionMode = "single",
+  isSearch,
   ...props
 }) {
   const [selectedKey, setSelectedKey] = useState(defaultSelectedKey);
@@ -58,32 +60,32 @@ function customDropdown({
         <DropdownTrigger>
           <Button
             className={buttonClassName}
-            variant={buttonVariant}
-            disabled={disabled}
-            size={size}
-            color={color}
+            variant="bordered"
           >
             {selectedValue}
           </Button>
         </DropdownTrigger>
         <DropdownMenu
+        className={dropdownClassname}
           disallowEmptySelection={disallowEmptySelection}
           selectedKey={selectedKey}
           selectionMode={selectionMode}
-          variant={variant}
+          variant="faded"
           onSelectionChange={handleSelectionChange}
           topContent={
-            <div className="px-2 pb-2">
-              <Input
-                placeholder={searchPlaceholder}
-                value={searchValue}
-                onValueChange={setSearchValue}
-                size="sm"
-                variant="bordered"
-                isClearable
-                onClear={() => setSearchValue("")}
-              />
-            </div>
+            isSearch ? (
+              <div className=" pb-2">
+                <Input
+                  placeholder={searchPlaceholder}
+                  value={searchValue}
+                  onValueChange={setSearchValue}
+                  size="sm"
+                  variant="bordered"
+                  isClearable
+                  onClear={() => setSearchValue("")}
+                />
+              </div>
+            ) : null
           }
         >
           {filteredItems.length > 0 ? (
@@ -110,33 +112,4 @@ function customDropdown({
   );
 }
 
-export default customDropdown;
-
-// Example usage:
-/*
-import SearchableDropdown from './SearchableDropdown';
-
-const dataTypes = [
-  { key: "text", label: "Text" },
-  { key: "number", label: "Number" },
-  { key: "date", label: "Date" },
-  { key: "single_date", label: "Single Date" },
-  { key: "iteration", label: "Iteration" },
-];
-
-function MyComponent() {
-  const handleSelectionChange = (keys) => {
-    console.log("Selected:", Array.from(keys));
-  };
-
-  return (
-    <SearchableDropdown
-      items={dataTypes}
-      placeholder="Select data type"
-      defaultselectedKey={new Set(["text"])}
-      onSelectionChange={handleSelectionChange}
-      searchPlaceholder="Search data types..."
-    />
-  );
-}
-*/
+export default CustomDropdown;

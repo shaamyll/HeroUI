@@ -224,9 +224,10 @@ export function FormModal<T extends Record<string, any>>({
                           new Set()
                         }
                         onSelectionChange={(keys) => handleChange(fieldName, keys)}
-                        buttonVariant="bordered"
-                        buttonClassName="w-full justify-start h-10 px-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
+                        buttonClassName="w-full justify-start"
+                        dropdownClassname="w-full "
                         disabled={fieldConfig.disabled}
+                        isSearch={true}
                       />
                     ) : (
                       <Input

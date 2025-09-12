@@ -288,7 +288,7 @@ export default function TableComponent({
   
   const bottomContent = React.useMemo(() => {
     return (
-      <div className="py-8 px-2 flex justify-between items-center">
+      <div className="pb-10 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-600">
         <div className="flex justify-between items-center">
           <label className="flex items-center text-default-400 text-small">

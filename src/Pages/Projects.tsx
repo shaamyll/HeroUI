@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 import TableComponent from '../components/Reusable/TableComponent';
 import { projectData } from '../Data/Projects';
-import { addToast, Chip, Progress } from '@heroui/react';
+import { addToast, Chip, Progress, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
 import TableActions from '../components/Reusable/TableActions';
+import { Eye, PencilLine, Trash2 } from 'lucide-react';
 
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
@@ -78,74 +79,86 @@ function Projects() {
     'Completed': 'success',
   } as const;
 
-    type projectStatus = keyof typeof statusColorMap;
+  type projectStatus = keyof typeof statusColorMap;
 
-const TableSkeleton = [
-  { name: "ID", headerId: "id", sortable: true },
-  {
-    name: "Project",
-    headerId: "projectName",
-    sortable: true,
-    render: (item: any) => (
-      <div className="flex items-center gap-3">
-        <span className="">{item.projectName}</span>
-      </div>
-    ),
-  },
-  {
-    name: "Assigned To",
-    headerId: "assignedUserName",
-    sortable: true,
-    render: (item: any) => (
-      <div className="flex items-center gap-3">
-        <Chip color="secondary" size="sm" variant="faded">
-          {item.assignedUserName}
+  const TableSkeleton = [
+    { name: "ID", headerId: "id", sortable: true },
+    {
+      name: "Project",
+      headerId: "projectName",
+      sortable: true,
+      render: (item: any) => (
+        <div className="flex items-center gap-3">
+          <span className="">{item.projectName}</span>
+        </div>
+      ),
+    },
+    {
+      name: "Assigned To",
+      headerId: "assignedUserName",
+      sortable: true,
+      render: (item: any) => (
+        <div className="flex items-center gap-3">
+          <Chip color="secondary" size="sm" variant="faded">
+            {item.assignedUserName}
+          </Chip>
+        </div>
+      ),
+    },
+    { name: "Time Period", headerId: "timePeriod", sortable: true },
+    {
+      name: "Status",
+      headerId: "projectStatus",
+      sortable: true,
+      render: (item: any) => (
+        <Chip color={statusColorMap[item.projectStatus as projectStatus]} size="sm" variant="dot">
+          {item.projectStatus}
         </Chip>
-      </div>
-    ),
-  },
-  { name: "Time Period", headerId: "timePeriod", sortable: true },
-  {
-    name: "Status",
-    headerId: "projectStatus",
-    sortable: true,
-    render: (item: any) => (
-      <Chip color={statusColorMap[item.projectStatus as projectStatus]} size="sm" variant="dot">
-        {item.projectStatus}
-      </Chip>
-    ),
-  },
-  {
-    name: "Progress",
-    headerId: "progress",
-    sortable: true,
-    render: (item: any) => (
-      <div className="flex items-center gap-2">
-        <Progress
-          value={item.progress}
-          color="primary"
-          className="w-20 h-10"
-          showValueLabel={true}
-        />
-        <span className="text-xs">{item.progress}%</span>
-      </div>
-    ),
-  },
-  {
-    name: "Actions",
-    headerId: "actions",
-    sortable: false,
-    className: "text-center w-28",
-    render: (item: any) => (
-      <TableActions
-        item={item}
-        onDelete={handleDeleteProject} 
-        onEdit={handleEditProject}     
-        type="project"
-      />
-    ),
-  },
-];
+      ),
+    },
+    {
+      name: "Progress",
+      headerId: "progress",
+      sortable: true,
+      render: (item: any) => (
+        <div className="flex items-center gap-2">
+          <Progress
+            value={item.progress}
+            color="primary"
+            className="w-20 h-10"
+            showValueLabel={true}
+          />
+          <span className="text-xs">{item.progress}%</span>
+        </div>
+      ),
+    },
+    {
+      name: 'Actions',
+      headerId: 'actions',
+      sortable: false,
+      render: (item: any) => (
+        <div className="relative flex items-center gap-3">
+          <Tooltip content="Details">
+            <span className="text-md text-default-400 cursor-pointer active:opacity-50">
+              <Eye className="w-4 h-4" />
+            </span>
+          </Tooltip>
+
+          <Tooltip content="Edit user">
+            <span className="text-md text-default-400 cursor-pointer active:opacity-50">
+              <PencilLine className="w-4 h-4" />
+            </span>
+          </Tooltip>
+
+          <Tooltip color="danger" content="Delete user">
+            <span className="text-lg text-danger cursor-pointer active:opacity-50">
+              <Trash2 className="w-4 h-4" />
+            </span>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
 
 
 

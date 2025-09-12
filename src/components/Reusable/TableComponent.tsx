@@ -76,7 +76,7 @@ export default function TableComponent({
 
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<{
     column: string;
@@ -90,7 +90,7 @@ export default function TableComponent({
 
   const filteredItems = React.useMemo(() => {
     let filteredData = [...TableContent];
-    console.log("filtered",filteredData)
+    // Apply search filter
     if (hasSearchFilter) {
       filteredData = filteredData.filter((item) =>
         Object.values(item).some(
@@ -100,14 +100,29 @@ export default function TableComponent({
         )
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredData = filteredData.filter((item) =>
-        ('status' in item && Array.from(statusFilter).includes(item.status)) ||
-        ('projectStatus' in item && Array.from(statusFilter).includes(item.projectStatus))
-      );
-    }
+
+    // Apply all active filters
+    filteredData = filteredData.filter(item => {
+      return Object.entries(activeFilters).every(([filterKey, filterValues]) => {
+        // Skip if no filter values are selected for this filter
+        if (filterValues.size === 0) return true;
+        
+        // Check if the item has the filter key and its value is in the selected filters
+        const itemValue = item[filterKey];
+        if (itemValue === undefined) return false;
+        
+        // Handle both single values and arrays of values
+        const itemValues = Array.isArray(itemValue) ? itemValue : [itemValue];
+        return Array.from(filterValues).some(value => 
+          itemValues.some(itemVal => 
+            String(itemVal).toLowerCase() === String(value).toLowerCase()
+          )
+        );
+      });
+    });
+
     return filteredData;
-  }, [TableContent, filterValue, statusFilter, statusOptions.length]);
+  }, [TableContent, filterValue, hasSearchFilter, activeFilters]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
   
@@ -162,6 +177,19 @@ export default function TableComponent({
     setPage(1);
   }, []);
 
+  const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
+    // If the same item is clicked again, clear the filter for this key
+    const newValue = activeFilters[filterKey]?.has(Array.from(selected)[0]) 
+      ? new Set<string>() 
+      : selected;
+      
+    setActiveFilters(prev => ({
+      ...prev,
+      [filterKey]: newValue
+    }));
+    setPage(1); // Reset to first page when filters change
+  }, [activeFilters]);
+
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4 my-4">
@@ -183,23 +211,24 @@ export default function TableComponent({
           <div className="flex gap-3">
             {filters.length > 0 && (
               filters.map((filter) => (
-                <Dropdown>
+                <Dropdown key={filter.uid}>
                   <DropdownTrigger className="hidden sm:flex">
                     <Button endContent={<ChevronDown className="w-4 h-4" />} variant="faded">
                       {filter.name}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
-                    disallowEmptySelection
-                    aria-label="Status Filter"
-                    closeOnSelect={false}
-                    selectedKeys={statusFilter}
-                    selectionMode="multiple"
-                    onSelectionChange={setStatusFilter}
+                    disallowEmptySelection={false}
+                    aria-label={`${filter.name} Filter`}
+                    closeOnSelect={true}
+                    selectedKeys={activeFilters[filter.uid] || new Set()}
+                    selectionMode="single"
+                    onSelectionChange={(keys) => handleFilterChange(filter.uid, new Set(Array.from(keys as Set<string>)))}
                   >
-                    {filter.content.map((status) => (
-                      <DropdownItem key={status.uid} className="capitalize">
-                        {capitalize(status.name)}
+                    {filter.content.map((option) => (
+                      <DropdownItem key={option.uid} className="capitalize">
+                        {capitalize(option.name)}
+                        {activeFilters[filter.uid]?.has(option.uid)}
                       </DropdownItem>
                     ))}
                   </DropdownMenu>
@@ -215,7 +244,7 @@ export default function TableComponent({
     );
   }, [
     filterValue,
-    statusFilter,
+    activeFilters,
     onRowsPerPageChange,
     TableContent.length,
     onSearchChange,
@@ -299,20 +328,20 @@ export default function TableComponent({
               ? `All ${filteredItems.length} items selected`
               : `${selectedKeys.size} of ${filteredItems.length} selected`}
           </span>
-          <div className="flex gap-3">
-            <Button size="sm" variant="flat" className="bg-white text-black">
-              Print Code
-            </Button>
-            <Button size="sm" color="danger">
-              Delete Selected
-            </Button>
-            <Button
+          <Button
               size="sm"
               variant="light"
               onPress={() => setSelectedKeys(new Set([]))}
               className="underline"
             >
               Clear Selection
+            </Button>
+          <div className="flex gap-3">
+            <Button size="sm" variant="flat" className="bg-white text-black">
+              Print Code
+            </Button>
+            <Button size="sm" color="danger">
+              Delete Selected
             </Button>
           </div>
         </motion.div>

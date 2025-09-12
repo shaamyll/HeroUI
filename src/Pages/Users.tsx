@@ -160,14 +160,6 @@ function Users() {
         },
     ];
 
-    //  <TableActions
-    //             item={item}
-    //             onDelete={handleDeleteUser}
-    //             onEdit={handleEditUser}
-    //             type="user"
-    //         />
-
-    // ✅ Dropdown filter options
     const statusOptions = [
         { name: 'Active', uid: 'active' },
         { name: 'Paused', uid: 'paused' },

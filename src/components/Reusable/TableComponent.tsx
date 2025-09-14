@@ -14,9 +14,10 @@ import {
   DropdownItem,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, RotateCcw, Search, X } from "lucide-react";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
+import CustomDropdown from "./CustomDropdown";
 
 export interface TableColumn {
   render?: (item: any) => React.ReactNode;
@@ -32,7 +33,7 @@ export interface TableContent {
 
 interface TableComponentProps {
   TableContent: TableContent[];
-  TableSkeleton?: Array<{ name: string; headerId: string; sortable?: boolean }>;
+  TableStructure?: Array<{ name: string; headerId: string; sortable?: boolean }>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
@@ -52,7 +53,7 @@ export function capitalize(s: string) {
 
 export default function TableComponent({
   TableContent,
-  TableSkeleton = [],
+  TableStructure = [],
   statusOptions = [],
   filters = [],
   onAdd,
@@ -60,17 +61,17 @@ export default function TableComponent({
   isSearch,
   isSelectRows
 }: TableComponentProps) {
-  console.log(TableSkeleton)
+  console.log(TableStructure)
 
   //  headerData for columns Headers
   const columns = React.useMemo<TableColumn[]>((): any => {
-    return TableSkeleton.map(col => ({
+    return TableStructure.map(col => ({
       name: col.name,
       headerId: col.headerId,
       render: col.render,
       sortable: col.sortable || false,
     }));
-  }, [TableSkeleton]);
+  }, [TableStructure]);
 
 
   const [filterValue, setFilterValue] = useState("");
@@ -86,6 +87,11 @@ export default function TableComponent({
   });
   const [page, setPage] = React.useState(1);
   const hasSearchFilter = Boolean(filterValue);
+
+  // Check if any filters are active
+  const hasActiveFilters = React.useMemo(() => {
+    return Object.values(activeFilters).some(set => set.size > 0);
+  }, [activeFilters]);
 
   const filteredItems = React.useMemo(() => {
     let filteredData = [...TableContent];
@@ -105,15 +111,15 @@ export default function TableComponent({
       return Object.entries(activeFilters).every(([filterKey, filterValues]) => {
         // Skip if no filter values are selected for this filter
         if (filterValues.size === 0) return true;
-        
+
         // Check if the item has the filter key and its value is in the selected filters
         const itemValue = item[filterKey];
         if (itemValue === undefined) return false;
-        
+
         // Handle both single values and arrays of values
         const itemValues = Array.isArray(itemValue) ? itemValue : [itemValue];
-        return Array.from(filterValues).some(value => 
-          itemValues.some(itemVal => 
+        return Array.from(filterValues).some(value =>
+          itemValues.some(itemVal =>
             String(itemVal).toLowerCase() === String(value).toLowerCase()
           )
         );
@@ -124,7 +130,7 @@ export default function TableComponent({
   }, [TableContent, filterValue, hasSearchFilter, activeFilters]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
-  
+
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -176,33 +182,67 @@ export default function TableComponent({
     setPage(1);
   }, []);
 
+
   const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
-    // If the same item is clicked again, clear the filter for this key
-    const newValue = activeFilters[filterKey]?.has(Array.from(selected)[0]) 
-      ? new Set<string>() 
+    // If the same item is clicked again, clear the filter for that key
+    const newValue = activeFilters[filterKey]?.has(Array.from(selected)[0])
+      ? new Set<string>()
       : selected;
-      
+
     setActiveFilters(prev => ({
       ...prev,
       [filterKey]: newValue
     }));
-    setPage(1); // Reset to first page when filters change
+    setPage(1);
   }, [activeFilters]);
 
+  // Reset all filters
+  const resetFilters = useCallback(() => {
+    const resetFilters: Record<string, Set<string>> = {};
+    filters.forEach(filter => {
+      resetFilters[filter.uid] = new Set();
+    });
+    setActiveFilters(resetFilters);
+    setPage(1);
+  }, [filters]);
 
- const topContent = React.useMemo(() => {
-  return (
-    <div className="flex flex-col gap-4 my-4">
-      {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Title - Always visible */}
-        <div className="bg-gray-100 sm:bg-gray-50 rounded-lg p-2 px-3 flex-shrink-0">
-          <span className="font-medium">{type}s ({TableContent.length})</span>
+
+  const topContent = React.useMemo(() => {
+    return (
+      <div className="flex flex-col gap-4 my-4">
+        {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Title - Always visible */}
+          <div className="bg-gray-100 sm:bg-gray-50 rounded-lg p-2 px-3 flex-shrink-0">
+            <span className="font-medium">{type}s ({TableContent.length})</span>
+          </div>
+
+          {/* Desktop-only Search Bar */}
+          <div className="hidden sm:flex flex-grow">
+            {isSearch ? (
+              <Input
+                isClearable
+                className="w-full"
+                placeholder="Search..."
+                startContent={<Search className="w-5 h-5 text-default-400" />}
+                value={filterValue}
+                onClear={() => onClear()}
+                onValueChange={onSearchChange}
+              />
+            ) : (
+              <div className="min-h-[2.5rem]" />
+            )}
+          </div>
+
+          {/* Add New Button - Always visible */}
+          <div className="flex-shrink-0">
+            <AddNew type={type} onSubmit={onAdd} />
+          </div>
         </div>
-        
-        {/* Desktop-only Search Bar */}
-        <div className="hidden sm:flex flex-grow">
-          {isSearch ? (
+
+        {/* Mobile-only Search Bar */}
+        {isSearch && (
+          <div className="sm:hidden w-full">
             <Input
               isClearable
               className="w-full"
@@ -212,98 +252,76 @@ export default function TableComponent({
               onClear={() => onClear()}
               onValueChange={onSearchChange}
             />
-          ) : (
-            <div className="min-h-[2.5rem]" />
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3 w-full">
+          {filters.length > 0 && (
+            filters.map((filter) => (
+              <CustomDropdown
+                key={filter.uid}
+                items={filter.content.map(option => ({
+                  key: option.uid,
+                  label: option.name,
+                  description:option.description
+                }))}
+                placeholder={filter.name}
+                defaultselectedKeys={activeFilters[filter.uid] || new Set()}
+                onSelectionChange={(keys) => handleFilterChange(filter.uid, keys)}
+                buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
+                dropdownClassname="w-full sm:w-[200px]"
+                matchWidth={true}
+                disallowEmptySelection={false}
+                isSearch={true}
+              />
+            ))
+          )}
+
+
+          {hasActiveFilters && (
+            <Button
+              size="sm"
+              variant="faded"
+              startContent={<RotateCcw className="w-4 h-4 text-red-500" />}
+              className="border border-dotted border-red-500 text-red-500 rounded-md font-medium hover:bg-red-100 mt-1"
+              onPress={resetFilters}
+            >
+              Reset All
+            </Button>
           )}
         </div>
-        
-        {/* Add New Button - Always visible */}
-        <div className="flex-shrink-0">
-          <AddNew type={type} onSubmit={onAdd} />
-        </div>
       </div>
-      
-      {/* Mobile-only Search Bar */}
-      {isSearch && (
-        <div className="sm:hidden w-full">
-          <Input
-            isClearable
-            className="w-full"
-            placeholder="Search..."
-            startContent={<Search className="w-5 h-5 text-default-400" />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
-        </div>
-      )}
-      
-      {/* Filters - Always visible below search */}
-      <div className="flex flex-wrap gap-3 w-full">
-        {filters.length > 0 && (
-          filters.map((filter) => (
-            <Dropdown key={filter.uid}>
-              <DropdownTrigger>
-                <Button 
-                  endContent={<ChevronDown className="w-4 h-4" />} 
-                  variant="faded"
-                  className="w-full sm:w-[200px] justify-between truncate bg-gray-50" 
-                >
-                  <span className="truncate">{filter.name}</span>
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection={false}
-                aria-label={`${filter.name} Filter`}
-                closeOnSelect={true}
-                selectedKeys={activeFilters[filter.uid] || new Set()}
-                selectionMode="single"
-                className="w-full sm:w-[200px]"
-                onSelectionChange={(keys) => handleFilterChange(filter.uid, new Set(Array.from(keys as Set<string>)))}
-              >
-                {filter.content.map((option) => (
-                  <DropdownItem key={option.uid} className="capitalize truncate">
-                    {capitalize(option.name)}
-                    {activeFilters[filter.uid]?.has(option.uid)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}, [
-  filterValue,
-  activeFilters,
-  onRowsPerPageChange,
-  TableContent.length,
-  onSearchChange,
-  hasSearchFilter,
-  statusOptions.length,
-  rowsPerPage,
-]);
+    );
+  }, [
+    filterValue,
+    activeFilters,
+    onRowsPerPageChange,
+    TableContent.length,
+    onSearchChange,
+    hasSearchFilter,
+    statusOptions.length,
+    rowsPerPage,
+  ]);
 
-  
+
   const bottomContent = React.useMemo(() => {
     return (
       <div className="pb-10 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-600">
-        <div className="flex justify-between items-center">
-          <label className="flex items-center text-default-400 text-small">
-            Rows per page:
-            <select
-              className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
-              onChange={onRowsPerPageChange}
-              value={rowsPerPage}
-            >
-              {/* <option value="5">5</option> */}
-              <option value="10">10</option>
-              <option value="15">15</option>
-            </select>
-          </label>
-        </div>
+          <div className="flex justify-between items-center">
+            <label className="flex items-center text-default-400 text-small">
+              Rows per page:
+              <select
+                className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
+                onChange={onRowsPerPageChange}
+                value={rowsPerPage}
+              >
+                {/* <option value="5">5</option> */}
+                <option value="10">10</option>
+                <option value="15">15</option>
+              </select>
+            </label>
+          </div>
         </span>
         <Pagination
           isCompact
@@ -361,13 +379,13 @@ export default function TableComponent({
               : `${selectedKeys.size} of ${filteredItems.length} selected`}
           </span>
           <Button
-              size="sm"
-              variant="light"
-              onPress={() => setSelectedKeys(new Set([]))}
-              className="underline"
-            >
-              Clear Selection
-            </Button>
+            size="sm"
+            variant="light"
+            onPress={() => setSelectedKeys(new Set([]))}
+            className="underline"
+          >
+            Clear Selection
+          </Button>
           <div className="flex gap-3">
             <Button size="sm" variant="flat" className="bg-white text-black">
               Print Code
@@ -383,7 +401,7 @@ export default function TableComponent({
         aria-label="Dynamic table with all columns"
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
-             classNames={{
+        classNames={{
           wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
           table: "min-w-full",
           tr: isSelectRows ? "cursor-pointer hover:bg-gray-50" : "",

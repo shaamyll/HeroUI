@@ -94,7 +94,7 @@ function Users() {
 
     type UserStatus = keyof typeof statusColorMap;
 
-    const TableSkeleton = [
+    const TableStructure = [
         { name: 'ID', headerId: 'id', sortable: true },
         {
             name: 'Name',
@@ -191,7 +191,7 @@ function Users() {
     ];
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen px-2">
             <div className="max-w-[1400px] mx-auto mt-10">
                 {/* Header */}
                 <div className="w-full bg-[#37125d] rounded-2xl p-6 mb-5">
@@ -209,7 +209,7 @@ function Users() {
                 {/* Table */}
                 <TableComponent
                     type="user"
-                    TableSkeleton={TableSkeleton}
+                    TableStructure={TableStructure}
                     TableContent={users}
                     filters={filterContent}
                     statusOptions={statusOptions}

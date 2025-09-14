@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-// If you're using lucide-react (recommended)
 import { HomeIcon } from "lucide-react";
+import Dock from '../ui/Dock'; // Import your Dock component
+import type { DockItemData } from '../ui/Dock';
+import DotGrid from "../DotGrid";
 
 interface Tab {
   id: string;
@@ -21,75 +23,65 @@ interface ActionButton {
 }
 
 interface DashboardHeaderProps {
-
-  moduleName: string; // e.g. "users", "projects"
-
   // Basic header info
   title: string;
   subtitle: string;
-  
-  // Tabs configuration
+
+  // Tabs configuration - now converted to dock items
   tabs: Tab[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
-  
+
   // Action buttons
   actionButtons?: ActionButton[];
-  
+
   // Mobile configuration
   showMobileNav?: boolean;
   mobileBreakpoint?: number;
-  
+
   // Mobile floating buttons
   mobileFloatingButtons?: ActionButton[];
-  
+
   // User permissions (optional)
   userPermissions?: string[];
-  
+
   // Styling
   bgColor?: string;
   bgImage?: string;
   headerClassName?: string;
   titleClassName?: string;
   subtitleClassName?: string;
-  
+
   // Additional content (like brand selector)
   additionalContent?: React.ReactNode;
+
+  // Dock configuration
+  dockProps?: {
+    distance?: number;
+    panelHeight?: number;
+    baseItemSize?: number;
+    dockHeight?: number;
+    magnification?: number;
+    spring?: any;
+  };
+
+  // DotGrid configuration
+  dotGridConfig?: {
+    dotSize?: number;
+    gap?: number;
+    baseColor?: string;
+    activeColor?: string;
+    proximity?: number;
+    shockRadius?: number;
+    shockStrength?: number;
+    resistance?: number;
+    returnDuration?: number;
+    opacity?: number;
+    enabled?: boolean;
+  };
 }
-const defaultOverviewTab = (moduleName: string): Tab => ({
-  id: "a",
-  name: "a",
-  icon: <HomeIcon />,
-  path: `/${moduleName}`,
-});
 
-// Simple Tabs Component
-const SimpleTabs: React.FC<{
-  tabs: Tab[];
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
-}> = ({ tabs, activeTab, onTabChange }) => {
-  return (
-    <div className="flex flex-wrap gap-1 rounded-lg bg-white/10 p-1">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={`flex items-center px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md whitespace-nowrap ${
-            activeTab === tab.id
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-white hover:bg-white/20'
-          }`}
-        >
-          {tab.icon}
-          {tab.name}
-        </button>
-      ))}
-    </div>
-  );
-};
-
-// Simple Mobile Navigation
+// Simple Mobile Navigation (kept for mobile fallback)
 const SimpleMobileNav: React.FC<{
   tabs: Tab[];
   activeTab: string;
@@ -102,11 +94,10 @@ const SimpleMobileNav: React.FC<{
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex flex-col items-center px-2 py-1 text-xs transition-colors ${
-              activeTab === tab.id
+            className={`flex flex-col items-center px-2 py-1 text-xs transition-colors ${activeTab === tab.id
                 ? 'text-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             {tab.icon}
             <span className="mt-1 truncate max-w-12">{tab.name}</span>
@@ -123,14 +114,13 @@ const PermissionWrapper: React.FC<{
   requiredPermissions: string[];
   children: React.ReactNode;
 }> = ({ userPermissions, requiredPermissions, children }) => {
-  const hasPermission = requiredPermissions.length === 0 || 
+  const hasPermission = requiredPermissions.length === 0 ||
     requiredPermissions.some(permission => userPermissions.includes(permission));
-  
+
   return hasPermission ? <>{children}</> : null;
 };
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-  moduleName,
   title,
   subtitle,
   tabs,
@@ -141,14 +131,27 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   mobileBreakpoint = 768,
   mobileFloatingButtons = [],
   userPermissions = [],
-  bgColor = 'bg-blue-600',
+  bgColor = "bg-violet-950",
   bgImage,
   headerClassName = '',
   titleClassName = '',
   subtitleClassName = '',
   additionalContent,
+  dockProps = {},
+  dotGridConfig = {
+    dotSize: 2,
+    gap: 9,
+    baseColor: '#FAF5F7',
+    activeColor: '#FAF5F7',
+    proximity: 100,
+    shockRadius: 250,
+    shockStrength: 5,
+    resistance: 750,
+    returnDuration: 1.5,
+    opacity: 0.2,
+    enabled: true
+  }
 }) => {
-  const allTabs = [defaultOverviewTab(moduleName), ...tabs];
   const [isMobile, setIsMobile] = useState(false);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
 
@@ -196,19 +199,47 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const filteredActionButtons = getFilteredButtons(actionButtons);
   const filteredMobileButtons = getFilteredButtons(mobileFloatingButtons);
 
-  const headerStyle = bgImage 
+  // Convert tabs to dock items
+  const dockItems: DockItemData[] = tabs.map(tab => ({
+    icon: tab.icon || <HomeIcon size={20} />,
+    label: tab.name,
+    onClick: () => onTabChange(tab.id),
+    className: activeTab === tab.id ? 'ring-2 ring-white/50 bg-white/20' : ''
+  }));
+
+  const headerStyle = bgImage
     ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : {};
 
   return (
     <div className="mb-8">
-      {/* Main Header */}
+      {/* Main Header with integrated dock */}
       <div
         style={headerStyle}
-        className={`relative mb-6 flex flex-col items-center justify-between overflow-hidden rounded-xl ${bgColor} text-white transition-all duration-300 ease-in-out p-4 sm:p-6 ${headerClassName}`}
+        className={`relative flex flex-col items-center justify-between overflow-hidden rounded-xl ${bgColor} text-white transition-all duration-300 ease-in-out ${headerClassName}`}
       >
+        {/* DotGrid Background Animation */}
+        {dotGridConfig.enabled && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ opacity: dotGridConfig.opacity }}
+          >
+            <DotGrid
+              dotSize={dotGridConfig.dotSize}
+              gap={dotGridConfig.gap}
+              baseColor={dotGridConfig.baseColor}
+              activeColor={dotGridConfig.activeColor}
+              proximity={dotGridConfig.proximity}
+              shockRadius={dotGridConfig.shockRadius}
+              shockStrength={dotGridConfig.shockStrength}
+              resistance={dotGridConfig.resistance}
+              returnDuration={dotGridConfig.returnDuration}
+            />
+          </div>
+        )}
+
         {/* Header Content */}
-        <div className="relative mb-4 flex w-full flex-col items-center justify-between sm:mb-6 sm:flex-row">
+        <div className="relative flex w-full flex-col items-center justify-between p-4 sm:p-6 sm:flex-row z-10">
           {/* Title Section */}
           <div className="flex-1 text-center sm:text-left">
             <h1 className={`mb-1 mt-2 text-2xl font-bold sm:text-3xl ${titleClassName}`}>
@@ -228,7 +259,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           {/* Desktop Action Buttons */}
           {filteredActionButtons.length > 0 && (
-            <div className="hidden lg:flex gap-3">
+            <div className="hidden lg:flex gap-3 relative z-20">
               {filteredActionButtons.map((button) => (
                 <PermissionWrapper
                   key={button.id}
@@ -237,11 +268,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 >
                   <button
                     onClick={button.onClick}
-                    className={`inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                      button.variant === 'secondary'
+                    className={`inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${button.variant === 'secondary'
                         ? 'bg-white/20 text-white hover:bg-white/30'
                         : 'bg-white text-gray-900 hover:bg-gray-100'
-                    } ${button.className || ''}`}
+                      } ${button.className || ''}`}
                   >
                     {button.icon}
                     {button.label}
@@ -252,15 +282,32 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           )}
         </div>
 
-        {/* Tabs */}
-        <div className="w-full">
-          <SimpleTabs
-           tabs={allTabs}
-            
-            activeTab={activeTab}
-            onTabChange={onTabChange}
-          />
-        </div>
+        {/* Desktop Dock Navigation - Inside the header container */}
+        {!isMobile && dockItems.length > 0 && (
+          <div className="relative w-full px-3 sm:px-4 z-20">
+            {/* Reserve space for magnified dock to prevent container resize */}
+            <div
+              className="flex justify-center"
+              style={{
+                height: `${(dockProps.panelHeight || 0) + (dockProps.magnification || 12)}px`,
+                paddingBottom: '4px'
+              }}
+            >
+              <div className="flex items-end h-full">
+                <Dock
+                  items={dockItems}
+                  className="backdrop-blur-md bg-white/10 border border-white/20"
+                  distance={dockProps.distance || 200}
+                  panelHeight={dockProps.panelHeight || 64}
+                  baseItemSize={dockProps.baseItemSize || 50}
+                  dockHeight={dockProps.dockHeight || 256}
+                  magnification={dockProps.magnification || 70}
+                  spring={dockProps.spring || { mass: 0.1, stiffness: 150, damping: 12 }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile Navigation */}
@@ -276,7 +323,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {filteredMobileButtons.length > 0 && (
         <div className="block lg:hidden">
           {filteredMobileButtons.map((button, index) => (
-            <div 
+            <div
               key={button.id}
               className="fixed right-4 z-50"
               style={{ bottom: `${96 + (index * 48)}px` }}

@@ -6,6 +6,7 @@ import Projects from './Pages/Projects';
 import Auth from './Pages/Auth';
 import DashBoardPage from './Pages/DashBoardPage';
 import Login from './Pages/Login';
+import DisplayComponents from './Pages/DisplayComponents';
 function App() {
   return (
     <>
@@ -17,6 +18,7 @@ function App() {
         <Route path='/projects' element={<Projects />} />
         <Route path='/dashboard' element={<DashBoardPage />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/displaycomponents' element={<DisplayComponents />} />
       </Routes>
     </>
   );

@@ -20,6 +20,7 @@ export function NavbarComponent() {
     { name: "Projects", link: "/projects" },
     { name: "Dashboard", link: "/dashboard" },
     { name: "Login", link: "/login" },
+    { name: "Components", link: "/displaycomponents" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

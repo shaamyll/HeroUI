@@ -8,23 +8,19 @@ import {
   TableCell,
   Input,
   Button,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, Grid3X3, List, RotateCcw, Search, X } from "lucide-react";
+import { Grid3X3, List, RotateCcw, Search } from "lucide-react";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
+import type { Selection, SortDescriptor } from "@heroui/react";
 
 export interface TableColumn {
-  render?: (item: any) => React.ReactNode;
   name: string;
   headerId: string;
   sortable?: boolean;
-  isSelectRows: boolean
+  render?: (item: any) => React.ReactNode;
 }
 
 export interface TableContent {
@@ -33,7 +29,9 @@ export interface TableContent {
 
 interface TableComponentProps {
   TableContent: TableContent[];
-  TableStructure?: Array<{ name: string; headerId: string; sortable?: boolean }>;
+  TableStructure?: Array<{
+    render: any; name: string; headerId: string; sortable?: boolean 
+}>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
@@ -75,13 +73,10 @@ export default function TableComponent({
 
   const [viewMode, setViewMode] = useState('')
   const [filterValue, setFilterValue] = useState("");
-  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [sortDescriptor, setSortDescriptor] = useState<{
-    column: string;
-    direction: 'ascending' | 'descending';
-  }>({
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.headerId || "id",
     direction: "ascending" as const,
   });
@@ -386,7 +381,7 @@ export default function TableComponent({
     []
   );
 
-    const handleRowAction = (key: React.Key) => {
+    const handleRowAction = () => {
     // This function intentionally does nothing to prevent row selection
     return;
   };

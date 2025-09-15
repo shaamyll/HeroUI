@@ -4,10 +4,12 @@ import { userData } from '../Data/User';
 import { addToast, Chip, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
-import CustomDropdown from '../components/Reusable/CustomDropdown';
+import DeleteModal from '../components/Reusable/DeleteModal';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
     // ✅ Delete User
     const handleDeleteUser = useCallback((id: number) => {
@@ -23,6 +25,20 @@ function Users() {
             return updatedUsers;
         });
     }, []);
+
+      // ✅ Trigger modal instead of deleting immediately
+  const openDeleteModal = (user: any) => {
+    setSelectedUser(user);
+    setIsDeleteOpen(true);
+  };
+
+  // ✅ Confirm from modal → call parent delete
+  const confirmDelete = () => {
+    if (selectedUser) {
+      handleDeleteUser(selectedUser.id);
+    }
+    setIsDeleteOpen(false);
+  };
 
     // ✅ Edit User
     const handleEditUser = useCallback((updatedUser: any) => {
@@ -154,7 +170,10 @@ function Users() {
                     </Tooltip>
 
                     <Tooltip color="danger" content="Delete user">
-                        <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                        <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={()=>{
+                            console.log("Deleting user:", item);
+                            openDeleteModal(item);
+                        }}>
                             <Trash2 className="w-4 h-4" />
                         </span>
                     </Tooltip>
@@ -221,6 +240,13 @@ function Users() {
                     isSelectRows={true}
                 />
             </div>
+              {/* Delete Modal controlled from parent */}
+      <DeleteModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={confirmDelete}
+        itemName={selectedUser?.name || ""}
+      />
         </div>
     );
 }

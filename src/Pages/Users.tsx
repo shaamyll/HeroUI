@@ -59,8 +59,10 @@ function Users() {
                 title: 'Success',
                 description: `User ${newUser.name} has been added successfully.`,
                 color: 'success',
-                duration: 5000,
                 isClosable: true,
+                variant: 'flat',
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
 
             return updatedUsers;
@@ -212,8 +214,6 @@ function Users() {
                     TableStructure={TableStructure}
                     TableContent={users}
                     filters={filterContent}
-                    statusOptions={statusOptions}
-                    statusColorMap={statusColorMap}
                     onDelete={handleDeleteUser}
                     onEdit={handleEditUser}
                     onAdd={handleAddUser}

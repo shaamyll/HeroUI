@@ -14,7 +14,7 @@ import {
   DropdownItem,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, RotateCcw, Search, X } from "lucide-react";
+import { ChevronDown, Grid3X3, List, RotateCcw, Search, X } from "lucide-react";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
@@ -73,7 +73,7 @@ export default function TableComponent({
     }));
   }, [TableStructure]);
 
-
+  const [viewMode, setViewMode] = useState('')
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
@@ -208,6 +208,7 @@ export default function TableComponent({
 
 
   const topContent = React.useMemo(() => {
+
     return (
       <div className="flex flex-col gap-4 my-4">
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
@@ -222,16 +223,44 @@ export default function TableComponent({
             {isSearch ? (
               <Input
                 isClearable
-                className="w-full"
+                classNames={{
+                  base: "w-full",
+                  inputWrapper: "font-extrabold",
+                }}
                 placeholder="Search..."
                 startContent={<Search className="w-5 h-5 text-default-400" />}
                 value={filterValue}
-                onClear={() => onClear()}
+                variant="faded"
+                onClear={() => setFilterValue("")}
                 onValueChange={onSearchChange}
               />
             ) : (
               <div className="min-h-[2.5rem]" />
             )}
+          </div>
+
+          {/* View Toggle and Add New Button */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <button
+                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'list'
+                  ? 'bg-white shadow-sm text-gray-800'
+                  : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'grid'
+                  ? 'bg-white shadow-sm text-gray-800'
+                  : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Add New Button - Always visible */}
@@ -263,7 +292,7 @@ export default function TableComponent({
                 items={filter.content.map(option => ({
                   key: option.uid,
                   label: option.name,
-                  description:option.description
+                  description: option.description
                 }))}
                 placeholder={filter.name}
                 defaultselectedKeys={activeFilters[filter.uid] || new Set()}
@@ -280,10 +309,11 @@ export default function TableComponent({
 
           {hasActiveFilters && (
             <Button
-              size="sm"
-              variant="faded"
-              startContent={<RotateCcw className="w-4 h-4 text-red-500" />}
-              className="border border-dotted border-red-500 text-red-500 rounded-md font-medium hover:bg-red-100 mt-1"
+              size="md"
+              color="warning"
+              variant="flat"
+              startContent={<RotateCcw className="w-4 h-4 " />}
+              className=" font-medium hover:opacity-90 transition"
               onPress={resetFilters}
             >
               Reset All
@@ -356,6 +386,11 @@ export default function TableComponent({
     []
   );
 
+    const handleRowAction = (key: React.Key) => {
+    // This function intentionally does nothing to prevent row selection
+    return;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -371,21 +406,22 @@ export default function TableComponent({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-3 rounded-md my-2"
+          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-2 rounded-md my-2"
         >
-          <span>
-            {selectedKeys === "all"
-              ? `All ${filteredItems.length} items selected`
-              : `${selectedKeys.size} of ${filteredItems.length} selected`}
-          </span>
-          <Button
-            size="sm"
-            variant="light"
-            onPress={() => setSelectedKeys(new Set([]))}
-            className="underline"
-          >
-            Clear Selection
-          </Button>
+          <div className="flex items-center gap-4">
+            <span>
+              {selectedKeys === "all"
+                ? `All ${filteredItems.length} items selected`
+                : `${selectedKeys.size} of ${filteredItems.length} selected`}
+            </span>
+            <button
+              onClick={() => setSelectedKeys(new Set([]))}
+              className="text-white underline text-sm hover:text-gray-300"
+            >
+              Clear Selection
+            </button>
+          </div>
+
           <div className="flex gap-3">
             <Button size="sm" variant="flat" className="bg-white text-black">
               Print Code
@@ -396,6 +432,7 @@ export default function TableComponent({
           </div>
         </motion.div>
       )}
+
       <Table
         isHeaderSticky
         aria-label="Dynamic table with all columns"
@@ -404,14 +441,16 @@ export default function TableComponent({
         classNames={{
           wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
           table: "min-w-full",
-          tr: isSelectRows ? "cursor-pointer hover:bg-gray-50" : "",
         }}
-        selectionMode={isSelectRows ? "multiple" : "none"}
-        selectedKeys={isSelectRows ? selectedKeys : undefined}
-        onSelectionChange={isSelectRows ? setSelectedKeys : undefined}
+        selectionMode="multiple"
+        selectedKeys={selectedKeys}
+        onSelectionChange={setSelectedKeys}
         sortDescriptor={sortDescriptor}
         topContentPlacement="outside"
         onSortChange={setSortDescriptor}
+        onRowAction={handleRowAction}
+        selectionBehavior={isSelectRows ? "selection" : "replace"}
+        hideSelectionCheckbox={false} 
       >
         <TableHeader columns={columns}>
           {(column) => (

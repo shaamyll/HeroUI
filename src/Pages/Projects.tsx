@@ -3,7 +3,6 @@ import TableComponent from '../components/Reusable/TableComponent';
 import { projectData } from '../Data/Projects';
 import { addToast, Chip, Progress, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
-import TableActions from '../components/Reusable/TableActions';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
 
 function Projects() {
@@ -81,7 +80,7 @@ function Projects() {
 
   type projectStatus = keyof typeof statusColorMap;
 
-  const TableSkeleton = [
+  const TableStructure = [
     { name: "ID", headerId: "id", sortable: true },
     {
       name: "Project",
@@ -178,7 +177,7 @@ function Projects() {
         <TableComponent
           type="project"
           TableContent={projects}
-          TableSkeleton={TableSkeleton}
+          TableStructure={TableStructure}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
           onDelete={handleDeleteProject}

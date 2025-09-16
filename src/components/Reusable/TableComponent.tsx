@@ -290,8 +290,8 @@ export default function TableComponent({
                   description: option.description
                 }))}
                 placeholder={filter.name}
-                defaultselectedKeys={activeFilters[filter.uid] || new Set()}
-                onSelectionChange={(keys) => handleFilterChange(filter.uid, keys)}
+                defaultselectedKeys={activeFilters[filter.uid]}
+                onSelectionChange={(key:any) => handleFilterChange(filter.uid, key)}
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                 dropdownClassname="w-full sm:w-[200px]"
                 matchWidth={true}

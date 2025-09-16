@@ -9,7 +9,7 @@ import DeleteModal from '../components/Reusable/DeleteModal';
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
 
     // ✅ Delete User
     const handleDeleteUser = useCallback((id: number) => {
@@ -26,19 +26,19 @@ function Users() {
         });
     }, []);
 
-      // ✅ Trigger modal instead of deleting immediately
-  const openDeleteModal = (user: any) => {
-    setSelectedUser(user);
-    setIsDeleteOpen(true);
-  };
+    // ✅ Trigger modal instead of deleting immediately
+    const openDeleteModal = (user: any) => {
+        setSelectedUser(user);
+        setIsDeleteOpen(true);
+    };
 
-  // ✅ Confirm from modal → call parent delete
-  const confirmDelete = () => {
-    if (selectedUser) {
-      handleDeleteUser(selectedUser.id);
-    }
-    setIsDeleteOpen(false);
-  };
+    // ✅ Confirm from modal → call parent delete
+    const confirmDelete = () => {
+        if (selectedUser) {
+            handleDeleteUser(selectedUser.id);
+        }
+        setIsDeleteOpen(false);
+    };
 
     // ✅ Edit User
     const handleEditUser = useCallback((updatedUser: any) => {
@@ -156,37 +156,40 @@ function Users() {
             headerId: 'actions',
             sortable: false,
             render: (item: any) => (
-                <div className="relative flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                    {/* View Button */}
                     <Tooltip content="Details">
-                        <span className="text-md text-default-400 cursor-pointer active:opacity-50">
+                        <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
                             <Eye className="w-4 h-4" />
-                        </span>
+                        </button>
                     </Tooltip>
 
+                    {/* Edit Button */}
                     <Tooltip content="Edit user">
-                        <span className="text-md text-default-400 cursor-pointer active:opacity-50">
+                        <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 active:opacity-70">
                             <PencilLine className="w-4 h-4" />
-                        </span>
+                        </button>
                     </Tooltip>
 
+                    {/* Delete Button */}
                     <Tooltip color="danger" content="Delete user">
-                        <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={()=>{
-                            console.log("Deleting user:", item);
-                            openDeleteModal(item);
-                        }}>
+                        <button
+                            onClick={() => {
+                                console.log("Deleting user:", item);
+                                openDeleteModal(item);
+                            }}
+                            className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
+                        >
                             <Trash2 className="w-4 h-4" />
-                        </span>
+                        </button>
                     </Tooltip>
                 </div>
+
             ),
         },
     ];
 
-    const statusOptions = [
-        { name: 'Active', uid: 'active' },
-        { name: 'Paused', uid: 'paused' },
-        { name: 'Vacation', uid: 'vacation' },
-    ];
+
 
     const roleOptions = [
         { name: 'Developer', uid: 'developer' },
@@ -200,15 +203,16 @@ function Users() {
         { name: 'Management', uid: 'management' },
     ];
 
-    const emailOptions = [
-        { name: 'Email', uid: 'email' },
+        const statusOptions = [
+        { name: 'Active', uid: 'active' },
+        { name: 'Paused', uid: 'paused' },
+        { name: 'Vacation', uid: 'vacation' },
     ];
 
     const filterContent = [
         { name: 'Status', uid: 'status', content: statusOptions },
         { name: 'Role', uid: 'role', content: roleOptions },
         { name: 'Team', uid: 'team', content: teamOptions },
-        { name: 'Email', uid: 'email', content: emailOptions },
     ];
 
     return (
@@ -240,13 +244,13 @@ function Users() {
                     isSelectRows={true}
                 />
             </div>
-              {/* Delete Modal controlled from parent */}
-      <DeleteModal
-        isOpen={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={confirmDelete}
-        itemName={selectedUser?.name || ""}
-      />
+            {/* Delete Modal controlled from parent */}
+            <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                onConfirm={confirmDelete}
+                itemName={selectedUser?.name || ""}
+            />
         </div>
     );
 }

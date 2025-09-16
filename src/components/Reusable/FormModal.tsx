@@ -217,19 +217,18 @@ export function FormModal<T extends Record<string, any>>({
                     {fieldConfig.type === 'searchable-select' && fieldConfig.options ? (
                       <div>
                         <CustomDropdown
-                          items={fieldConfig.options}
+                          options={fieldConfig.options}
                           placeholder={fieldConfig.placeholder || `Select ${fieldConfig.label || fieldName}`}
                           searchPlaceholder={fieldConfig.searchPlaceholder || `Search ${fieldConfig.label || fieldName}...`}
-                          defaultSelectedKey={formData[fieldName as keyof T] ? String(formData[fieldName as keyof T]) : null}
                           onSelectionChange={(keys) => {
                             const selectedKey = keys.size > 0 ? Array.from(keys)[0] : null;
                             handleChange(fieldName, selectedKey);
                           }}
                           buttonClassName="w-full"
-                          dropdownClassname="w-full max-h-20"
+                          dropdownClassName="w-full"
                           matchWidth={true}
                           disabled={fieldConfig.disabled}
-                          isSearch={true}
+                          showSearch={true}
                         />
                       </div>
                     ) : (

@@ -10,7 +10,7 @@ import {
   Button,
   Pagination,
 } from "@heroui/react";
-import { Grid3X3, List, RotateCcw, Search } from "lucide-react";
+import { Grid3X3, Key, List, RotateCcw, Search } from "lucide-react";
 import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
@@ -30,8 +30,8 @@ export interface TableContent {
 interface TableComponentProps {
   TableContent: TableContent[];
   TableStructure?: Array<{
-    render: any; name: string; headerId: string; sortable?: boolean 
-}>;
+    render: any; name: string; headerId: string; sortable?: boolean
+  }>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
@@ -222,7 +222,7 @@ export default function TableComponent({
                   base: "w-full",
                   inputWrapper: "font-extrabold",
                 }}
-                placeholder="Search..."
+                placeholder={`search ${type}s..`}
                 startContent={<Search className="w-5 h-5 text-default-400" />}
                 value={filterValue}
                 variant="faded"
@@ -262,6 +262,7 @@ export default function TableComponent({
           <div className="flex-shrink-0">
             <AddNew type={type} onSubmit={onAdd} />
           </div>
+
         </div>
 
         {/* Mobile-only Search Bar */}
@@ -284,18 +285,16 @@ export default function TableComponent({
             filters.map((filter) => (
               <CustomDropdown
                 key={filter.uid}
-                items={filter.content.map(option => ({
+                options={filter.content.map(option => ({
                   key: option.uid,
                   label: option.name,
-                  description: option.description
                 }))}
                 placeholder={filter.name}
-                onSelectionChange={(key:any) => handleFilterChange(filter.uid, key)}
+                onSelectionChange={(key) => handleFilterChange(filter.uid,key)}
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
-                dropdownClassname="w-full sm:w-[200px]"
+                dropdownClassName="w-full sm:w-[200px]"
                 matchWidth={true}
-                disallowEmptySelection={false}
-                isSearch={true}
+                showSearch={true}
               />
             ))
           )}
@@ -380,7 +379,7 @@ export default function TableComponent({
     []
   );
 
-    const handleRowAction = () => {
+  const handleRowAction = () => {
     // This function intentionally does nothing to prevent row selection
     return;
   };
@@ -444,7 +443,7 @@ export default function TableComponent({
         onSortChange={setSortDescriptor}
         onRowAction={handleRowAction}
         selectionBehavior={isSelectRows ? "selection" : "replace"}
-        hideSelectionCheckbox={false} 
+        hideSelectionCheckbox={false}
       >
         <TableHeader columns={columns}>
           {(column) => (

@@ -167,7 +167,7 @@ function Users() {
 
                     {/* Edit Button */}
                     <Tooltip content="Edit user">
-                        <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
                             <PencilLine className="w-4 h-4" />
                         </button>
                     </Tooltip>
@@ -185,7 +185,6 @@ function Users() {
                         </button>
                     </Tooltip>
                 </div>
-
             ),
         },
     ];
@@ -211,9 +210,9 @@ function Users() {
     ];
 
     const filterContent = [
-        { name: 'Status', uid: 'status', content: statusOptions },
-        { name: 'Role', uid: 'role', content: roleOptions },
-        { name: 'Team', uid: 'team', content: teamOptions },
+        { name: 'Status', uid: 'status', content: statusOptions, showSearch:false },
+        { name: 'Role', uid: 'role', content: roleOptions,showSearch:true },
+        { name: 'Team', uid: 'team', content: teamOptions, showSearch:true },
     ];
 
     const navigate = useNavigate()

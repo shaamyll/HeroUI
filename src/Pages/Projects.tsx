@@ -10,7 +10,8 @@ function Projects() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-const [categories,setCategories] = useState([])
+  const [categories, setCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(true);
   // ✅ Fetch products for the current page
   useEffect(() => {
     fetch(
@@ -21,12 +22,13 @@ const [categories,setCategories] = useState([])
         setProducts(data);
         // Fakestore doesn’t return total count, so assume 20 for demo
         setTotalItems(20);
+        setIsLoading(false);
       });
   }, [page, rowsPerPage]);
 
 
   console.log(categories)
-  
+
 
   const TableStructure = [
     { name: "ID", headerId: "id", sortable: true },
@@ -61,21 +63,32 @@ const [categories,setCategories] = useState([])
       headerId: "actions",
       sortable: false,
       render: () => (
-        <div className="relative flex items-center gap-3">
+        <div className="flex items-center gap-3">
+          {/* View Button */}
           <Tooltip content="Details">
-            <span className="cursor-pointer active:opacity-50">
+            <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
               <Eye className="w-4 h-4" />
-            </span>
+            </button>
           </Tooltip>
-          <Tooltip content="Edit">
-            <span className="cursor-pointer active:opacity-50">
+
+          {/* Edit Button */}
+          <Tooltip content="Edit user">
+            <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
               <PencilLine className="w-4 h-4" />
-            </span>
+            </button>
           </Tooltip>
-          <Tooltip color="danger" content="Delete">
-            <span className="cursor-pointer active:opacity-50 text-danger">
+
+          {/* Delete Button */}
+          <Tooltip color="danger" content="Delete user">
+            <button
+              onClick={() => {
+                console.log("Deleting user:");
+
+              }}
+              className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
+            >
               <Trash2 className="w-4 h-4" />
-            </span>
+            </button>
           </Tooltip>
         </div>
       ),
@@ -83,18 +96,16 @@ const [categories,setCategories] = useState([])
   ];
 
 
-const categoryOptions = [
-  { name: "Electronics", uid: "electronics" },
-  { name: "Jewelery", uid: "jewelery" },
-  { name: "Men's clothing", uid: "men's clothing" },
-  { name: "Women's clothing", uid: "women's clothing" },
-];
+  const categoryOptions = [
+    { name: "Electronics", uid: "electronics" },
+    { name: "Jewelery", uid: "jewelery" },
+    { name: "Men's clothing", uid: "men's clothing" },
+    { name: "Women's clothing", uid: "women's clothing" },
+  ];
 
-const filterContent = [
-  { name: "Category", uid: "category", content: categoryOptions },
-];
-
-
+  const filterContent = [
+    { name: "Category", uid: "category", content: categoryOptions, showSearch: false },
+  ];
 
   const navigate = useNavigate();
   const handleAddClick = () => {
@@ -127,6 +138,7 @@ const filterContent = [
           onAdd={handleAddClick}
           isSearch={true}
           isSelectRows={false}
+          isLoading={isLoading}
         />
       </div>
     </div>

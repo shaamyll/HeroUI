@@ -10,11 +10,11 @@ import {
   Button,
   Pagination,
 } from "@heroui/react";
-import { Grid3X3, Key, List, RotateCcw, Search } from "lucide-react";
-import AddNew from "./AddNew";
+import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
+import { Skeleton } from "./Skeleton";
 
 export interface TableColumn {
   name: string;
@@ -33,7 +33,7 @@ interface TableComponentProps {
     render: any; name: string; headerId: string; sortable?: boolean
   }>;
   statusOptions?: Array<{ name: string; uid: string }>;
-  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
+  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>,showSearch:boolean }>;
   statusColorMap?: Record<string, string>;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
@@ -54,7 +54,8 @@ export default function TableComponent({
   onAdd,
   type,
   isSearch,
-  isSelectRows
+  isSelectRows,
+  isLoading = false
 }: TableComponentProps) {
   console.log(TableStructure)
 
@@ -260,10 +261,10 @@ export default function TableComponent({
             {onAdd && (
               <Button
                 className="bg-[#37125d] text-white"
-                size="md" 
-                onPress={() => onAdd(type)}   // 🔑 callback goes to parent
+                size="md"
+                onPress={() => onAdd(type)} 
               >
-                Create {capitalize(type)}
+                Create {type}
               </Button>
             )}
           </div>
@@ -300,7 +301,7 @@ export default function TableComponent({
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                 dropdownClassName="w-full sm:w-[200px]"
                 matchWidth={true}
-                showSearch={true}
+                showSearch={filter.showSearch !== undefined ? filter.showSearch : true} // Pass the showSearch prop
               />
             ))
           )}
@@ -390,6 +391,39 @@ export default function TableComponent({
     return;
   };
 
+  // Create skeleton rows
+  const skeletonRows = Array.from({ length: rowsPerPage }).map((_, rowIndex) => (
+    <TableRow key={`skeleton-${rowIndex}`} className="mx-12">
+      {columns.map((column) => (
+        <TableCell key={`${column.headerId}-${rowIndex}`}>
+          <Skeleton className="h-4 " />
+        </TableCell>
+      ))}
+    </TableRow>
+  ));
+
+  const EmptyContent = () => {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 py-10">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100"
+        >
+          <FolderOpen className="h-12 w-12 text-gray-400" />
+        </motion.div>
+        <h3 className="text-lg font-semibold text-gray-700">
+          No {type} Found
+        </h3>
+        <p className="max-w-sm text-center text-sm text-gray-500">
+          It looks like there are no data available at the moment.
+          Try adjusting your search or adding.
+        </p>
+      </div>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -463,20 +497,28 @@ export default function TableComponent({
           )}
         </TableHeader>
 
-        <TableBody emptyContent={"No data found"} items={sortedItems}>
-          {(item) => (
-            <TableRow key={item.id || Math.random()}>
-              {(columnKey) => {
-                const col = columns.find((c) => c.headerId === columnKey);
-                return (
-                  <TableCell>
-                    {col?.render
-                      ? col.render(item)
-                      : defaultRenderCell(item, columnKey as string)}
-                  </TableCell>
-                );
-              }}
-            </TableRow>
+        <TableBody
+          emptyContent={<EmptyContent />}
+          items={isLoading ? [] : sortedItems}
+        >
+          {isLoading ? (
+            // Render skeleton rows when loading
+            skeletonRows
+          ) : (
+            (item) => (
+              <TableRow key={item.id || Math.random()}>
+                {(columnKey) => {
+                  const col = columns.find((c) => c.headerId === columnKey);
+                  return (
+                    <TableCell>
+                      {col?.render
+                        ? col.render(item)
+                        : defaultRenderCell(item, columnKey as string)}
+                    </TableCell>
+                  );
+                }}
+              </TableRow>
+            )
           )}
         </TableBody>
 

@@ -22,7 +22,7 @@ export function NavbarComponent() {
     { name: "Login", link: "/login" },
     { name: "Footer", link: "/Footer" },
     { name: "cardview", link: "/cardView" },
-    
+    { name: "Components", link: "/displaycomponents" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

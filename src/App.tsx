@@ -8,11 +8,12 @@ import DashBoardPage from './Pages/DashBoardPage';
 import Login from './Pages/Login';
 import CardView from './Pages/CardView';
 import HomePage from './Pages/HomePage';
+import DisplayComponents from './Pages/DisplayComponents';
 function App() {
   const hideNavbar = location.pathname === '/HomePage';
   return (
     <>
-      {!hideNavbar && <NavbarComponent />}      
+      {!hideNavbar && <NavbarComponent />}
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/auth' element={<Auth />} />
@@ -23,6 +24,8 @@ function App() {
         <Route path='/Footer' element={<footer />} />
         <Route path='/cardView' element={<CardView />} />
         <Route path='/HomePage' element={<HomePage />} />
+        <Route path='/displaycomponents' element={<DisplayComponents />} />
+
       </Routes>
     </>
   );

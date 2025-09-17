@@ -9,67 +9,101 @@ import {
 } from "@heroui/react";
 import { ChevronDown } from "lucide-react";
 
+// Interface for dropdown item structure
+interface DropdownOption {
+  key: string;
+  label: string;
+  description?: string;
+  startContent?: React.ReactNode;
+  endContent?: React.ReactNode;
+  className?: string;
+  color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
+}
+
+// Interface for component props
+interface CustomDropdownProps {
+  options?: DropdownOption[];
+  placeholder?: string;
+  defaultSelectedKey?: string;
+  onSelectionChange?: (selectedKeys: Set<string>) => void;
+  buttonClassName?: string;
+  dropdownClassName?: string;
+  searchPlaceholder?: string;
+  showSearch?: boolean;
+  matchWidth?: boolean;
+  disabled?: boolean;
+}
+
 function CustomDropdown({
-  items = [],
+  options = [],
   placeholder = "Select an option",
-  defaultselectedKeys = new Set(),
+  defaultSelectedKey = "",
   onSelectionChange,
   buttonClassName,
-  dropdownClassname,
-  searchPlaceholder = "Search items...",
-  disallowEmptySelection = true,
-  isSearch,
-}) {
-  const [selectedKeys, setselectedKeys] = useState(defaultselectedKeys);
+  dropdownClassName,
+  searchPlaceholder = "Search options...",
+  showSearch = false,
+  matchWidth = false,
+  disabled = false,
+}: CustomDropdownProps) {
+  const [selectedKey, setSelectedKey] = useState(defaultSelectedKey);
   const [searchValue, setSearchValue] = useState("");
 
-  // Filter items based on search value
-  const filteredItems = React.useMemo(() => {
-    if (!searchValue) return items;
-    return items.filter(item =>
-      item.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-      (item.description && item.description.toLowerCase().includes(searchValue.toLowerCase()))
+  // Filter options based on search value
+  const filteredOptions = React.useMemo(() => {
+    if (!searchValue) return options;
+    return options.filter(option =>
+      option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+      (option.description && option.description.toLowerCase().includes(searchValue.toLowerCase()))
     );
-  }, [items, searchValue]);
+  }, [options, searchValue]);
 
-  // Get display value for selected items
-  const selectedValue = React.useMemo(() => {
-    if (selectedKeys.size === 0) return placeholder;
-    
-    const selectedItems = items.filter(item => selectedKeys.has(item.key));
-    return selectedItems.map(item => item.label).join(", ");
-  }, [selectedKeys, items, placeholder]);
+  // Get display value for selected option
+  const displayValue = React.useMemo(() => {
+    if (!selectedKey) return placeholder;
+
+    const selectedOption = options.find(option => option.key === selectedKey);
+    return selectedOption ? selectedOption.label : placeholder;
+  }, [selectedKey, options, placeholder]);
 
   // Handle selection change
-  const handleSelectionChange = (keys) => {
-    setselectedKeys(keys);
+  const handleSelectionChange = (key: any) => {
+    const newSelectedKey = Array.from(key)[0] as string;
+    setSelectedKey(newSelectedKey);
+
     if (onSelectionChange) {
-      onSelectionChange(keys);
+      onSelectionChange(new Set([newSelectedKey]));  
     }
   };
 
-
   return (
     <div>
-      <Dropdown>
+      <Dropdown
+        classNames={{
+          content: `${dropdownClassName} ${matchWidth ? 'min-w-0' : ''} max-h-64 overflow-y-auto`,
+        }}
+      >
         <DropdownTrigger>
           <Button
-            className={buttonClassName}
-            variant="bordered"
-            endContent={<ChevronDown className="w-4 h-4" />} 
+            className={`${buttonClassName} flex justify-start ${disabled ? 'opacity-50 cursor-not-allowed' : ''} text-left`}
+            variant="ghost"
+            endContent={<ChevronDown className={`w-4 h-4 transition-transform ${disabled ? 'opacity-50' : ''}`} />}
+            disabled={disabled}
           >
-            {selectedValue}
+            <span className="truncate text-left flex-1">
+              {displayValue}
+            </span>
           </Button>
         </DropdownTrigger>
         <DropdownMenu
-          disallowEmptySelection={disallowEmptySelection}
-          selectedKeys={selectedKeys}
+          disallowEmptySelection={false}
+          selectedKeys={selectedKey ? new Set([selectedKey]) : new Set()}
           selectionMode="single"
           variant="faded"
           onSelectionChange={handleSelectionChange}
           topContent={
-            isSearch ? (
-              <div className="pb-2">
+            showSearch ? (
+              <div className="px-1 pb-2 sticky top-0 bg-white z-10">
                 <Input
                   placeholder={searchPlaceholder}
                   value={searchValue}
@@ -78,28 +112,40 @@ function CustomDropdown({
                   variant="bordered"
                   isClearable
                   onClear={() => setSearchValue("")}
+                  classNames={{
+                    input: "text-sm",
+                    inputWrapper: "h-8"
+                  }}
                 />
               </div>
             ) : null
           }
         >
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
               <DropdownItem
-                className={dropdownClassname}
-                key={item.key}
-                description={item.description}
-                startContent={item.startContent}
-                endContent={item.endContent}
-                className={item.className}
-                color={item.color}
+                key={option.key}
+                startContent={option.startContent}
+                endContent={option.endContent}
+                className={`${option.className}`}
+                color={option.color}
+                textValue={option.label}
               >
-                {item.label}
+                <div className="flex flex-col">
+                  <span className="text-sm ">
+                    {option.label}
+                  </span>
+                  {option.description && (
+                    <span className="text-xs text-gray-500 mt-0.5">
+                      {option.description}
+                    </span>
+                  )}
+                </div>
               </DropdownItem>
             ))
           ) : (
-            <DropdownItem key="no-results" isDisabled>
-              No items found
+            <DropdownItem key="no-results" isDisabled className="py-4 text-center">
+              <span className="text-gray-500 text-sm">No options found</span>
             </DropdownItem>
           )}
         </DropdownMenu>

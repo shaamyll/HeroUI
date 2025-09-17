@@ -18,31 +18,13 @@ function AddNew({ type, onSubmit }: AddNewProps) {
   };
 
   const handleSubmit = (formData: any) => {
-    try {
       console.log('Form submitted with data:', formData);
       console.log("Type",type)
       // Check if onSubmit is a function before calling it
         onSubmit(formData);
       onAddModalClose();
-      
-      // Show success toast
-      addToast({
-        title: 'Success',
-        description: `New ${type} added successfully`,
-        color: 'success',
-      });
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      
-      // Show error toast
-      addToast({
-        title: 'Error',
-        description: `Failed to add new ${type}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        color: 'danger',
-      });
-    }
-  };
-  
+
+}
   return (
     <div>
 <Button

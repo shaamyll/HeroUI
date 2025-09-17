@@ -8,23 +8,19 @@ import {
   TableCell,
   Input,
   Button,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
   Pagination,
 } from "@heroui/react";
-import { ChevronDown, RotateCcw, Search, X } from "lucide-react";
-import AddNew from "./AddNew";
+import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
+import type { Selection, SortDescriptor } from "@heroui/react";
+import { Skeleton } from "./Skeleton";
 
 export interface TableColumn {
-  render?: (item: any) => React.ReactNode;
   name: string;
   headerId: string;
   sortable?: boolean;
-  isSelectRows: boolean
+  render?: (item: any) => React.ReactNode;
 }
 
 export interface TableContent {
@@ -33,13 +29,12 @@ export interface TableContent {
 
 interface TableComponentProps {
   TableContent: TableContent[];
-  TableStructure?: Array<{ name: string; headerId: string; sortable?: boolean }>;
+  TableStructure?: Array<{
+    render: any; name: string; headerId: string; sortable?: boolean
+  }>;
   statusOptions?: Array<{ name: string; uid: string }>;
-  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
+  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>,showSearch:boolean }>;
   statusColorMap?: Record<string, string>;
-  onStatusChange?: (id: number, isActive: boolean) => void;
-  onDelete?: (id: number) => void;
-  onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
   isSearch: boolean;
@@ -59,7 +54,8 @@ export default function TableComponent({
   onAdd,
   type,
   isSearch,
-  isSelectRows
+  isSelectRows,
+  isLoading = false
 }: TableComponentProps) {
   console.log(TableStructure)
 
@@ -73,15 +69,12 @@ export default function TableComponent({
     }));
   }, [TableStructure]);
 
-
+  const [viewMode, setViewMode] = useState('')
   const [filterValue, setFilterValue] = useState("");
-  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [sortDescriptor, setSortDescriptor] = useState<{
-    column: string;
-    direction: 'ascending' | 'descending';
-  }>({
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.headerId || "id",
     direction: "ascending" as const,
   });
@@ -208,6 +201,7 @@ export default function TableComponent({
 
 
   const topContent = React.useMemo(() => {
+
     return (
       <div className="flex flex-col gap-4 my-4">
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
@@ -222,11 +216,15 @@ export default function TableComponent({
             {isSearch ? (
               <Input
                 isClearable
-                className="w-full"
-                placeholder="Search..."
+                classNames={{
+                  base: "w-full",
+                  inputWrapper: "font-extrabold",
+                }}
+                placeholder={`search ${type}s..`}
                 startContent={<Search className="w-5 h-5 text-default-400" />}
                 value={filterValue}
-                onClear={() => onClear()}
+                variant="faded"
+                onClear={() => setFilterValue("")}
                 onValueChange={onSearchChange}
               />
             ) : (
@@ -234,10 +232,44 @@ export default function TableComponent({
             )}
           </div>
 
+          {/* View Toggle and Add New Button */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <button
+                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'list'
+                  ? 'bg-white shadow-sm text-gray-800'
+                  : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'grid'
+                  ? 'bg-white shadow-sm text-gray-800'
+                  : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
           {/* Add New Button - Always visible */}
           <div className="flex-shrink-0">
-            <AddNew type={type} onSubmit={onAdd} />
+            {onAdd && (
+              <Button
+                className="bg-[#37125d] text-white"
+                size="md"
+                onPress={() => onAdd(type)} 
+              >
+                Create {type}
+              </Button>
+            )}
           </div>
+
+
         </div>
 
         {/* Mobile-only Search Bar */}
@@ -260,19 +292,16 @@ export default function TableComponent({
             filters.map((filter) => (
               <CustomDropdown
                 key={filter.uid}
-                items={filter.content.map(option => ({
+                options={filter.content.map(option => ({
                   key: option.uid,
                   label: option.name,
-                  description:option.description
                 }))}
                 placeholder={filter.name}
-                defaultselectedKeys={activeFilters[filter.uid] || new Set()}
-                onSelectionChange={(keys) => handleFilterChange(filter.uid, keys)}
+                onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
-                dropdownClassname="w-full sm:w-[200px]"
+                dropdownClassName="w-full sm:w-[200px]"
                 matchWidth={true}
-                disallowEmptySelection={false}
-                isSearch={true}
+                showSearch={filter.showSearch !== undefined ? filter.showSearch : true} // Pass the showSearch prop
               />
             ))
           )}
@@ -280,10 +309,11 @@ export default function TableComponent({
 
           {hasActiveFilters && (
             <Button
-              size="sm"
-              variant="faded"
-              startContent={<RotateCcw className="w-4 h-4 text-red-500" />}
-              className="border border-dotted border-red-500 text-red-500 rounded-md font-medium hover:bg-red-100 mt-1"
+              size="md"
+              color="warning"
+              variant="flat"
+              startContent={<RotateCcw className="w-4 h-4 " />}
+              className=" font-medium hover:opacity-90 transition"
               onPress={resetFilters}
             >
               Reset All
@@ -356,6 +386,44 @@ export default function TableComponent({
     []
   );
 
+  const handleRowAction = () => {
+    // This function intentionally does nothing to prevent row selection
+    return;
+  };
+
+  // Create skeleton rows
+  const skeletonRows = Array.from({ length: rowsPerPage }).map((_, rowIndex) => (
+    <TableRow key={`skeleton-${rowIndex}`} className="mx-12">
+      {columns.map((column) => (
+        <TableCell key={`${column.headerId}-${rowIndex}`}>
+          <Skeleton className="h-4 " />
+        </TableCell>
+      ))}
+    </TableRow>
+  ));
+
+  const EmptyContent = () => {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 py-10">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100"
+        >
+          <FolderOpen className="h-12 w-12 text-gray-400" />
+        </motion.div>
+        <h3 className="text-lg font-semibold text-gray-700">
+          No {type} Found
+        </h3>
+        <p className="max-w-sm text-center text-sm text-gray-500">
+          It looks like there are no data available at the moment.
+          Try adjusting your search or adding.
+        </p>
+      </div>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -371,21 +439,22 @@ export default function TableComponent({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-3 rounded-md my-2"
+          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-2 rounded-md my-2"
         >
-          <span>
-            {selectedKeys === "all"
-              ? `All ${filteredItems.length} items selected`
-              : `${selectedKeys.size} of ${filteredItems.length} selected`}
-          </span>
-          <Button
-            size="sm"
-            variant="light"
-            onPress={() => setSelectedKeys(new Set([]))}
-            className="underline"
-          >
-            Clear Selection
-          </Button>
+          <div className="flex items-center gap-4">
+            <span>
+              {selectedKeys === "all"
+                ? `All ${filteredItems.length} items selected`
+                : `${selectedKeys.size} of ${filteredItems.length} selected`}
+            </span>
+            <button
+              onClick={() => setSelectedKeys(new Set([]))}
+              className="text-white underline text-sm hover:text-gray-300"
+            >
+              Clear Selection
+            </button>
+          </div>
+
           <div className="flex gap-3">
             <Button size="sm" variant="flat" className="bg-white text-black">
               Print Code
@@ -396,6 +465,7 @@ export default function TableComponent({
           </div>
         </motion.div>
       )}
+
       <Table
         isHeaderSticky
         aria-label="Dynamic table with all columns"
@@ -404,14 +474,16 @@ export default function TableComponent({
         classNames={{
           wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
           table: "min-w-full",
-          tr: isSelectRows ? "cursor-pointer hover:bg-gray-50" : "",
         }}
-        selectionMode={isSelectRows ? "multiple" : "none"}
-        selectedKeys={isSelectRows ? selectedKeys : undefined}
-        onSelectionChange={isSelectRows ? setSelectedKeys : undefined}
+        selectionMode="multiple"
+        selectedKeys={selectedKeys}
+        onSelectionChange={setSelectedKeys}
         sortDescriptor={sortDescriptor}
         topContentPlacement="outside"
         onSortChange={setSortDescriptor}
+        onRowAction={handleRowAction}
+        selectionBehavior={isSelectRows ? "selection" : "replace"}
+        hideSelectionCheckbox={false}
       >
         <TableHeader columns={columns}>
           {(column) => (
@@ -425,20 +497,28 @@ export default function TableComponent({
           )}
         </TableHeader>
 
-        <TableBody emptyContent={"No data found"} items={sortedItems}>
-          {(item) => (
-            <TableRow key={item.id || Math.random()}>
-              {(columnKey) => {
-                const col = columns.find((c) => c.headerId === columnKey);
-                return (
-                  <TableCell>
-                    {col?.render
-                      ? col.render(item)
-                      : defaultRenderCell(item, columnKey as string)}
-                  </TableCell>
-                );
-              }}
-            </TableRow>
+        <TableBody
+          emptyContent={<EmptyContent />}
+          items={isLoading ? [] : sortedItems}
+        >
+          {isLoading ? (
+            // Render skeleton rows when loading
+            skeletonRows
+          ) : (
+            (item) => (
+              <TableRow key={item.id || Math.random()}>
+                {(columnKey) => {
+                  const col = columns.find((c) => c.headerId === columnKey);
+                  return (
+                    <TableCell>
+                      {col?.render
+                        ? col.render(item)
+                        : defaultRenderCell(item, columnKey as string)}
+                    </TableCell>
+                  );
+                }}
+              </TableRow>
+            )
           )}
         </TableBody>
 

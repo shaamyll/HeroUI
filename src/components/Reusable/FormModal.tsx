@@ -215,17 +215,22 @@ export function FormModal<T extends Record<string, any>>({
                       {fieldConfig.required && <span className="text-red-500 ml-1">*</span>}
                     </Label>
                     {fieldConfig.type === 'searchable-select' && fieldConfig.options ? (
-                      <CustomDropdown
-                        items={fieldConfig.options}
-                        placeholder={fieldConfig.placeholder || `Select ${fieldConfig.label || fieldName}`}
-                        searchPlaceholder={fieldConfig.searchPlaceholder || `Search ${fieldConfig.label || fieldName}...`}
-                        defaultSelectedKey={formData[fieldName as keyof T] ? String(formData[fieldName as keyof T]) : null}
-                        onSelectionChange={(key) => handleChange(fieldName, key)}
-                        buttonClassName="w-full flex justify-start"  
-                        dropdownClassname="w-full h-[50px]"  
-                        disabled={fieldConfig.disabled}
-                        isSearch={true}
-                      />
+                      <div>
+                        <CustomDropdown
+                          options={fieldConfig.options}
+                          placeholder={fieldConfig.placeholder || `Select ${fieldConfig.label || fieldName}`}
+                          searchPlaceholder={fieldConfig.searchPlaceholder || `Search ${fieldConfig.label || fieldName}...`}
+                          onSelectionChange={(keys) => {
+                            const selectedKey = keys.size > 0 ? Array.from(keys)[0] : null;
+                            handleChange(fieldName, selectedKey);
+                          }}
+                          buttonClassName="w-full"
+                          dropdownClassName="w-full"
+                          matchWidth={true}
+                          disabled={fieldConfig.disabled}
+                          showSearch={true}
+                        />
+                      </div>
                     ) : (
                       <Input
                         variant="bordered"

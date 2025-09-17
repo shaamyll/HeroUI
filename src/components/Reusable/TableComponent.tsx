@@ -35,9 +35,6 @@ interface TableComponentProps {
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }> }>;
   statusColorMap?: Record<string, string>;
-  onStatusChange?: (id: number, isActive: boolean) => void;
-  onDelete?: (id: number) => void;
-  onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
   isSearch: boolean;

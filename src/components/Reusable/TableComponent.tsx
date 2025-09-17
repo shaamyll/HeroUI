@@ -260,8 +260,17 @@ export default function TableComponent({
 
           {/* Add New Button - Always visible */}
           <div className="flex-shrink-0">
-            <AddNew type={type} onSubmit={onAdd} />
+            {onAdd && (
+              <Button
+                className="bg-[#37125d] text-white"
+                size="md" 
+                onPress={() => onAdd(type)}   // 🔑 callback goes to parent
+              >
+                Create {capitalize(type)}
+              </Button>
+            )}
           </div>
+
 
         </div>
 
@@ -290,7 +299,7 @@ export default function TableComponent({
                   label: option.name,
                 }))}
                 placeholder={filter.name}
-                onSelectionChange={(key) => handleFilterChange(filter.uid,key)}
+                onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                 dropdownClassName="w-full sm:w-[200px]"
                 matchWidth={true}

@@ -4,6 +4,7 @@ import { projectData } from '../Data/Projects';
 import { addToast, Chip, Progress, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function Projects() {
   const [projects, setProjects] = useState(projectData.projects);
@@ -158,7 +159,11 @@ function Projects() {
       ),
     },
   ];
-
+  
+  const navigate = useNavigate()
+  const handleAddClick= () =>{
+    navigate('/')
+  }
 
 
   return (
@@ -180,18 +185,11 @@ function Projects() {
           TableStructure={TableStructure}
           statusOptions={statusOptions}
           statusColorMap={statusColorMap}
+          onAdd={handleAddClick}
           onDelete={handleDeleteProject}
           onEdit={handleEditProject}
           isSearch={true}
           isSelectRows={false}
-          onStatusChange={(id, isActive) => {
-            setProjects(prevProjects =>
-              prevProjects.map(project =>
-                project.id === id ? { ...project, isActive } : project
-              )
-            );
-          }}
-          onAdd={handleAddProject}
         />
       </div>
     </div>

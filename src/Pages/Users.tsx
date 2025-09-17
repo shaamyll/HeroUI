@@ -5,6 +5,7 @@ import { addToast, Chip, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
+import { useNavigate } from 'react-router-dom';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -203,7 +204,7 @@ function Users() {
         { name: 'Management', uid: 'management' },
     ];
 
-        const statusOptions = [
+    const statusOptions = [
         { name: 'Active', uid: 'active' },
         { name: 'Paused', uid: 'paused' },
         { name: 'Vacation', uid: 'vacation' },
@@ -214,6 +215,12 @@ function Users() {
         { name: 'Role', uid: 'role', content: roleOptions },
         { name: 'Team', uid: 'team', content: teamOptions },
     ];
+
+    const navigate = useNavigate()
+
+    const handleAddClick = (type: string) => {
+        navigate(`/add-${type}`);  
+    };
 
     return (
         <div className="min-h-screen px-2">
@@ -239,7 +246,7 @@ function Users() {
                     filters={filterContent}
                     onDelete={handleDeleteUser}
                     onEdit={handleEditUser}
-                    onAdd={handleAddUser}
+                    onAdd={handleAddClick}
                     isSearch={true}
                     isSelectRows={true}
                 />

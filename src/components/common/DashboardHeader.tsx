@@ -217,7 +217,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     : {};
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 pt-8">
       {/* Main Header without dock */}
       <div
         style={headerStyle}

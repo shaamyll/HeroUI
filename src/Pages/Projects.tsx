@@ -140,7 +140,7 @@ function Projects() {
           </motion.h3>
         </div>
         <TableComponent
-          type="project"
+          type="Project"
           TableContent={products}
           TableStructure={TableStructure}
           CardComponent={ProductCard}

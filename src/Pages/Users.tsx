@@ -253,7 +253,7 @@ const UserCardWrapper = ({ item }: any) => (
 
                 {/* Table */}
                 <TableComponent
-                    type="user"
+                    type="User"
                     TableStructure={TableStructure}
                     TableContent={users}
                     CardComponent={UserCardWrapper}

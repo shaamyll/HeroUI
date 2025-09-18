@@ -103,7 +103,7 @@ function CustomDropdown({
         <DropdownTrigger>
           <Button
             className={`${buttonClassName} flex justify-start ${disabled ? 'opacity-50 cursor-not-allowed' : ''} text-left`}
-            variant="ghost"
+            variant="faded"
             endContent={<ChevronDown className={`w-4 h-4 transition-transform ${disabled ? 'opacity-50' : ''}`} />}
             disabled={disabled}
           >

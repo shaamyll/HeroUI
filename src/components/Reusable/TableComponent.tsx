@@ -13,7 +13,7 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
-import { Grid3X3, List, RotateCcw, Search } from "lucide-react";
+import { Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
@@ -189,21 +189,21 @@ export default function TableComponent({
     setPage(1);
   }, []);
 
- const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
-  if (selected.size === 0) {
-    setActiveFilters(prev => ({
-      ...prev,
-      [filterKey]: new Set()
-    }));
-  } else {
-    // Set the new selection
-    setActiveFilters(prev => ({
-      ...prev,
-      [filterKey]: selected
-    }));
-  }
-  setPage(1);
-}, []);
+  const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
+    if (selected.size === 0) {
+      setActiveFilters(prev => ({
+        ...prev,
+        [filterKey]: new Set()
+      }));
+    } else {
+      // Set the new selection
+      setActiveFilters(prev => ({
+        ...prev,
+        [filterKey]: selected
+      }));
+    }
+    setPage(1);
+  }, []);
 
   // Reset all filters
   const resetFilters = useCallback(() => {
@@ -213,7 +213,7 @@ export default function TableComponent({
     });
     setActiveFilters(resetFilters);
     setPage(1);
-    setFilterValue(""); 
+    setFilterValue("");
   }, [filters]);
 
   const topContent = React.useMemo(() => {
@@ -222,14 +222,21 @@ export default function TableComponent({
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Title */}
-          <div className="bg-gray-50 rounded-md px-4 py-2 shadow-sm flex items-center gap-2">
+          <div className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] rounded-lg px-3 py-5 shadow-lg flex items-center gap-2 border border-[#37125d]/20 h-[42px]">
             {isLoading ? (
               <Skeleton className="h-6 w-28 rounded-md" />
             ) : (
-              <span className="font-medium">{type}s ({TableContent.length})</span>
+              <>
+                <div className="bg-white/20 p-1.5 rounded-lg">
+                  <UsersRound className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <h2 className="text-lg font-semibold text-white">{type}s</h2>
+                  <span className="text-white/80 text-sm">({TableContent.length})</span>
+                </div>
+              </>
             )}
           </div>
-
           {/* Desktop-only Search Bar */}
           <div className="hidden sm:flex flex-grow">
             {isSearch ? (
@@ -241,7 +248,7 @@ export default function TableComponent({
                   isClearable
                   classNames={{
                     base: "w-full",
-                    inputWrapper: "font-extrabold",
+                    inputWrapper: "font-extrabold py-5",
                     input: "placeholder:text-gray-400 placeholder:font-semibold"
                   }}
                   placeholder={`Search ${type}s..`}
@@ -270,7 +277,7 @@ export default function TableComponent({
                 <Tabs
                   aria-label="View mode"
                   selectedKey={viewMode}
-                  onSelectionChange={(key)=> setViewMode(key as "table" | "grid")}
+                  onSelectionChange={(key) => setViewMode(key as "table" | "grid")}
                   variant="solid"
                   classNames={{
                     tabList: "gap-0 p-0 ",
@@ -303,7 +310,7 @@ export default function TableComponent({
             ) : (
               onAdd && (
                 <Button
-                  className="bg-[#37125d] text-white"
+                  className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] text-white"
                   size="md"
                   onPress={() => onAdd(type)}
                   isDisabled={isLoading}
@@ -349,12 +356,12 @@ export default function TableComponent({
               {filters.length > 0 && (
                 filters.map((filter) => (
                   <CustomDropdown
-                    key={`${filter.uid}-${Object.keys(activeFilters).length}`} 
+                    key={`${filter.uid}-${Object.keys(activeFilters).length}`}
                     options={filter.content.map(option => ({
                       key: option.uid,
                       label: option.name,
                     }))}
-                    selectedKeys={activeFilters[filter.uid] || new Set()} 
+                    selectedKeys={activeFilters[filter.uid] || new Set()}
                     placeholder={filter.name}
                     onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
                     buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"

@@ -94,9 +94,9 @@ const SimpleMobileNav: React.FC<{
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex flex-col items-center px-2 py-1 text-xs transition-colors ${activeTab === tab.id
-                ? 'text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+            className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === tab.id
+                ? 'text-violet-600 bg-violet-50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
           >
             {tab.icon}
@@ -199,12 +199,17 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const filteredActionButtons = getFilteredButtons(actionButtons);
   const filteredMobileButtons = getFilteredButtons(mobileFloatingButtons);
 
-  // Convert tabs to dock items
+  // Convert tabs to dock items with text labels
   const dockItems: DockItemData[] = tabs.map(tab => ({
-    icon: tab.icon || <HomeIcon size={20} />,
+    icon: (
+      <div className="flex items-center">
+        {tab.icon || <HomeIcon size={20} />}
+        <span className="ml-2 text-sm font-medium">{tab.name}</span>
+      </div>
+    ),
     label: tab.name,
     onClick: () => onTabChange(tab.id),
-    className: activeTab === tab.id ? 'ring-2 ring-white/50 bg-white/20' : ''
+    className: activeTab === tab.id ? 'bg-white/20 ring-2 ring-white/50' : 'hover:bg-white/15'
   }));
 
   const headerStyle = bgImage
@@ -213,7 +218,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   return (
     <div className="mb-8">
-      {/* Main Header with integrated dock */}
+      {/* Main Header without dock */}
       <div
         style={headerStyle}
         className={`relative flex flex-col items-center justify-between overflow-hidden rounded-xl ${bgColor} text-white transition-all duration-300 ease-in-out ${headerClassName}`}
@@ -239,7 +244,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         )}
 
         {/* Header Content */}
-        <div className="relative flex w-full flex-col items-center justify-between p-4 sm:p-6 sm:flex-row z-10">
+        <div className="relative flex w-full flex-col items-center justify-between p-2 sm:p-1 sm:flex-row z-10">
           {/* Title Section */}
           <div className="flex-1 text-center sm:text-left">
             <h1 className={`mb-1 mt-2 text-2xl font-bold sm:text-3xl ${titleClassName}`}>
@@ -281,15 +286,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           )}
         </div>
-
-        {/* Desktop Dock Navigation - Inside the header container */}
+        {/* Desktop Dock Navigation - Back inside the header container with REAL magnification */}
         {!isMobile && dockItems.length > 0 && (
           <div className="relative w-full px-3 sm:px-4 z-20">
             {/* Reserve space for magnified dock to prevent container resize */}
             <div
               className="flex justify-center"
               style={{
-                height: `${(dockProps.panelHeight || 0) + (dockProps.magnification || 12)}px`,
+                height: `${(dockProps.panelHeight || 80) + (dockProps.magnification || 300)}px`,
                 paddingBottom: '4px'
               }}
             >
@@ -297,17 +301,18 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <Dock
                   items={dockItems}
                   className="backdrop-blur-md bg-white/10 border border-white/20"
-                  distance={dockProps.distance || 200}
-                  panelHeight={dockProps.panelHeight || 64}
-                  baseItemSize={dockProps.baseItemSize || 50}
-                  dockHeight={dockProps.dockHeight || 256}
-                  magnification={dockProps.magnification || 70}
+                  distance={dockProps.distance || 250}
+                  panelHeight={dockProps.panelHeight || 80}
+                  baseItemSize={dockProps.baseItemSize || 48}
+                  dockHeight={dockProps.dockHeight || 400}
+                  magnification={dockProps.magnification || 80}
                   spring={dockProps.spring || { mass: 0.1, stiffness: 150, damping: 12 }}
                 />
               </div>
             </div>
           </div>
         )}
+
       </div>
 
       {/* Mobile Navigation */}
@@ -335,7 +340,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <button
                   id={button.id}
                   onClick={button.onClick}
-                  className={`flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-700 ${button.className || ''}`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-all hover:bg-violet-700 ${button.className || ''}`}
                   aria-label={button.label}
                 >
                   {button.icon}
@@ -353,7 +358,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <button
               id="mobile-fab"
               onClick={toggleActionMenu}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-700"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-all hover:bg-violet-700"
               aria-label="Actions Menu"
             >
               {isActionMenuOpen ? (

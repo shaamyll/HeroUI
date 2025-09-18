@@ -23,6 +23,7 @@ export function NavbarComponent() {
     { name: "Footer", link: "/Footer" },
     { name: "cardview", link: "/cardView" },
     { name: "Components", link: "/displaycomponents" },
+    {name: "statCard", link: "/statCardUsage"},
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

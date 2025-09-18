@@ -5,44 +5,49 @@ import DotGrid from '../components/DotGrid';
 import { Home, Settings, Plus, Trash2, UsersIcon, Pencil } from "lucide-react";
  
 const Users: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('home'); // Changed to match a tab that exists
   const [userCount] = useState(145); // Your user count from state/API
 
-  // Define tabs
-  // const tabs = [
-  //   {
-  //     id: 'overview',
-  //     name: 'Overview',
-  //     icon:<Home className="h-5 w-5 mr-2" />,
-  //     path: '/users',
-  //   },
-  //   {
-  //     id: 'manage',
-  //     name: 'Manage Users',
-  //     icon: <UsersIcon className="h-5 w-5 mr-2" />,
-  //     path: '/users/manage',
-  //   },
-  //   {
-  //     id: 'settings',
-  //     name: 'Settings',
-  //     icon: <Settings className="h-5 w-5 mr-2" />,
-  //     path: '/users/settings',
-  //   },
-  //   {
-  //     id: 'demo',
-  //     name: 'Demo',
-  //     icon: <Trash2 className="h-5 w-5 mr-2" />,
-  //     path:'/users/demo',
-
-  //   }
-  // ];
+  // Define tabs - UNCOMMENTED AND FIXED
+  const tabs = [
+    {
+      id: 'home',
+      name: 'Home',
+      icon: <Home className="h-5 w-5" />, // Removed mr-2 as it's not needed in dock
+      path: '/',
+    },
+    {
+      id: 'analytics',
+      name: 'Analytics',
+      icon: <Trash2 className="h-5 w-5" />,
+      path: '/analytics',
+    },
+    {
+      id: 'users',
+      name: 'Users',
+      icon: <UsersIcon className="h-5 w-5" />,
+      path: '/users',
+    },
+    {
+      id: 'settings',
+      name: 'Settings',
+      icon: <Settings className="h-5 w-5" />,
+      path: '/settings',
+    },
+    {
+      id: 'demo',
+      name: 'Demo',
+      icon: <Pencil className="h-5 w-5" />,
+      path: '/demo',
+    }
+  ];
 
   // Define action buttons
   const actionButtons = [
     {
       id: 'create-user',
       label: 'Create User',
-      icon: <Plus />,
+      icon: <Plus className="h-4 w-4" />,
       onClick: () => {
         // Your create user logic
         console.log('Creating new user...');
@@ -57,7 +62,7 @@ const Users: React.FC = () => {
     {
       id: 'create-user-mobile',
       label: 'Create User',
-      icon: <Plus />,
+      icon: <Plus className="h-5 w-5" />,
       onClick: () => {
         console.log('Creating new user (mobile)...');
       },
@@ -94,40 +99,71 @@ const Users: React.FC = () => {
         <DashboardHeader
           title="Project Dashboard"
           subtitle="Monitoring 108 projects across Saudi Arabia"
-          tabs={[
-            { id: 'home', name: 'Home', icon: <Home />, path: '/' },
-            { id: 'analytics', name: 'Analytics', icon: <Trash2 />, path: '/analytics' },
-             { id: 'home', name: 'Home', icon: <Pencil />, path: '/' },
-            { id: 'analytics', name: 'Analytics', icon: <UsersIcon/>, path: '/analytics' },
-             { id: 'home', name: 'Home', icon: <Settings />, path: '/' },
-          ]}
+          tabs={tabs} // Now using the properly defined tabs array
           activeTab={activeTab}
           onTabChange={handleTabChange}
-           actionButtons={actionButtons}
-            mobileFloatingButtons={mobileFloatingButtons}
+          actionButtons={actionButtons}
+          mobileFloatingButtons={mobileFloatingButtons}
           userPermissions={userPermissions}
-           bgColor="bg-violet-950"
-           showMobileNav={true}
+          bgColor="bg-violet-950"
+          showMobileNav={true}
           mobileBreakpoint={768}
           dockProps={{
-            magnification: 80,
+            magnification: 60,
             distance: 150,
-            baseItemSize: 48
+            baseItemSize: 48,
+            panelHeight: 64
           }}
         />
 
         {/* Your page content here */}
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6 border border-white/20">
           <h2 className="text-xl font-semibold mb-4">
-            {activeTab === 'overview' && 'User Overview'}
-            {activeTab === 'manage' && 'Manage Users'}
-            {activeTab === 'settings' && 'User Settings'}
+            {activeTab === 'home' && 'Home Dashboard'}
+            {activeTab === 'analytics' && 'Analytics Overview'}
+            {activeTab === 'users' && 'User Management'}
+            {activeTab === 'settings' && 'Settings Panel'}
+            {activeTab === 'demo' && 'Demo Section'}
           </h2>
 
           {/* Your existing table component and other content */}
           <p className="text-gray-600">
-            Current active tab: {activeTab}
+            Current active tab: <span className="font-semibold capitalize">{activeTab}</span>
           </p>
+          
+          {/* Add some sample content based on active tab */}
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            {activeTab === 'home' && (
+              <div>
+                <h3 className="font-medium mb-2">Dashboard Overview</h3>
+                <p className="text-sm text-gray-600">Welcome to your project dashboard. Monitor your projects and analytics here.</p>
+              </div>
+            )}
+            {activeTab === 'analytics' && (
+              <div>
+                <h3 className="font-medium mb-2">Analytics Data</h3>
+                <p className="text-sm text-gray-600">View detailed analytics and reports for your projects.</p>
+              </div>
+            )}
+            {activeTab === 'users' && (
+              <div>
+                <h3 className="font-medium mb-2">User Management</h3>
+                <p className="text-sm text-gray-600">Manage users, roles, and permissions. Total users: {userCount}</p>
+              </div>
+            )}
+            {activeTab === 'settings' && (
+              <div>
+                <h3 className="font-medium mb-2">System Settings</h3>
+                <p className="text-sm text-gray-600">Configure system preferences and application settings.</p>
+              </div>
+            )}
+            {activeTab === 'demo' && (
+              <div>
+                <h3 className="font-medium mb-2">Demo Features</h3>
+                <p className="text-sm text-gray-600">Explore demo features and sample functionality.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

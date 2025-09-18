@@ -8,7 +8,9 @@ export default {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: "class",
-  plugins: [ heroui({
+  plugins: [ 
+    require("tailwindcss-animate"),
+    heroui({
       themes: {
         "purple-dark": {
           extend: "dark", 

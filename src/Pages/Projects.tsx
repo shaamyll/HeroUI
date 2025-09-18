@@ -105,7 +105,7 @@ function Projects() {
   ];
 
   const filterContent = [
-    { name: "Category", uid: "category", content: categoryOptions, showSearch: false },
+    { name: "Select Category", uid: "category", content: categoryOptions, showSearch: false },
   ];
 
   const navigate = useNavigate();

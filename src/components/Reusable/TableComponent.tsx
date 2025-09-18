@@ -13,7 +13,7 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
-import { Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
+import { FolderOpen, Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
@@ -223,101 +223,77 @@ export default function TableComponent({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Title */}
           <div className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] rounded-lg px-3 py-5 shadow-lg flex items-center gap-2 border border-[#37125d]/20 h-[42px]">
-            {isLoading ? (
-              <Skeleton className="h-6 w-28 rounded-md" />
-            ) : (
-              <>
-                <div className="bg-white/20 p-1.5 rounded-lg">
-                  <UsersRound className="h-4 w-4 text-white" />
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <h2 className="text-lg font-semibold text-white">{type}s</h2>
-                  <span className="text-white/80 text-sm">({TableContent.length})</span>
-                </div>
-              </>
-            )}
+            <div className="bg-white/20 p-1.5 rounded-lg">
+              <UsersRound className="h-4 w-4 text-white" />
+            </div>
+            <div className="flex items-baseline gap-1">
+              <h2 className="text-md font-semibold text-white">{type}s</h2>
+              <span className="text-white/80 text-sm">({TableContent.length})</span>
+            </div>
           </div>
+
           {/* Desktop-only Search Bar */}
           <div className="hidden sm:flex flex-grow">
             {isSearch ? (
-              isLoading ? (
-                <Skeleton className="h-10 w-full" />
-              ) : (
-                <Input
-                  size="md"
-                  isClearable
-                  classNames={{
-                    base: "w-full",
-                    inputWrapper: "font-extrabold py-5",
-                    input: "placeholder:text-gray-400 placeholder:font-semibold"
-                  }}
-                  placeholder={`Search ${type}s..`}
-                  startContent={<Search className="w-4 h-4 text-default-400" />}
-                  value={filterValue}
-                  variant="faded"
-                  onClear={() => setFilterValue("")}
-                  onValueChange={onSearchChange}
-                  isDisabled={isLoading}
-                />
-              )
+              <Input
+                size="md"
+                isClearable
+                classNames={{
+                  base: "w-full",
+                  inputWrapper: "font-extrabold py-5",
+                  input: "placeholder:text-gray-400 placeholder:font-semibold"
+                }}
+                placeholder={`Search ${type}s..`}
+                startContent={<Search className="w-4 h-4 text-default-400" />}
+                value={filterValue}
+                variant="faded"
+                onClear={() => setFilterValue("")}
+                onValueChange={onSearchChange}
+                isDisabled={isLoading}
+              />
             ) : (
               <div className="min-h-[2.5rem]" />
             )}
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg px-1.5 py-1 shadow-sm">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-9 w-9 rounded-md" />
-                <Skeleton className="h-9 w-9 rounded-md" />
-              </>
-            ) : (
-              <>
-                <Tabs
-                  aria-label="View mode"
-                  selectedKey={viewMode}
-                  onSelectionChange={(key) => setViewMode(key as "table" | "grid")}
-                  variant="solid"
-                  classNames={{
-                    tabList: "gap-0 p-0 ",
-                    cursor: "",
-                    tab: "p-2 rounded-sm",
-                    tabContent: "hover:text-gray-600"
-                  }}
-                >
-                  <Tab
-                    key="table"
-                    title={<List className="w-4 h-4" />}
-                    isDisabled={isLoading}
-                  />
-                  <Tab
-                    key="grid"
-                    title={<Grid3X3 className="w-4 h-4" />}
-                    isDisabled={isLoading}
-                  />
-                </Tabs>
-
-              </>
-            )}
+          <div className="flex items-center gap-0 bg-gray-100 rounded-lg px-1.5 py-1 shadow-sm">
+            <Tabs
+              aria-label="View mode"
+              selectedKey={viewMode}
+              onSelectionChange={(key) => setViewMode(key as "table" | "grid")}
+              variant="solid"
+              classNames={{
+                tabList: "gap-0 p-0 ",
+                cursor: "",
+                tab: "p-2 rounded-sm",
+                tabContent: "hover:text-gray-600"
+              }}
+            >
+              <Tab
+                key="table"
+                title={<List className="w-4 h-4" />}
+                isDisabled={isLoading}
+              />
+              <Tab
+                key="grid"
+                title={<Grid3X3 className="w-4 h-4" />}
+                isDisabled={isLoading}
+              />
+            </Tabs>
           </div>
-
 
           {/* Add New Button - Always visible */}
           <div className="flex-shrink-0">
-            {isLoading ? (
-              <Skeleton className="h-10 w-24 rounded-lg" />
-            ) : (
-              onAdd && (
-                <Button
-                  className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] text-white"
-                  size="md"
-                  onPress={() => onAdd(type)}
-                  isDisabled={isLoading}
-                >
-                  Create {type}
-                </Button>
-              )
+            {onAdd && (
+              <Button
+                className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] text-white font-semibold"
+                size="md"
+                onPress={() => onAdd(type)}
+                isDisabled={isLoading}
+              >
+                Create {type}
+              </Button>
             )}
           </div>
         </div>
@@ -325,68 +301,52 @@ export default function TableComponent({
         {/* Mobile-only Search Bar */}
         {isSearch && (
           <div className="sm:hidden w-full">
-            {isLoading ? (
-              <Skeleton className="h-10 w-full" />
-            ) : (
-              <Input
-                isClearable
-                className="w-full"
-                placeholder="Search..."
-                startContent={<Search className="w-5 h-5 text-default-400" />}
-                value={filterValue}
-                onClear={() => onClear()}
-                onValueChange={onSearchChange}
-                isDisabled={isLoading}
-              />
-            )}
+            <Input
+              isClearable
+              className="w-full"
+              placeholder="Search..."
+              startContent={<Search className="w-5 h-5 text-default-400" />}
+              value={filterValue}
+              onClear={() => onClear()}
+              onValueChange={onSearchChange}
+              isDisabled={isLoading}
+            />
           </div>
         )}
 
         <div className="flex flex-wrap gap-3 w-full rounded-lg">
-          {isLoading ? (
-            // Show skeleton filters
-            <>
-              <Skeleton className="h-10 w-32" />
-              <Skeleton className="h-10 w-28" />
-              <Skeleton className="h-10 w-36" />
-            </>
-          ) : (
-            // Show actual filters
-            <>
-              {filters.length > 0 && (
-                filters.map((filter) => (
-                  <CustomDropdown
-                    key={`${filter.uid}-${Object.keys(activeFilters).length}`}
-                    options={filter.content.map(option => ({
-                      key: option.uid,
-                      label: option.name,
-                    }))}
-                    selectedKeys={activeFilters[filter.uid] || new Set()}
-                    placeholder={filter.name}
-                    onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
-                    buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
-                    dropdownClassName="w-full sm:w-[200px]"
-                    matchWidth={true}
-                    showSearch={filter.showSearch || false}
-                    disabled={isLoading}
-                  />
-                ))
-              )}
+          {filters.length > 0 && (
+            filters.map((filter) => (
+              <CustomDropdown
+                key={`${filter.uid}-${Object.keys(activeFilters).length}`}
+                options={filter.content.map(option => ({
+                  key: option.uid,
+                  label: option.name,
+                }))}
+                selectedKeys={activeFilters[filter.uid] || new Set()}
+                placeholder={filter.name}
+                onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
+                buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
+                dropdownClassName="w-full sm:w-[200px]"
+                matchWidth={true}
+                showSearch={filter.showSearch || false}
+                disabled={isLoading}
+              />
+            ))
+          )}
 
-              {hasActiveFilters && (
-                <Button
-                  size="md"
-                  color="warning"
-                  variant="flat"
-                  startContent={<RotateCcw className="w-4 h-4 " />}
-                  className=" font-medium hover:opacity-90 transition"
-                  onPress={resetFilters}
-                  isDisabled={isLoading}
-                >
-                  Reset All
-                </Button>
-              )}
-            </>
+          {hasActiveFilters && (
+            <Button
+              size="md"
+              color="warning"
+              variant="flat"
+              startContent={<RotateCcw className="w-4 h-4 " />}
+              className=" font-medium hover:opacity-90 transition"
+              onPress={resetFilters}
+              isDisabled={isLoading}
+            >
+              Reset All
+            </Button>
           )}
         </div>
       </div>
@@ -537,19 +497,19 @@ export default function TableComponent({
 
     if (sortedItems.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center space-y-4 py-10 min-h-[700px]">
+        <div className="flex flex-col items-center justify-center space-y-4 py-10 min-h-[500px]">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
             className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100"
           >
-            <Grid3X3 className="h-12 w-12 text-gray-400" />
+            <FolderOpen className="h-12 w-12 text-gray-400" />
           </motion.div>
-          <h3 className="text-lg font-semibold text-gray-700">
+          <h3 className="text-lg font-bold text-gray-700">
             No {type}s Found
           </h3>
-          <p className="max-w-sm text-center text-sm text-gray-500">
+          <p className="max-w-sm text-center text-md text-gray-500">
             It looks like there are no {type}s available at the moment.
             Try adjusting your search or filters.
           </p>
@@ -677,26 +637,58 @@ export default function TableComponent({
           </TableHeader>
 
           <TableBody
-            emptyContent={isLoading ? "" : "No data found"}
+            emptyContent={isLoading ? "" : (
+              <div className="flex flex-col items-center justify-center space-y-4 py-10 min-h-[400px]">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100"
+                >
+                  <FolderOpen className="h-12 w-12 text-gray-400" />
+                </motion.div>
+                <h3 className="text-lg font-bold text-gray-700">
+                  No {type}s Found
+                </h3>
+                <p className="max-w-sm text-center text-md text-gray-500">
+                  It looks like there are no {type}s available at the moment.
+                  Try adjusting your search or filters.
+                </p>
+              </div>
+            )}
             items={isLoading ? [] : sortedItems}
           >
             {isLoading ? (
               generateSkeletonRows().map((skeletonRow) => skeletonRow)
             ) : (
-              (item) => (
+              sortedItems.map((item, index) => (
                 <TableRow key={item.id || Math.random()}>
                   {(columnKey) => {
                     const col = columns.find((c) => c.headerId === columnKey);
                     return (
                       <TableCell>
-                        {col?.render
-                          ? col.render(item)
-                          : defaultRenderCell(item, columnKey as string)}
+                        <motion.div
+                          initial={{ opacity: 0, y: 25, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{
+                            duration: 0.5,
+                            delay: index * 0.08, // Slightly faster stagger
+                            ease: [0.25, 0.46, 0.45, 0.94] // Custom smooth easing
+                          }}
+                          whileHover={{
+                            scale: 1.01,
+                            transition: { duration: 0.2 }
+                          }}
+                        >
+                          {col?.render
+                            ? col.render(item)
+                            : defaultRenderCell(item, columnKey as string)}
+                        </motion.div>
                       </TableCell>
                     );
                   }}
                 </TableRow>
-              )
+              ))
             )}
           </TableBody>
         </Table>

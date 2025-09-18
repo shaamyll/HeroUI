@@ -43,14 +43,14 @@ export function NavbarComponent() {
             items={navItems}
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
-          <div className="hidden md:flex items-center gap-4">
+          {/* <div className="hidden md:flex items-center gap-4">
             <NavbarButton color="primary" variant="secondary" href="/auth">
               Login
             </NavbarButton>
             <NavbarButton color="primary" variant="gradient">
               SignUp
             </NavbarButton>
-          </div>
+          </div> */}
         </NavBody>
 
         {/* Mobile Navigation */}

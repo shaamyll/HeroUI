@@ -118,7 +118,7 @@ const cardWithProgressConfig: SopCardViewProps = {
   // Card 3: Header and Footer only
   const cardHeaderFooterOnlyConfig: SopCardViewProps = {
     header: {
-      icon: <MdStar />,
+      icon: <MdStar />, 
       title: "Archived Initiative",
       description: "This project has been completed and is now archived.",
     },

@@ -10,11 +10,22 @@ import {
   Button,
   Pagination,
 } from "@heroui/react";
-import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
+import { Grid3X3, Key, List, RotateCcw, Search } from "lucide-react";
+import AddNew from "./AddNew";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
-import { Skeleton } from "./Skeleton";
+import { cn } from '../lib/cn';
+
+// Custom Skeleton component matching your project
+function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn("animate-pulse bg-gray-300 rounded-md", className)}
+      {...props}
+    />
+  );
+}
 
 export interface TableColumn {
   name: string;
@@ -27,14 +38,25 @@ export interface TableContent {
   [key: string]: any;
 }
 
+export interface CardComponent {
+  item: any;
+  onView: (item: any) => void;
+  onEdit: (item: any) => void;
+  onDelete: (item: any) => void;
+}
+
 interface TableComponentProps {
   TableContent: TableContent[];
   TableStructure?: Array<{
     render: any; name: string; headerId: string; sortable?: boolean
   }>;
+  CardComponent?: React.ComponentType<CardComponent>;
   statusOptions?: Array<{ name: string; uid: string }>;
-  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>,showSearch:boolean }>;
+  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>, showSearch?: boolean }>;
   statusColorMap?: Record<string, string>;
+  onStatusChange?: (id: number, isActive: boolean) => void;
+  onDelete?: (id: number) => void;
+  onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
   type?: 'user' | 'project';
   isSearch: boolean;
@@ -49,6 +71,7 @@ export function capitalize(s: string) {
 export default function TableComponent({
   TableContent,
   TableStructure = [],
+  CardComponent,
   statusOptions = [],
   filters = [],
   onAdd,
@@ -69,11 +92,11 @@ export default function TableComponent({
     }));
   }, [TableStructure]);
 
-  const [viewMode, setViewMode] = useState('')
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.headerId || "id",
     direction: "ascending" as const,
@@ -87,6 +110,8 @@ export default function TableComponent({
   }, [activeFilters]);
 
   const filteredItems = React.useMemo(() => {
+    if (isLoading) return [];
+    
     let filteredData = [...TableContent];
     // Apply search filter
     if (hasSearchFilter) {
@@ -120,17 +145,19 @@ export default function TableComponent({
     });
 
     return filteredData;
-  }, [TableContent, filterValue, hasSearchFilter, activeFilters]);
+  }, [TableContent, filterValue, hasSearchFilter, activeFilters, isLoading]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
 
   const items = React.useMemo(() => {
+    if (isLoading) return [];
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
     return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
+  }, [page, filteredItems, rowsPerPage, isLoading]);
 
   const sortedItems = React.useMemo(() => {
+    if (isLoading) return [];
     return [...items].sort((a, b) => {
       const columnKey = sortDescriptor.column as string;
       const first = a[columnKey];
@@ -142,7 +169,7 @@ export default function TableComponent({
       if (firstValue > secondValue) return sortDescriptor.direction === "ascending" ? 1 : -1;
       return 0;
     });
-  }, [sortDescriptor, items]);
+  }, [sortDescriptor, items, isLoading]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -175,7 +202,6 @@ export default function TableComponent({
     setPage(1);
   }, []);
 
-
   const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
     // If the same item is clicked again, clear the filter for that key
     const newValue = activeFilters[filterKey]?.has(Array.from(selected)[0])
@@ -199,34 +225,41 @@ export default function TableComponent({
     setPage(1);
   }, [filters]);
 
-
   const topContent = React.useMemo(() => {
-
     return (
       <div className="flex flex-col gap-4 my-4">
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Title - Always visible */}
           <div className="bg-gray-100 sm:bg-gray-50 rounded-lg p-2 px-3 flex-shrink-0">
-            <span className="font-medium">{type}s ({TableContent.length})</span>
+            {isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : (
+              <span className="font-medium">{type}s ({TableContent.length})</span>
+            )}
           </div>
 
           {/* Desktop-only Search Bar */}
           <div className="hidden sm:flex flex-grow">
             {isSearch ? (
-              <Input
-                isClearable
-                classNames={{
-                  base: "w-full",
-                  inputWrapper: "font-extrabold",
-                }}
-                placeholder={`search ${type}s..`}
-                startContent={<Search className="w-5 h-5 text-default-400" />}
-                value={filterValue}
-                variant="faded"
-                onClear={() => setFilterValue("")}
-                onValueChange={onSearchChange}
-              />
+              isLoading ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
+                <Input
+                  isClearable
+                  classNames={{
+                    base: "w-full",
+                    inputWrapper: "font-extrabold",
+                  }}
+                  placeholder={`search ${type}s..`}
+                  startContent={<Search className="w-5 h-5 text-default-400" />}
+                  value={filterValue}
+                  variant="faded"
+                  onClear={() => setFilterValue("")}
+                  onValueChange={onSearchChange}
+                  isDisabled={isLoading}
+                />
+              )
             ) : (
               <div className="min-h-[2.5rem]" />
             )}
@@ -235,89 +268,121 @@ export default function TableComponent({
           {/* View Toggle and Add New Button */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center bg-gray-100 rounded-lg p-1">
-              <button
-                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'list'
-                  ? 'bg-white shadow-sm text-gray-800'
-                  : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                onClick={() => setViewMode('list')}
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'grid'
-                  ? 'bg-white shadow-sm text-gray-800'
-                  : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                onClick={() => setViewMode('grid')}
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md ml-1" />
+                </>
+              ) : (
+                <>
+                  <button
+                    className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'table'
+                      ? 'bg-white shadow-sm text-gray-800'
+                      : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                    onClick={() => setViewMode('table')}
+                    disabled={isLoading}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                  <button
+                    className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'grid'
+                      ? 'bg-white shadow-sm text-gray-800'
+                      : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                    onClick={() => setViewMode('grid')}
+                    disabled={isLoading}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           {/* Add New Button - Always visible */}
           <div className="flex-shrink-0">
-            {onAdd && (
-              <Button
-                className="bg-[#37125d] text-white"
-                size="md"
-                onPress={() => onAdd(type)} 
-              >
-                Create {type}
-              </Button>
+            {isLoading ? (
+              <Skeleton className="h-10 w-24" />
+            ) : (
+              onAdd && (
+                <Button
+                  className="bg-[#37125d] text-white"
+                  size="md" 
+                  onPress={() => onAdd(type)}
+                  isDisabled={isLoading}
+                >
+                  Create {type}
+                </Button>
+              )
             )}
           </div>
-
-
         </div>
 
         {/* Mobile-only Search Bar */}
         {isSearch && (
           <div className="sm:hidden w-full">
-            <Input
-              isClearable
-              className="w-full"
-              placeholder="Search..."
-              startContent={<Search className="w-5 h-5 text-default-400" />}
-              value={filterValue}
-              onClear={() => onClear()}
-              onValueChange={onSearchChange}
-            />
+            {isLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Input
+                isClearable
+                className="w-full"
+                placeholder="Search..."
+                startContent={<Search className="w-5 h-5 text-default-400" />}
+                value={filterValue}
+                onClear={() => onClear()}
+                onValueChange={onSearchChange}
+                isDisabled={isLoading}
+              />
+            )}
           </div>
         )}
 
         <div className="flex flex-wrap gap-3 w-full">
-          {filters.length > 0 && (
-            filters.map((filter) => (
-              <CustomDropdown
-                key={filter.uid}
-                options={filter.content.map(option => ({
-                  key: option.uid,
-                  label: option.name,
-                }))}
-                placeholder={filter.name}
-                onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
-                buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
-                dropdownClassName="w-full sm:w-[200px]"
-                matchWidth={true}
-                showSearch={filter.showSearch !== undefined ? filter.showSearch : true} // Pass the showSearch prop
-              />
-            ))
-          )}
+          {isLoading ? (
+            // Show skeleton filters
+            <>
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 w-28" />
+              <Skeleton className="h-10 w-36" />
+            </>
+          ) : (
+            // Show actual filters
+            <>
+              {filters.length > 0 && (
+                filters.map((filter) => (
+                  <CustomDropdown
+                    key={filter.uid}
+                    options={filter.content.map(option => ({
+                      key: option.uid,
+                      label: option.name,
+                    }))}
+                    placeholder={filter.name}
+                    onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
+                    buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
+                    dropdownClassName="w-full sm:w-[200px]"
+                    matchWidth={true}
+                    showSearch={true}
+                    isDisabled={isLoading}
+                  />
+                ))
+              )}
 
-
-          {hasActiveFilters && (
-            <Button
-              size="md"
-              color="warning"
-              variant="flat"
-              startContent={<RotateCcw className="w-4 h-4 " />}
-              className=" font-medium hover:opacity-90 transition"
-              onPress={resetFilters}
-            >
-              Reset All
-            </Button>
+              {hasActiveFilters && (
+                <Button
+                  size="md"
+                  color="warning"
+                  variant="flat"
+                  startContent={<RotateCcw className="w-4 h-4 " />}
+                  className=" font-medium hover:opacity-90 transition"
+                  onPress={resetFilters}
+                  isDisabled={isLoading}
+                >
+                  Reset All
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -331,48 +396,94 @@ export default function TableComponent({
     hasSearchFilter,
     statusOptions.length,
     rowsPerPage,
+    isLoading,
+    type,
+    isSearch,
+    viewMode,
+    onAdd,
+    filters,
+    hasActiveFilters,
+    resetFilters,
+    handleFilterChange,
+    onClear
   ]);
-
 
   const bottomContent = React.useMemo(() => {
     return (
       <div className="pb-10 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-600">
           <div className="flex justify-between items-center">
-            <label className="flex items-center text-default-400 text-small">
-              Rows per page:
-              <select
-                className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
-                onChange={onRowsPerPageChange}
-                value={rowsPerPage}
-              >
-                {/* <option value="5">5</option> */}
-                <option value="10">10</option>
-                <option value="15">15</option>
-              </select>
-            </label>
+            {isLoading ? (
+              <Skeleton className="h-8 w-32" />
+            ) : (
+              <label className="flex items-center text-default-400 text-small">
+                Rows per page:
+                <select
+                  className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
+                  onChange={onRowsPerPageChange}
+                  value={rowsPerPage}
+                  disabled={isLoading}
+                >
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                </select>
+              </label>
+            )}
           </div>
         </span>
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          page={page}
-          total={pages}
-          onChange={setPage}
-        />
+        
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-8 w-8" />
+            ))}
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
+        ) : (
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            color="primary"
+            page={page}
+            total={pages}
+            onChange={setPage}
+            isDisabled={isLoading}
+          />
+        )}
+        
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
-          <Button isDisabled={pages === 1} size="sm" variant="faded" onPress={onPreviousPage}>
-            Previous
-          </Button>
-          <Button isDisabled={pages === 1} size="sm" variant="faded" onPress={onNextPage}>
-            Next
-          </Button>
+          {isLoading ? (
+            <>
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-8 w-12" />
+            </>
+          ) : (
+            <>
+              <Button 
+                isDisabled={pages === 1 || isLoading} 
+                size="sm" 
+                variant="faded" 
+                onPress={onPreviousPage}
+              >
+                Previous
+              </Button>
+              <Button 
+                isDisabled={pages === 1 || isLoading} 
+                size="sm" 
+                variant="faded" 
+                onPress={onNextPage}
+              >
+                Next
+              </Button>
+            </>
+          )}
         </div>
       </div>
     );
-  }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter, isLoading, rowsPerPage, onRowsPerPageChange, onPreviousPage, onNextPage]);
 
   // Default cell renderer (only used if no `render` provided from parent)
   const defaultRenderCell = useCallback(
@@ -391,37 +502,100 @@ export default function TableComponent({
     return;
   };
 
-  // Create skeleton rows
-  const skeletonRows = Array.from({ length: rowsPerPage }).map((_, rowIndex) => (
-    <TableRow key={`skeleton-${rowIndex}`} className="mx-12">
-      {columns.map((column) => (
-        <TableCell key={`${column.headerId}-${rowIndex}`}>
-          <Skeleton className="h-4 " />
-        </TableCell>
-      ))}
-    </TableRow>
-  ));
+  // Generate skeleton table rows
+  const generateSkeletonRows = () => {
+    return Array.from({ length: rowsPerPage }, (_, index) => (
+      <TableRow key={`skeleton-${index}`}>
+        {columns.map((column, colIndex) => (
+          <TableCell key={column.headerId}>
+            <div className="flex items-center gap-2">
+              {colIndex === 0 && isSelectRows && (
+                <Skeleton className="h-4 w-4 rounded-sm" />
+              )}
+              <Skeleton className={`h-4 ${
+                colIndex === 0 ? 'w-20' : 
+                colIndex === 1 ? 'w-32' : 
+                colIndex === 2 ? 'w-24' : 'w-16'
+              }`} />
+            </div>
+          </TableCell>
+        ))}
+      </TableRow>
+    ));
+  };
 
-  const EmptyContent = () => {
-    return (
-      <div className="flex flex-col items-center justify-center space-y-4 py-10">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100"
-        >
-          <FolderOpen className="h-12 w-12 text-gray-400" />
-        </motion.div>
-        <h3 className="text-lg font-semibold text-gray-700">
-          No {type} Found
-        </h3>
-        <p className="max-w-sm text-center text-sm text-gray-500">
-          It looks like there are no data available at the moment.
-          Try adjusting your search or adding.
-        </p>
+  // Generate skeleton cards for grid view
+  const generateSkeletonCards = () => {
+    return Array.from({ length: rowsPerPage }, (_, index) => (
+      <div key={`skeleton-card-${index}`} className="rounded-lg p-4 bg-white shadow-sm">
+        <Skeleton className="h-32 w-full mb-3 rounded" />
+        <Skeleton className="h-5 w-3/4 mb-2" />
+        <Skeleton className="h-4 w-1/2 mb-2" />
+        <Skeleton className="h-4 w-2/3" />
       </div>
-    );
+    ));
+  };
+
+  // Grid View Component
+  const GridView = () => {
+    if (isLoading) {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+          {generateSkeletonCards()}
+        </div>
+      );
+    }
+
+    if (sortedItems.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center space-y-4 py-10">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100"
+          >
+            <Grid3X3 className="h-12 w-12 text-gray-400" />
+          </motion.div>
+          <h3 className="text-lg font-semibold text-gray-700">
+            No {type}s Found
+          </h3>
+          <p className="max-w-sm text-center text-sm text-gray-500">
+            It looks like there are no {type}s available at the moment.
+            Try adjusting your search or filters.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+  <div className="p-3">
+    <div className="grid gap-6 
+      grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
+      auto-rows-fr
+      bg-gradient-to-br from-gray-50 via-white to-gray-50
+      rounded-2xl">
+      {sortedItems.map((item, index) => (
+        <motion.div
+          key={item.id || index}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+        >
+          {CardComponent && (
+            <CardComponent
+              item={item}
+              onView={(item: any) => console.log("View:", item)}
+              onEdit={(item: any) => console.log("Edit:", item)}
+              onDelete={(item: any) => console.log("Delete:", item)}
+            />
+          )}
+        </motion.div>
+      ))}
+    </div>
+  </div>
+);
+
   };
 
   return (
@@ -429,11 +603,12 @@ export default function TableComponent({
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className=" w-full mx-auto"
+      className="w-full mx-auto"
     >
       {topContent}
+      
       {/* Selection Action Bar directly above the table */}
-      {isSelectRows && (selectedKeys === "all" || selectedKeys.size > 0) && (
+      {!isLoading && isSelectRows && (selectedKeys === "all" || selectedKeys.size > 0) && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -466,63 +641,77 @@ export default function TableComponent({
         </motion.div>
       )}
 
-      <Table
-        isHeaderSticky
-        aria-label="Dynamic table with all columns"
-        bottomContent={bottomContent}
-        bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
-          table: "min-w-full",
-        }}
-        selectionMode="multiple"
-        selectedKeys={selectedKeys}
-        onSelectionChange={setSelectedKeys}
-        sortDescriptor={sortDescriptor}
-        topContentPlacement="outside"
-        onSortChange={setSortDescriptor}
-        onRowAction={handleRowAction}
-        selectionBehavior={isSelectRows ? "selection" : "replace"}
-        hideSelectionCheckbox={false}
-      >
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn
-              key={column.headerId}
-              allowsSorting={column.sortable}
-              className="text-sm"
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
+      {/* Conditional rendering based on viewMode */}
+      {viewMode === 'grid' ? (
+        <div>
+          <div className="bg-white rounded-2xl mb-5 ">
+          <GridView />
+          {/* Bottom content for grid view */}
+        </div>
+          {bottomContent}
 
-        <TableBody
-          emptyContent={<EmptyContent />}
-          items={isLoading ? [] : sortedItems}
+        </div>
+      ) : (
+        <Table
+          isHeaderSticky
+          aria-label="Dynamic table with all columns"
+          bottomContent={bottomContent}
+          bottomContentPlacement="outside"
+          classNames={{
+            wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
+            table: "min-w-full",
+          }}
+          selectionMode="multiple"
+          selectedKeys={selectedKeys}
+          onSelectionChange={setSelectedKeys}
+          sortDescriptor={sortDescriptor}
+          topContentPlacement="outside"
+          onSortChange={setSortDescriptor}
+          onRowAction={handleRowAction}
+          selectionBehavior={isSelectRows ? "selection" : "replace"}
+          hideSelectionCheckbox={isLoading}
         >
-          {isLoading ? (
-            // Render skeleton rows when loading
-            skeletonRows
-          ) : (
-            (item) => (
-              <TableRow key={item.id || Math.random()}>
-                {(columnKey) => {
-                  const col = columns.find((c) => c.headerId === columnKey);
-                  return (
-                    <TableCell>
-                      {col?.render
-                        ? col.render(item)
-                        : defaultRenderCell(item, columnKey as string)}
-                    </TableCell>
-                  );
-                }}
-              </TableRow>
-            )
-          )}
-        </TableBody>
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn
+                key={column.headerId}
+                allowsSorting={column.sortable && !isLoading}
+                className="text-sm"
+              >
+                {isLoading ? (
+                  <Skeleton className="h-4 w-20" />
+                ) : (
+                  column.name
+                )}
+              </TableColumn>
+            )}
+          </TableHeader>
 
-      </Table>
+          <TableBody 
+            emptyContent={isLoading ? "" : "No data found"} 
+            items={isLoading ? [] : sortedItems}
+          >
+            {isLoading ? (
+              generateSkeletonRows().map((skeletonRow, index) => skeletonRow)
+            ) : (
+              (item) => (
+                <TableRow key={item.id || Math.random()}>
+                  {(columnKey) => {
+                    const col = columns.find((c) => c.headerId === columnKey);
+                    return (
+                      <TableCell>
+                        {col?.render
+                          ? col.render(item)
+                          : defaultRenderCell(item, columnKey as string)}
+                      </TableCell>
+                    );
+                  }}
+                </TableRow>
+              )
+            )}
+          </TableBody>
+        </Table>
+      )}
     </motion.div>
   );
 }

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
 import { useNavigate } from 'react-router-dom';
+import ImageCard from '../components/Reusable/ImageCard';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -210,16 +211,27 @@ function Users() {
     ];
 
     const filterContent = [
-        { name: 'Status', uid: 'status', content: statusOptions, showSearch:false },
-        { name: 'Role', uid: 'role', content: roleOptions,showSearch:true },
-        { name: 'Team', uid: 'team', content: teamOptions, showSearch:true },
+        { name: 'Status', uid: 'status', content: statusOptions, showSearch: false },
+        { name: 'Role', uid: 'role', content: roleOptions, showSearch: true },
+        { name: 'Team', uid: 'team', content: teamOptions, showSearch: true },
     ];
 
     const navigate = useNavigate()
 
     const handleAddClick = (type: string) => {
-        navigate(`/add-${type}`);  
+        navigate(`/add-${type}`);
     };
+
+    // Create a wrapper for the ImageCard
+    const UserCard = ({ item }: any) => (
+        <ImageCard
+            imageSrc={getGradientFromName(item.name)}
+            imageAlt={item.name}
+            title={item.name}
+            subtitle={item.role}
+            description={item.team}
+        />
+    );
 
     return (
         <div className="min-h-screen px-2">
@@ -242,6 +254,7 @@ function Users() {
                     type="user"
                     TableStructure={TableStructure}
                     TableContent={users}
+                    productcard={UserCard}
                     filters={filterContent}
                     onDelete={handleDeleteUser}
                     onEdit={handleEditUser}

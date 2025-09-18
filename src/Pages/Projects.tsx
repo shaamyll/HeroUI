@@ -4,6 +4,7 @@ import { Chip, Tooltip } from "@heroui/react";
 import { motion } from "framer-motion";
 import { Eye, PencilLine, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ImageCard from "../components/Reusable/ImageCard";
 
 function Projects() {
   const [products, setProducts] = useState<any[]>([]);
@@ -111,6 +112,19 @@ function Projects() {
   const handleAddClick = () => {
     navigate("/");
   };
+  
+
+  // Create a wrapper for the ImageCard
+  const ProductCard = ({ item, onView, onEdit, onDelete }: any) => (
+    <ImageCard
+      imageSrc={item.image}
+      imageAlt={item.title}
+      title={item.title}
+      subtitle={item.category}
+      description={`$${item.price}`}
+      item={item}
+    />
+  );
 
   return (
     <div className="min-h-screen">
@@ -129,6 +143,7 @@ function Projects() {
           type="project"
           TableContent={products}
           TableStructure={TableStructure}
+          CardComponent={ProductCard}
           filters={filterContent}
           page={page}
           rowsPerPage={rowsPerPage}

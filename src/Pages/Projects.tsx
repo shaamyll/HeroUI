@@ -67,14 +67,14 @@ function Projects() {
         <div className="flex items-center gap-3">
           {/* View Button */}
           <Tooltip content="Details">
-            <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+            <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
               <Eye className="w-4 h-4" />
             </button>
           </Tooltip>
 
           {/* Edit Button */}
           <Tooltip content="Edit user">
-            <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+            <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
               <PencilLine className="w-4 h-4" />
             </button>
           </Tooltip>
@@ -86,7 +86,7 @@ function Projects() {
                 console.log("Deleting user:");
 
               }}
-              className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
+              className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
             >
               <Trash2 className="w-4 h-4" />
             </button>

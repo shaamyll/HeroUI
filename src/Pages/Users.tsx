@@ -7,6 +7,8 @@ import { Eye, PencilLine, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
 import { useNavigate } from 'react-router-dom';
 import ImageCard from '../components/Reusable/ImageCard';
+import DynamicCard from '@/components/Reusable/DynamicCard';
+import UserCard from '@/components/Reusable/DynamicCard';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -161,14 +163,14 @@ function Users() {
                 <div className="flex items-center gap-3">
                     {/* View Button */}
                     <Tooltip content="Details">
-                        <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg  bg-blue-50 text-gray-500 hover:bg-blue-100 active:opacity-70">
                             <Eye className="w-4 h-4" />
                         </button>
                     </Tooltip>
 
                     {/* Edit Button */}
                     <Tooltip content="Edit user">
-                        <button className="flex items-center justify-center w-6 h-6 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-500 hover:bg-green-100  active:opacity-70">
                             <PencilLine className="w-4 h-4" />
                         </button>
                     </Tooltip>
@@ -180,7 +182,7 @@ function Users() {
                                 console.log("Deleting user:", item);
                                 openDeleteModal(item);
                             }}
-                            className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
+                            className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 active:opacity-70"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -222,16 +224,16 @@ function Users() {
         navigate(`/add-${type}`);
     };
 
-    // Create a wrapper for the ImageCard
-    const UserCard = ({ item }: any) => (
-        <ImageCard
-            imageSrc={getGradientFromName(item.name)}
-            imageAlt={item.name}
-            title={item.name}
-            subtitle={item.role}
-            description={item.team}
-        />
-    );
+    // ✅ Wrapper for DynamicCard
+const UserCardWrapper = ({ item }: any) => (
+  <UserCard
+    item={item}
+    onView={(user) => console.log("View", user)}
+    onEdit={handleEditUser}
+    onDelete={openDeleteModal}
+  />
+)
+
 
     return (
         <div className="min-h-screen px-2">
@@ -254,7 +256,7 @@ function Users() {
                     type="user"
                     TableStructure={TableStructure}
                     TableContent={users}
-                    productcard={UserCard}
+                    CardComponent={UserCardWrapper}
                     filters={filterContent}
                     onDelete={handleDeleteUser}
                     onEdit={handleEditUser}

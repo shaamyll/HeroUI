@@ -9,23 +9,12 @@ import {
   Input,
   Button,
   Pagination,
+  Skeleton,
 } from "@heroui/react";
-import { Grid3X3, Key, List, RotateCcw, Search } from "lucide-react";
-import AddNew from "./AddNew";
-import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
+import { color, motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
-import { cn } from '../lib/cn';
-
-// Custom Skeleton component matching your project
-function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse bg-gray-300 rounded-md", className)}
-      {...props}
-    />
-  );
-}
 
 export interface TableColumn {
   name: string;
@@ -64,10 +53,6 @@ interface TableComponentProps {
   isLoading?: boolean;
 }
 
-export function capitalize(s: string) {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
-}
-
 export default function TableComponent({
   TableContent,
   TableStructure = [],
@@ -92,11 +77,11 @@ export default function TableComponent({
     }));
   }, [TableStructure]);
 
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.headerId || "id",
     direction: "ascending" as const,
@@ -111,7 +96,7 @@ export default function TableComponent({
 
   const filteredItems = React.useMemo(() => {
     if (isLoading) return [];
-    
+
     let filteredData = [...TableContent];
     // Apply search filter
     if (hasSearchFilter) {
@@ -230,10 +215,10 @@ export default function TableComponent({
       <div className="flex flex-col gap-4 my-4">
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          {/* Title - Always visible */}
-          <div className="bg-gray-100 sm:bg-gray-50 rounded-lg p-2 px-3 flex-shrink-0">
+          {/* Title */}
+          <div className="bg-gray-50 rounded-md px-4 py-1 shadow-sm flex items-center gap-2">
             {isLoading ? (
-              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-6 w-28 rounded-md" />
             ) : (
               <span className="font-medium">{type}s ({TableContent.length})</span>
             )}
@@ -246,6 +231,7 @@ export default function TableComponent({
                 <Skeleton className="h-10 w-full" />
               ) : (
                 <Input
+                  size="md"
                   isClearable
                   classNames={{
                     base: "w-full",
@@ -265,50 +251,49 @@ export default function TableComponent({
             )}
           </div>
 
-          {/* View Toggle and Add New Button */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
-              {isLoading ? (
-                <>
-                  <Skeleton className="h-8 w-8 rounded-md" />
-                  <Skeleton className="h-8 w-8 rounded-md ml-1" />
-                </>
-              ) : (
-                <>
-                  <button
-                    className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'table'
-                      ? 'bg-white shadow-sm text-gray-800'
-                      : 'text-gray-400 hover:text-gray-600'
-                      }`}
-                    onClick={() => setViewMode('table')}
-                    disabled={isLoading}
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                  <button
-                    className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'grid'
-                      ? 'bg-white shadow-sm text-gray-800'
-                      : 'text-gray-400 hover:text-gray-600'
-                      }`}
-                    onClick={() => setViewMode('grid')}
-                    disabled={isLoading}
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </div>
+          {/* View Toggle */}
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg px-1.5 py-1 shadow-sm">
+            {isLoading ? (
+              <>
+                <Skeleton className="h-9 w-9 rounded-md" />
+                <Skeleton className="h-9 w-9 rounded-md" />
+              </>
+            ) : (
+              <>
+                <button
+                  className={`p-2 rounded-md transition-colors ${viewMode === "table"
+                    ? "bg-white shadow-sm text-gray-800"
+                    : "text-gray-400 hover:text-gray-600"
+                    }`}
+                  onClick={() => setViewMode("table")}
+                  disabled={isLoading}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  className={`p-2 rounded-md transition-colors ${viewMode === "grid"
+                    ? "bg-white shadow-sm text-gray-800"
+                    : "text-gray-400 hover:text-gray-600"
+                    }`}
+                  onClick={() => setViewMode("grid")}
+                  disabled={isLoading}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </div>
+
 
           {/* Add New Button - Always visible */}
           <div className="flex-shrink-0">
             {isLoading ? (
-              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-24 rounded-lg" />
             ) : (
               onAdd && (
                 <Button
                   className="bg-[#37125d] text-white"
-                  size="md" 
+                  size="md"
                   onPress={() => onAdd(type)}
                   isDisabled={isLoading}
                 >
@@ -339,7 +324,7 @@ export default function TableComponent({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3 w-full">
+        <div className="flex flex-wrap gap-3 w-full rounded-lg">
           {isLoading ? (
             // Show skeleton filters
             <>
@@ -363,7 +348,7 @@ export default function TableComponent({
                     buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                     dropdownClassName="w-full sm:w-[200px]"
                     matchWidth={true}
-                    showSearch={true}
+                    showSearch={filter.showSearch || false}
                     isDisabled={isLoading}
                   />
                 ))
@@ -416,10 +401,10 @@ export default function TableComponent({
             {isLoading ? (
               <Skeleton className="h-8 w-32" />
             ) : (
-              <label className="flex items-center text-default-400 text-small">
+              <label className="flex items-center text-gray-500 text-small">
                 Rows per page:
                 <select
-                  className="bg-transparent outline-none text-default-400 text-small ml-2 border-1 border-[#d2d2d7] rounded-md px-2 py-1"
+                  className="bg-transparent outline-none text-gray-600 text-small ml-2 border-2 border-gray-400 rounded-md px-2 py-1"
                   onChange={onRowsPerPageChange}
                   value={rowsPerPage}
                   disabled={isLoading}
@@ -432,7 +417,7 @@ export default function TableComponent({
             )}
           </div>
         </span>
-        
+
         {isLoading ? (
           <div className="flex items-center gap-2">
             <Skeleton className="h-8 w-8 rounded-full" />
@@ -442,18 +427,20 @@ export default function TableComponent({
             <Skeleton className="h-8 w-8 rounded-full" />
           </div>
         ) : (
-          <Pagination
-            isCompact
-            showControls
-            showShadow
-            color="primary"
-            page={page}
-            total={pages}
-            onChange={setPage}
-            isDisabled={isLoading}
-          />
+    <Pagination
+      isCompact
+      showControls
+      showShadow
+      page={page}
+      total={pages}
+      onChange={setPage}
+      isDisabled={isLoading}
+      classNames={{
+        cursor: "bg-[#37125d] text-white",
+      }}
+    />
         )}
-        
+
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           {isLoading ? (
             <>
@@ -462,21 +449,24 @@ export default function TableComponent({
             </>
           ) : (
             <>
-              <Button 
-                isDisabled={pages === 1 || isLoading} 
-                size="sm" 
-                variant="faded" 
+              <Button
+                isDisabled={pages === 1 || isLoading}
+                size="sm"
+                variant="bordered"
+                className="bg-white"
                 onPress={onPreviousPage}
               >
-                Previous
+                <ChevronLeft size={16} />
               </Button>
-              <Button 
-                isDisabled={pages === 1 || isLoading} 
-                size="sm" 
-                variant="faded" 
+
+              <Button
+                isDisabled={pages === 1 || isLoading}
+                size="sm"
+                 variant="bordered"
+                className="bg-white"
                 onPress={onNextPage}
               >
-                Next
+                <ChevronRight size={16} />
               </Button>
             </>
           )}
@@ -512,17 +502,24 @@ export default function TableComponent({
               {colIndex === 0 && isSelectRows && (
                 <Skeleton className="h-4 w-4 rounded-sm" />
               )}
-              <Skeleton className={`h-4 ${
-                colIndex === 0 ? 'w-20' : 
-                colIndex === 1 ? 'w-32' : 
-                colIndex === 2 ? 'w-24' : 'w-16'
-              }`} />
+              <Skeleton
+                className={`h-4 rounded-md ${colIndex === 0
+                  ? "w-20"
+                  : colIndex === 1
+                    ? "w-32"
+                    : colIndex === 2
+                      ? "w-24"
+                      : "w-16"
+                  }`}
+              />
             </div>
           </TableCell>
         ))}
       </TableRow>
     ));
   };
+
+
 
   // Generate skeleton cards for grid view
   const generateSkeletonCards = () => {
@@ -569,32 +566,32 @@ export default function TableComponent({
     }
 
     return (
-  <div className="p-3">
-    <div className="grid gap-6 
+      <div className="p-3">
+        <div className="grid gap-4 
       grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
       auto-rows-fr
       bg-gradient-to-br from-gray-50 via-white to-gray-50
       rounded-2xl">
-      {sortedItems.map((item, index) => (
-        <motion.div
-          key={item.id || index}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-        >
-          {CardComponent && (
-            <CardComponent
-              item={item}
-              onView={(item: any) => console.log("View:", item)}
-              onEdit={(item: any) => console.log("Edit:", item)}
-              onDelete={(item: any) => console.log("Delete:", item)}
-            />
-          )}
-        </motion.div>
-      ))}
-    </div>
-  </div>
-);
+          {sortedItems.map((item, index) => (
+            <motion.div
+              key={item.id || index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              {CardComponent && (
+                <CardComponent
+                  item={item}
+                  onView={(item: any) => console.log("View:", item)}
+                  onEdit={(item: any) => console.log("Edit:", item)}
+                  onDelete={(item: any) => console.log("Delete:", item)}
+                />
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
 
   };
 
@@ -606,7 +603,7 @@ export default function TableComponent({
       className="w-full mx-auto"
     >
       {topContent}
-      
+
       {/* Selection Action Bar directly above the table */}
       {!isLoading && isSelectRows && (selectedKeys === "all" || selectedKeys.size > 0) && (
         <motion.div
@@ -644,10 +641,10 @@ export default function TableComponent({
       {/* Conditional rendering based on viewMode */}
       {viewMode === 'grid' ? (
         <div>
-          <div className="bg-white rounded-2xl mb-5 ">
-          <GridView />
-          {/* Bottom content for grid view */}
-        </div>
+          <div className="bg-white rounded-xl shadow-md mb-5 ">
+            <GridView />
+            {/* Bottom content for grid view */}
+          </div>
           {bottomContent}
 
         </div>
@@ -668,8 +665,8 @@ export default function TableComponent({
           topContentPlacement="outside"
           onSortChange={setSortDescriptor}
           onRowAction={handleRowAction}
-          selectionBehavior={isSelectRows ? "selection" : "replace"}
-          hideSelectionCheckbox={isLoading}
+          selectionBehavior={isSelectRows ? "toggle" : "replace"}
+          checkboxesProps={{color:"warning"}}
         >
           <TableHeader columns={columns}>
             {(column) => (
@@ -679,7 +676,7 @@ export default function TableComponent({
                 className="text-sm"
               >
                 {isLoading ? (
-                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-20 rounded-sm" />
                 ) : (
                   column.name
                 )}
@@ -687,12 +684,12 @@ export default function TableComponent({
             )}
           </TableHeader>
 
-          <TableBody 
-            emptyContent={isLoading ? "" : "No data found"} 
+          <TableBody
+            emptyContent={isLoading ? "" : "No data found"}
             items={isLoading ? [] : sortedItems}
           >
             {isLoading ? (
-              generateSkeletonRows().map((skeletonRow, index) => skeletonRow)
+              generateSkeletonRows().map((skeletonRow) => skeletonRow)
             ) : (
               (item) => (
                 <TableRow key={item.id || Math.random()}>

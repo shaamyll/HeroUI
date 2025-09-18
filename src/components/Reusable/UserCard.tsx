@@ -46,7 +46,9 @@ const UserCard = ({ item, onView, onEdit, onDelete }: UserCardProps) => {
   const gradient = getGradientFromName(item.name)
 
   return (
-    <Card className="max-w-[400px] w-full shadow-md rounded-2xl bg-gray-50 border p-1">
+    <Card className="max-w-[400px] w-full shadow-md rounded-2xl bg-gray-50 border p-1 
+             transition-transform duration-200 ease-in-out hover:scale-[1.03]"
+    >
       {/* Header with Avatar + Name */}
       <CardHeader className="flex gap-3 items-center">
         <div
@@ -65,9 +67,6 @@ const UserCard = ({ item, onView, onEdit, onDelete }: UserCardProps) => {
       {/* Body with Details */}
       <CardBody className="space-y-2 text-sm">
         <p>
-          <span className="text-gray-600">{item.email}</span>
-        </p>
-        <p>
           <Chip
             color={statusColorMap[item.status]}
             size="sm"
@@ -75,6 +74,9 @@ const UserCard = ({ item, onView, onEdit, onDelete }: UserCardProps) => {
           >
             {item.status}
           </Chip>
+        </p>
+        <p>
+          <span className="text-gray-600">{item.email}</span>
         </p>
       </CardBody>
 

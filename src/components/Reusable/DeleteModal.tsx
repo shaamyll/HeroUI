@@ -27,7 +27,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} backdrop="blur">
+    <Modal isOpen={isOpen} onClose={onClose} backdrop="opaque">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">Confirm Deletion</ModalHeader>
         <ModalBody>

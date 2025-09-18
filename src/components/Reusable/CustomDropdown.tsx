@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -25,6 +25,7 @@ interface CustomDropdownProps {
   options?: DropdownOption[];
   placeholder?: string;
   defaultSelectedKey?: string;
+  selectedKeys?: Set<string>; 
   onSelectionChange?: (selectedKeys: Set<string>) => void;
   buttonClassName?: string;
   dropdownClassName?: string;
@@ -38,6 +39,7 @@ function CustomDropdown({
   options = [],
   placeholder = "Select an option",
   defaultSelectedKey = "",
+  selectedKeys,
   onSelectionChange,
   buttonClassName,
   dropdownClassName,
@@ -46,8 +48,11 @@ function CustomDropdown({
   matchWidth = false,
   disabled = false,
 }: CustomDropdownProps) {
-  const [selectedKey, setSelectedKey] = useState(defaultSelectedKey);
   const [searchValue, setSearchValue] = useState("");
+
+  // Use selectedKeys prop if provided, otherwise fall back to internal state
+  const currentSelectedKeys = selectedKeys || new Set(defaultSelectedKey ? [defaultSelectedKey] : []);
+  const currentSelectedKey = currentSelectedKeys.size > 0 ? Array.from(currentSelectedKeys)[0] : "";
 
   // Filter options based on search value
   const filteredOptions = React.useMemo(() => {
@@ -60,21 +65,33 @@ function CustomDropdown({
 
   // Get display value for selected option
   const displayValue = React.useMemo(() => {
-    if (!selectedKey) return placeholder;
+    if (!currentSelectedKey) return placeholder;
 
-    const selectedOption = options.find(option => option.key === selectedKey);
+    const selectedOption = options.find(option => option.key === currentSelectedKey);
     return selectedOption ? selectedOption.label : placeholder;
-  }, [selectedKey, options, placeholder]);
+  }, [currentSelectedKey, options, placeholder]);
 
   // Handle selection change
   const handleSelectionChange = (key: any) => {
-    const newSelectedKey = Array.from(key)[0] as string;
-    setSelectedKey(newSelectedKey);
+    const selectedKeyArray = Array.from(key);
+    const newSelectedKey = selectedKeyArray[0] as string;
 
-    if (onSelectionChange) {
-      onSelectionChange(new Set([newSelectedKey]));  
+    // If the same key is clicked again, clear the selection
+    if (currentSelectedKey === newSelectedKey) {
+      if (onSelectionChange) {
+        onSelectionChange(new Set());
+      }
+    } else {
+      if (onSelectionChange) {
+        onSelectionChange(new Set([newSelectedKey]));
+      }
     }
   };
+
+  // Clear search when dropdown closes or selection changes
+  useEffect(() => {
+    setSearchValue("");
+  }, [currentSelectedKey]);
 
   return (
     <div>
@@ -97,7 +114,7 @@ function CustomDropdown({
         </DropdownTrigger>
         <DropdownMenu
           disallowEmptySelection={false}
-          selectedKeys={selectedKey ? new Set([selectedKey]) : new Set()}
+          selectedKeys={currentSelectedKeys}
           selectionMode="single"
           variant="faded"
           onSelectionChange={handleSelectionChange}

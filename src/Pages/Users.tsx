@@ -7,8 +7,8 @@ import { Eye, PencilLine, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
 import { useNavigate } from 'react-router-dom';
 import ImageCard from '../components/Reusable/ImageCard';
-import DynamicCard from '@/components/Reusable/DynamicCard';
-import UserCard from '@/components/Reusable/DynamicCard';
+import DynamicCard from '@/components/Reusable/UserCard';
+import UserCard from '@/components/Reusable/UserCard';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -237,7 +237,7 @@ const UserCardWrapper = ({ item }: any) => (
 
     return (
         <div className="min-h-screen px-2">
-            <div className="max-w-[1400px] mx-auto mt-10">
+            <div className="max-w-[1400px] mx-auto mt-6">
                 {/* Header */}
                 <div className="w-full bg-[#37125d] rounded-2xl p-6 mb-5">
                     <motion.h3

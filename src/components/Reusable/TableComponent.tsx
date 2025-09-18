@@ -10,9 +10,11 @@ import {
   Button,
   Pagination,
   Skeleton,
+  Tab,
+  Tabs,
 } from "@heroui/react";
-import { ChevronLeft, ChevronRight, Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
-import { color, motion } from "framer-motion";
+import { Grid3X3, List, RotateCcw, Search } from "lucide-react";
+import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
 
@@ -187,18 +189,21 @@ export default function TableComponent({
     setPage(1);
   }, []);
 
-  const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
-    // If the same item is clicked again, clear the filter for that key
-    const newValue = activeFilters[filterKey]?.has(Array.from(selected)[0])
-      ? new Set<string>()
-      : selected;
-
+ const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
+  if (selected.size === 0) {
     setActiveFilters(prev => ({
       ...prev,
-      [filterKey]: newValue
+      [filterKey]: new Set()
     }));
-    setPage(1);
-  }, [activeFilters]);
+  } else {
+    // Set the new selection
+    setActiveFilters(prev => ({
+      ...prev,
+      [filterKey]: selected
+    }));
+  }
+  setPage(1);
+}, []);
 
   // Reset all filters
   const resetFilters = useCallback(() => {
@@ -208,6 +213,7 @@ export default function TableComponent({
     });
     setActiveFilters(resetFilters);
     setPage(1);
+    setFilterValue(""); 
   }, [filters]);
 
   const topContent = React.useMemo(() => {
@@ -216,7 +222,7 @@ export default function TableComponent({
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Title */}
-          <div className="bg-gray-50 rounded-md px-4 py-1 shadow-sm flex items-center gap-2">
+          <div className="bg-gray-50 rounded-md px-4 py-2 shadow-sm flex items-center gap-2">
             {isLoading ? (
               <Skeleton className="h-6 w-28 rounded-md" />
             ) : (
@@ -236,9 +242,10 @@ export default function TableComponent({
                   classNames={{
                     base: "w-full",
                     inputWrapper: "font-extrabold",
+                    input: "placeholder:text-gray-400 placeholder:font-semibold"
                   }}
-                  placeholder={`search ${type}s..`}
-                  startContent={<Search className="w-5 h-5 text-default-400" />}
+                  placeholder={`Search ${type}s..`}
+                  startContent={<Search className="w-4 h-4 text-default-400" />}
                   value={filterValue}
                   variant="faded"
                   onClear={() => setFilterValue("")}
@@ -260,26 +267,30 @@ export default function TableComponent({
               </>
             ) : (
               <>
-                <button
-                  className={`p-2 rounded-md transition-colors ${viewMode === "table"
-                    ? "bg-white shadow-sm text-gray-800"
-                    : "text-gray-400 hover:text-gray-600"
-                    }`}
-                  onClick={() => setViewMode("table")}
-                  disabled={isLoading}
+                <Tabs
+                  aria-label="View mode"
+                  selectedKey={viewMode}
+                  onSelectionChange={(key)=> setViewMode(key as "table" | "grid")}
+                  variant="solid"
+                  classNames={{
+                    tabList: "gap-0 p-0 ",
+                    cursor: "",
+                    tab: "p-2 rounded-sm",
+                    tabContent: "hover:text-gray-600"
+                  }}
                 >
-                  <List className="w-4 h-4" />
-                </button>
-                <button
-                  className={`p-2 rounded-md transition-colors ${viewMode === "grid"
-                    ? "bg-white shadow-sm text-gray-800"
-                    : "text-gray-400 hover:text-gray-600"
-                    }`}
-                  onClick={() => setViewMode("grid")}
-                  disabled={isLoading}
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
+                  <Tab
+                    key="table"
+                    title={<List className="w-4 h-4" />}
+                    isDisabled={isLoading}
+                  />
+                  <Tab
+                    key="grid"
+                    title={<Grid3X3 className="w-4 h-4" />}
+                    isDisabled={isLoading}
+                  />
+                </Tabs>
+
               </>
             )}
           </div>
@@ -338,18 +349,19 @@ export default function TableComponent({
               {filters.length > 0 && (
                 filters.map((filter) => (
                   <CustomDropdown
-                    key={filter.uid}
+                    key={`${filter.uid}-${Object.keys(activeFilters).length}`} 
                     options={filter.content.map(option => ({
                       key: option.uid,
                       label: option.name,
                     }))}
+                    selectedKeys={activeFilters[filter.uid] || new Set()} 
                     placeholder={filter.name}
                     onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
                     buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                     dropdownClassName="w-full sm:w-[200px]"
                     matchWidth={true}
                     showSearch={filter.showSearch || false}
-                    isDisabled={isLoading}
+                    disabled={isLoading}
                   />
                 ))
               )}
@@ -395,83 +407,56 @@ export default function TableComponent({
 
   const bottomContent = React.useMemo(() => {
     return (
-      <div className="pb-10 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-600">
-          <div className="flex justify-between items-center">
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <label className="flex items-center text-gray-500 text-small">
-                Rows per page:
-                <select
-                  className="bg-transparent outline-none text-gray-600 text-small ml-2 border-2 border-gray-400 rounded-md px-2 py-1"
-                  onChange={onRowsPerPageChange}
-                  value={rowsPerPage}
-                  disabled={isLoading}
-                >
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="15">15</option>
-                </select>
-              </label>
-            )}
-          </div>
-        </span>
-
-        {isLoading ? (
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-8 w-8" />
-            ))}
-            <Skeleton className="h-8 w-8 rounded-full" />
-          </div>
-        ) : (
-    <Pagination
-      isCompact
-      showControls
-      showShadow
-      page={page}
-      total={pages}
-      onChange={setPage}
-      isDisabled={isLoading}
-      classNames={{
-        cursor: "bg-[#37125d] text-white",
-      }}
-    />
-        )}
-
-        <div className="hidden sm:flex w-[30%] justify-end gap-2">
+      <div className="pb-10 px-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 w-full">
+        {/* Rows per page */}
+        <div className="flex justify-between items-center w-full sm:w-auto text-sm text-gray-600">
           {isLoading ? (
-            <>
-              <Skeleton className="h-8 w-16" />
-              <Skeleton className="h-8 w-12" />
-            </>
+            <Skeleton className="h-8 w-32" />
           ) : (
             <>
-              <Button
-                isDisabled={pages === 1 || isLoading}
-                size="sm"
-                variant="bordered"
-                className="bg-white"
-                onPress={onPreviousPage}
+              <span className="font-medium text-gray-500">Rows per page:</span>
+              <select
+                className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 shadow-sm 
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition ml-2"
+                onChange={onRowsPerPageChange}
+                value={rowsPerPage}
+                disabled={isLoading}
               >
-                <ChevronLeft size={16} />
-              </Button>
-
-              <Button
-                isDisabled={pages === 1 || isLoading}
-                size="sm"
-                 variant="bordered"
-                className="bg-white"
-                onPress={onNextPage}
-              >
-                <ChevronRight size={16} />
-              </Button>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+              </select>
             </>
           )}
         </div>
+
+        {/* Pagination */}
+        <div className="flex justify-center w-full sm:w-auto">
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-8 w-8" />
+              ))}
+              <Skeleton className="h-8 w-8 rounded-full" />
+            </div>
+          ) : (
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              page={page}
+              total={pages}
+              onChange={setPage}
+              isDisabled={isLoading}
+              classNames={{
+                cursor: "bg-[#37125d] text-white",
+              }}
+            />
+          )}
+        </div>
       </div>
+
     );
   }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter, isLoading, rowsPerPage, onRowsPerPageChange, onPreviousPage, onNextPage]);
 
@@ -545,7 +530,7 @@ export default function TableComponent({
 
     if (sortedItems.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center space-y-4 py-10">
+        <div className="flex flex-col items-center justify-center space-y-4 py-10 min-h-[700px]">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -610,7 +595,7 @@ export default function TableComponent({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
           className="flex justify-between items-center bg-[#37125c] text-white px-4 py-2 rounded-md my-2"
         >
           <div className="flex items-center gap-4">
@@ -655,7 +640,7 @@ export default function TableComponent({
           bottomContent={bottomContent}
           bottomContentPlacement="outside"
           classNames={{
-            wrapper: "min-h-[400px] w-full mx-auto overflow-x-auto",
+            wrapper: "min-h-[500px] w-full mx-auto overflow-x-auto",
             table: "min-w-full",
           }}
           selectionMode="multiple"
@@ -666,7 +651,7 @@ export default function TableComponent({
           onSortChange={setSortDescriptor}
           onRowAction={handleRowAction}
           selectionBehavior={isSelectRows ? "toggle" : "replace"}
-          checkboxesProps={{color:"warning"}}
+          checkboxesProps={{ color: "default" }}
         >
           <TableHeader columns={columns}>
             {(column) => (

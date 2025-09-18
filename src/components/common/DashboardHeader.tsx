@@ -246,7 +246,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         {/* Header Content */}
         <div className="relative flex w-full flex-col items-center justify-between p-2 sm:p-1 sm:flex-row z-10">
           {/* Title Section */}
-          <div className="flex-1 text-center sm:text-left">
+          <div className="flex-1 text-center sm:text-left px-4">
             <h1 className={`mb-1 mt-2 text-2xl font-bold sm:text-3xl ${titleClassName}`}>
               {title}
             </h1>
@@ -264,7 +264,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           {/* Desktop Action Buttons */}
           {filteredActionButtons.length > 0 && (
-            <div className="hidden lg:flex gap-3 relative z-20">
+            <div className="hidden lg:flex gap-3 relative z-20 px-4">
               {filteredActionButtons.map((button) => (
                 <PermissionWrapper
                   key={button.id}

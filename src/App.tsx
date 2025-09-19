@@ -10,6 +10,8 @@ import CardView from './Pages/CardView';
 import HomePage from './Pages/HomePage';
 import DisplayComponents from './Pages/DisplayComponents';
 import StatCardUsage from './Pages/StatCardUsage';
+import Asset from './Pages/Asset';
+import Test from './Pages/Test';
 function App() {
   const hideNavbar = location.pathname === '/HomePage';
   return (
@@ -20,6 +22,8 @@ function App() {
         <Route path='/auth' element={<Auth />} />
         <Route path='/users' element={<Users />} />
         <Route path='/projects' element={<Projects />} />
+        <Route path='/test' element={<Test/>}/>
+        <Route path='/asset' element={<Asset/>}/>
         <Route path='/dashboard' element={<DashBoardPage />} />
         <Route path='/login' element={<Login />} />
         <Route path='/Footer' element={<footer />} />

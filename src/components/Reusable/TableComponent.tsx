@@ -67,8 +67,7 @@ export default function TableComponent({
   isSelectRows,
   isLoading = false
 }: TableComponentProps) {
-  console.log(TableStructure)
-
+  
   //  headerData for columns Headers
   const columns = React.useMemo<TableColumn[]>((): any => {
     return TableStructure.map(col => ({
@@ -195,6 +194,7 @@ export default function TableComponent({
         ...prev,
         [filterKey]: new Set()
       }));
+      console.log(activeFilters)
     } else {
       // Set the new selection
       setActiveFilters(prev => ({
@@ -320,18 +320,19 @@ export default function TableComponent({
               <CustomDropdown
                 key={`${filter.uid}-${Object.keys(activeFilters).length}`}
                 options={filter.content.map(option => ({
-                  key: option.uid,
+                  value: option.uid,  
                   label: option.name,
                 }))}
-                selectedKeys={activeFilters[filter.uid] || new Set()}
+                value={activeFilters[filter.uid] || ""}  
                 placeholder={filter.name}
-                onSelectionChange={(key) => handleFilterChange(filter.uid, key)}
+                onChange={(val) => handleFilterChange(filter.uid, val)}  
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                 dropdownClassName="w-full sm:w-[200px]"
-                matchWidth={true}
+                matchWidth
                 showSearch={filter.showSearch || false}
                 disabled={isLoading}
               />
+
             ))
           )}
 

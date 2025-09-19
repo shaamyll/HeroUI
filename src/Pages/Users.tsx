@@ -215,7 +215,7 @@ function Users() {
     const filterContent = [
         { name: 'Select Status', uid: 'status', content: statusOptions, showSearch: false },
         { name: 'Select Role', uid: 'role', content: roleOptions, showSearch: true },
-        { name: 'Select Team', uid: 'team', content: teamOptions, showSearch: true },
+        { name: 'Select Team', uid: 'team', content: teamOptions, showSearch: false },
     ];
 
     const navigate = useNavigate()

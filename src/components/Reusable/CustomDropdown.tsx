@@ -7,11 +7,10 @@ import {
   Button,
   Input
 } from "@heroui/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 
-// Interface for dropdown item structure
 interface DropdownOption {
-  key: string;
+  value: string;
   label: string;
   description?: string;
   startContent?: React.ReactNode;
@@ -20,13 +19,11 @@ interface DropdownOption {
   color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 }
 
-// Interface for component props
 interface CustomDropdownProps {
   options?: DropdownOption[];
   placeholder?: string;
-  defaultSelectedKey?: string;
-  selectedKeys?: Set<string>; 
-  onSelectionChange?: (selectedKeys: Set<string>) => void;
+  value?: DropdownOption | null;
+  onChange?: (option: DropdownOption | null) => void;
   buttonClassName?: string;
   dropdownClassName?: string;
   searchPlaceholder?: string;
@@ -38,23 +35,17 @@ interface CustomDropdownProps {
 function CustomDropdown({
   options = [],
   placeholder = "Select an option",
-  defaultSelectedKey = "",
-  selectedKeys,
-  onSelectionChange,
+  value,
+  onChange,
   buttonClassName,
   dropdownClassName,
   searchPlaceholder = "Search options...",
   showSearch = false,
-  matchWidth = false,
   disabled = false,
 }: CustomDropdownProps) {
   const [searchValue, setSearchValue] = useState("");
 
-  // Use selectedKeys prop if provided, otherwise fall back to internal state
-  const currentSelectedKeys = selectedKeys || new Set(defaultSelectedKey ? [defaultSelectedKey] : []);
-  const currentSelectedKey = currentSelectedKeys.size > 0 ? Array.from(currentSelectedKeys)[0] : "";
-
-  // Filter options based on search value
+  // Filter options
   const filteredOptions = React.useMemo(() => {
     if (!searchValue) return options;
     return options.filter(option =>
@@ -63,111 +54,115 @@ function CustomDropdown({
     );
   }, [options, searchValue]);
 
-  // Get display value for selected option
-  const displayValue = React.useMemo(() => {
-    if (!currentSelectedKey) return placeholder;
+  // Display label
+  const displayValue = value ? value.label : placeholder;
 
-    const selectedOption = options.find(option => option.key === currentSelectedKey);
-    return selectedOption ? selectedOption.label : placeholder;
-  }, [currentSelectedKey, options, placeholder]);
+  // Handle selection change → return id and label
+  const handleSelectionChange = (keys: "all" | Set<React.Key>) => {
+    const selectedKey = Array.from(keys)[0] as string;
+    const selectedOption = options.find(opt => opt.value === selectedKey);
 
-  // Handle selection change
-  const handleSelectionChange = (key: any) => {
-    const selectedKeyArray = Array.from(key);
-    const newSelectedKey = selectedKeyArray[0] as string;
-
-    // If the same key is clicked again, clear the selection
-    if (currentSelectedKey === newSelectedKey) {
-      if (onSelectionChange) {
-        onSelectionChange(new Set());
-      }
-    } else {
-      if (onSelectionChange) {
-        onSelectionChange(new Set([newSelectedKey]));
-      }
+    if (onChange) {
+      onChange(selectedOption || null);
     }
   };
 
-  // Clear search when dropdown closes or selection changes
+  // Clear search when value changes
   useEffect(() => {
     setSearchValue("");
-  }, [currentSelectedKey]);
+  }, [value]);
 
   return (
-    <div>
-      <Dropdown
-        classNames={{
-          content: `${dropdownClassName} ${matchWidth ? 'min-w-0' : ''} max-h-64 overflow-y-auto`,
-        }}
-      >
-        <DropdownTrigger>
-          <Button
-            className={`${buttonClassName} flex justify-start ${disabled ? 'opacity-50 cursor-not-allowed' : ''} text-left`}
-            variant="faded"
-            endContent={<ChevronDown className={`w-4 h-4 transition-transform ${disabled ? 'opacity-50' : ''}`} />}
-            disabled={disabled}
-          >
-            <span className="truncate text-left flex-1">
-              {displayValue}
-            </span>
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu
-          disallowEmptySelection={false}
-          selectedKeys={currentSelectedKeys}
-          selectionMode="single"
+    <Dropdown
+      placement="bottom-start"
+      classNames={{
+        content: `${dropdownClassName} rounded-lg border border-gray-300 bg-white shadow-lg p-0 overflow-hidden`,
+      }}
+    >
+      <DropdownTrigger>
+        <Button
+          className={`${buttonClassName} flex items-center justify-between text-left ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
           variant="faded"
-          onSelectionChange={handleSelectionChange}
-          topContent={
-            showSearch ? (
-              <div className="px-1 pb-2 sticky top-0 bg-white z-10">
+          endContent={<ChevronDown size={16} className="text-gray-500" />}
+          disabled={disabled}
+        >
+          <div className={value ? 'text-gray-900' : 'text-gray-500'}>
+            {displayValue}
+          </div>
+        </Button>
+      </DropdownTrigger>
+
+      <DropdownMenu
+        disallowEmptySelection={false}
+        selectionMode="single"
+        selectedKeys={value ? new Set([value.value]) : new Set()}
+        onSelectionChange={handleSelectionChange}
+        variant="flat"
+          classNames={{
+                list: "max-h-[200px] overflow-y-auto custom-scrollbar"
+              }}
+        topContent={
+          showSearch ? (
+            <div className="border-b border-gray-200 p-1 bg-white">
+              <div className="relative">
                 <Input
                   placeholder={searchPlaceholder}
                   value={searchValue}
                   onValueChange={setSearchValue}
+                  variant="faded"
                   size="sm"
-                  variant="bordered"
-                  isClearable
-                  onClear={() => setSearchValue("")}
                   classNames={{
-                    input: "text-sm",
-                    inputWrapper: "h-8"
+                    input: "text-sm pl-8",
+                    inputWrapper: "rounded-md border border-gray-300 bg-white"
                   }}
+                  startContent={
+                    <Search size={14} className="text-gray-400" />
+                  }
+                  endContent={searchValue && (
+                    <button
+                      onClick={() => setSearchValue("")}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
                 />
               </div>
-            ) : null
-          }
-        >
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((option) => (
-              <DropdownItem
-                key={option.key}
-                startContent={option.startContent}
-                endContent={option.endContent}
-                className={`${option.className}`}
-                color={option.color}
-                textValue={option.label}
-              >
-                <div className="flex flex-col">
-                  <span className="text-sm ">
-                    {option.label}
-                  </span>
-                  {option.description && (
-                    <span className="text-xs text-gray-500 mt-0.5">
-                      {option.description}
-                    </span>
-                  )}
-                </div>
-              </DropdownItem>
-            ))
-          ) : (
-            <DropdownItem key="no-results" isDisabled className="py-4 text-center">
-              <span className="text-gray-500 text-sm">No options found</span>
+            </div>
+          ) : null
+        }
+      >
+        {filteredOptions.length > 0 ? (
+          filteredOptions.map((option, index) => (
+            <DropdownItem
+              key={option.value}
+              startContent={option.startContent}
+              endContent={option.endContent}
+              className={`${option.className} ${showSearch && index === 0 ? 'mt-1' : ''}`}
+              color={option.color}
+              textValue={option.label}
+            >
+              <div className="flex flex-col">
+                <span className="truncate font-medium">{option.label}</span>
+                {option.description && (
+                  <span className="text-xs text-gray-500 mt-1">{option.description}</span>
+                )}
+              </div>
             </DropdownItem>
-          )}
-        </DropdownMenu>
-      </Dropdown>
-    </div>
+          ))
+        ) : (
+          <DropdownItem
+            key="no-results"
+            isDisabled
+            className="px-3 py-3 text-gray-500 whitespace-nowrap"
+          >
+            {showSearch && searchValue
+              ? `No results found for "${searchValue}"`
+              : "No options available"}
+          </DropdownItem>
+        )}
+      </DropdownMenu>
+    </Dropdown>
   );
 }
 

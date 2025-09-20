@@ -133,7 +133,7 @@ function Projects() {
 
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mx-2">
       <div className="max-w-[1400px] mx-auto mt-10">
         <div className="w-full bg-purple-950 rounded-2xl p-6 ">
           <motion.h3

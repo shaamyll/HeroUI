@@ -283,7 +283,7 @@ export default function TableComponent({
           )}
 
           {/* View Toggle */}
-          <div className="flex items-center gap-0 bg-gray-100 rounded-large p-1.5 shadow-sm overflow-visible flex-shrink-0">
+          <div className="flex items-center gap-0 bg-gray-100 rounded-lg p-1.5 shadow-sm overflow-visible flex-shrink-0">
             <Tabs
               aria-label="View mode"
               selectedKey={viewMode}
@@ -315,7 +315,7 @@ export default function TableComponent({
           <div className="flex-shrink-0">
             {onAdd && (
               <Button
-                className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] text-white font-semibold"
+                className="bg-gradient-to-r rounded-lg from-[#37125d] to-[#5a2d8a] text-white font-semibold"
                 size="md"
                 onPress={() => onAdd(type)}
                 isDisabled={isLoading}

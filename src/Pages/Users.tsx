@@ -117,14 +117,14 @@ function Users() {
                 <div className="flex items-center gap-3">
                     {/* View Button */}
                     <Tooltip content="Details">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg  bg-blue-50 text-gray-500 hover:bg-blue-100 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg  bg-blue-50 text-gray-600 hover:bg-blue-100 active:opacity-70">
                             <Eye className="w-4 h-4" />
                         </button>
                     </Tooltip>
 
                     {/* Edit Button */}
                     <Tooltip content="Edit user">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-500 hover:bg-green-100  active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-600 hover:bg-green-100  active:opacity-70">
                             <PencilLine className="w-4 h-4" />
                         </button>
                     </Tooltip>
@@ -136,7 +136,7 @@ function Users() {
                                 console.log("Deleting user:", item);
                                 openDeleteModal(item);
                             }}
-                            className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 active:opacity-70"
+                            className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 active:opacity-70"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -188,7 +188,7 @@ function Users() {
     )
 
     return (
-        <div className="min-h-screen px-4">
+        <div className="min-h-screen mx-2">
             <div className="max-w-[1400px] mx-auto mt-6">
                 {/* Header */}
                 <div className="w-full bg-[#37125d] rounded-2xl p-6 mb-5">

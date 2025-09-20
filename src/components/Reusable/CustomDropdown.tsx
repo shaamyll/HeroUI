@@ -45,10 +45,10 @@ function CustomDropdown({
 }: CustomDropdownProps) {
   console.log(options)
   const [searchValue, setSearchValue] = useState("");
+  //Key board navigations
   const [isOpen, setIsOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Filter options
   const filteredOptions = React.useMemo(() => {
@@ -145,9 +145,7 @@ function CustomDropdown({
   // Focus search input when dropdown opens and clear search when closed
   useEffect(() => {
     if (isOpen && showSearch) {
-      // Try multiple approaches to focus the input
       setTimeout(() => {
-        // Try the ref first
         if (searchInputRef.current) {
           searchInputRef.current.focus();
           return;
@@ -175,7 +173,7 @@ function CustomDropdown({
     >
       <DropdownTrigger>
         <Button
-          className={`${buttonClassName} flex items-center justify-between text-left  ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
+          className={`${buttonClassName} flex items-center justify-between text-left ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
           variant="bordered"
           endContent={<ChevronDown size={16} className="text-gray-800 font-medium" />}
           disabled={disabled} 
@@ -209,8 +207,8 @@ function CustomDropdown({
                   autoFocus={isOpen && showSearch}
                   onKeyDown={handleKeyDown} //keyboard handler
                   classNames={{
-                    input: "text-sm",
-                    inputWrapper: "rounded-md border border-gray-300 bg-white"
+                    input: "text-sm focus:outline-none",
+                    inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400"
                   }}
                   startContent={
                     <Search size={14} className="text-gray-400" />
@@ -218,7 +216,7 @@ function CustomDropdown({
                   endContent={searchValue && (
                     <button
                       onClick={() => setSearchValue("")}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 focus:outline-none"
                     >
                       <X size={16} />
                     </button>
@@ -237,7 +235,7 @@ function CustomDropdown({
               endContent={option.endContent}
               className={`${option.className} ${showSearch && index === 0 ? 'mt-1' : ''} ${
                 index === highlightedIndex ? 'bg-gray-100' : ''
-              } focus:outline-none focus:ring-0 hover:bg-gray-50`}
+              } focus:outline-none focus:ring-0 focus:bg-gray-100 hover:bg-gray-50 data-[focus=true]:bg-gray-100 data-[focus=true]:outline-none data-[focus=true]:ring-0`}
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)} 
@@ -260,7 +258,7 @@ function CustomDropdown({
           <DropdownItem
             key="no-results"
             isDisabled
-            className="px-3 py-3 text-gray-500 whitespace-nowrap"
+            className="px-3 py-3 text-gray-500 whitespace-nowrap focus:outline-none focus:ring-0"
           >
             {showSearch && searchValue
               ? `No results found for "${searchValue}"`

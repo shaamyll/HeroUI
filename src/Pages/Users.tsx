@@ -78,13 +78,13 @@ function Users() {
             sortable: true,
             render: (item: any) => ( //cell customization
                 <div className="flex items-center gap-3">
-                    <div
+                    {/* <div
                         className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md ${getGradientFromName(
                             item.name
                         )}`}
                     >
                         {item.name.charAt(0).toUpperCase()}
-                    </div>
+                    </div> */}
                     <span className="">{item.name}</span>
                 </div>
             ),
@@ -167,9 +167,9 @@ function Users() {
     ];
 
     const filterContent = [
-        { name: 'Select Status', uid: 'status', content: statusOptions, showSearch: false },
-        { name: 'Select Role', uid: 'role', content: roleOptions, showSearch: true },
-        { name: 'Select Team', uid: 'team', content: teamOptions, showSearch: false },
+        { name: 'Status', uid: 'status', content: statusOptions, showSearch: false },
+        { name: 'Role', uid: 'role', content: roleOptions, showSearch: true },
+        { name: 'Team', uid: 'team', content: teamOptions, showSearch: false },
     ];
 
     const navigate = useNavigate()

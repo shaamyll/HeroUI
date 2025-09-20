@@ -140,8 +140,8 @@ function Asset() {
     ];
 
     const filterContent = [
-        { name: "Select Category", uid: "category", content: categoryOptions, showSearch: true },
-        { name: "Select Status", uid: "status", content: statusOptions, showSearch: false },
+        { name: "Category", uid: "category", content: categoryOptions, showSearch: true },
+        { name: "Status", uid: "status", content: statusOptions, showSearch: false },
     ];
 
     const navigate = useNavigate();

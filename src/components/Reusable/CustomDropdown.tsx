@@ -43,9 +43,8 @@ function CustomDropdown({
   showSearch = false,
   disabled = false,
 }: CustomDropdownProps) {
-  console.log(options)
+  
   const [searchValue, setSearchValue] = useState("");
-  //Key board navigations
   const [isOpen, setIsOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -191,7 +190,7 @@ function CustomDropdown({
         onSelectionChange={handleSelectionChange}
         variant="flat"
         classNames={{
-          list: "max-h-[200px] overflow-y-auto custom-scrollbar p-1"
+          list: "max-h-[200px] overflow-y-auto custom-scrollbar p-1 [&_*]:outline-none [&_*]:ring-0"
         }}
         topContent={
           showSearch ? (
@@ -207,8 +206,8 @@ function CustomDropdown({
                   autoFocus={isOpen && showSearch}
                   onKeyDown={handleKeyDown} //keyboard handler
                   classNames={{
-                    input: "text-sm focus:outline-none",
-                    inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400"
+                    input: "text-sm focus:outline-none [&:focus]:outline-none !outline-none",
+                    inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&:focus-within]:border-gray-400 !outline-none"
                   }}
                   startContent={
                     <Search size={14} className="text-gray-400" />
@@ -233,9 +232,9 @@ function CustomDropdown({
               key={option.value}
               startContent={option.startContent}
               endContent={option.endContent}
-              className={`${option.className} ${showSearch && index === 0 ? 'mt-1' : ''} ${
+              className={`${option.className} ${showSearch && index === 0 ? 'mt-0' : ''} ${
                 index === highlightedIndex ? 'bg-gray-100' : ''
-              } focus:outline-none focus:ring-0 focus:bg-gray-100 hover:bg-gray-50 data-[focus=true]:bg-gray-100 data-[focus=true]:outline-none data-[focus=true]:ring-0`}
+              } focus:ring-0 focus:bg-gray-100 hover:bg-gray-50 data-[focus=true]:bg-gray-100 data-[focus=true]:outline-none data-[focus=true]:ring-0 data-[hover=true]:bg-gray-50 data-[hover=true]:outline-none [&:focus]:outline-none [&:hover]:outline-none [&[data-focus=true]]:outline-none [&[data-hover=true]]:outline-none !outline-none`}
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)} 

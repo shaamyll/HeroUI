@@ -246,24 +246,30 @@ export default function TableComponent({
 
   const topContent = React.useMemo(() => {
     return (
-      <div className={`flex flex-col gap-4 ${filters.length > 0 || hasActiveFilters ? 'my-4' : 'mt-4 mb-1'}`}>
-        {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div
+        className={`flex flex-col gap-4 ${filters.length > 0 || hasActiveFilters ? "my-4" : "mt-4 mb-1"
+          }`}
+      >
+        {/* Top Row: Title, Search, Toggle, Add New */}
+        <div className="flex flex-wrap items-center gap-3 w-full">
           {/* Title */}
-          <div className="bg-gray-50 rounded-lg px-4 py-2 border-2 ">
-            <h2 className="text-md font-semibold text-black">{type}s ({TableContent.length})</h2>
+          <div className="bg-gray-50 rounded-lg px-4 py-2 border-2 flex-shrink-0">
+            <h2 className="text-md font-semibold text-black">
+              {type}s ({TableContent.length})
+            </h2>
           </div>
 
-          {/* Desktop-only Search Bar */}
-          <div className="hidden sm:flex flex-grow">
-            {isSearch ? (
+          {/* Search Bar (always visible, single version) */}
+          {isSearch && (
+            <div className="flex-grow min-w-[200px]">
               <Input
                 size="md"
                 isClearable
                 classNames={{
                   base: "w-full",
                   inputWrapper: "font-extrabold py-5",
-                  input: "placeholder:text-gray-400 placeholder:font-semibold"
+                  input:
+                    "placeholder:text-gray-400 placeholder:font-semibold",
                 }}
                 placeholder={`Search ${type}s..`}
                 startContent={<Search className="w-4 h-4 text-default-400" />}
@@ -273,23 +279,23 @@ export default function TableComponent({
                 onValueChange={onSearchChange}
                 isDisabled={isLoading}
               />
-            ) : (
-              <div className="min-h-[2.5rem]" />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* View Toggle */}
-          <div className="flex items-center gap-0 bg-gray-100 rounded-lg px-1.5 py-1 shadow-sm">
+          <div className="flex items-center gap-0 bg-gray-100 rounded-large p-1.5 shadow-sm overflow-visible flex-shrink-0">
             <Tabs
               aria-label="View mode"
               selectedKey={viewMode}
-              onSelectionChange={(key) => setViewMode(key as "table" | "grid")}
+              onSelectionChange={(key) =>
+                setViewMode(key as "table" | "grid")
+              }
               variant="solid"
               classNames={{
-                tabList: "gap-0 p-0 ",
+                tabList: "gap-1 p-0 overflow-visible",
                 cursor: "",
-                tab: "p-2 rounded-sm",
-                tabContent: "hover:text-gray-600"
+                tab: "p-2 rounded-sm relative z-10",
+                tabContent: "hover:text-gray-600",
               }}
             >
               <Tab
@@ -305,7 +311,7 @@ export default function TableComponent({
             </Tabs>
           </div>
 
-          {/* Add New Button - Always visible */}
+          {/* Add New Button */}
           <div className="flex-shrink-0">
             {onAdd && (
               <Button
@@ -320,24 +326,9 @@ export default function TableComponent({
           </div>
         </div>
 
-        {/* Mobile-only Search Bar */}
-        {isSearch && (
-          <div className="sm:hidden w-full">
-            <Input
-              isClearable
-              className="w-full"
-              placeholder="Search..."
-              startContent={<Search className="w-5 h-5 text-default-400" />}
-              value={searchValue}
-              onClear={() => onClear()}
-              onValueChange={onSearchChange}
-              isDisabled={isLoading}
-            />
-          </div>
-        )}
-
+        {/* Filters Row */}
         <div className="flex flex-wrap gap-2 w-full rounded-lg">
-          {filters.length > 0 && (
+          {filters.length > 0 &&
             filters.map((filter) => (
               <CustomDropdown
                 key={filter.uid}
@@ -346,11 +337,13 @@ export default function TableComponent({
                   label: option.name,
                 }))}
                 value={
-                  activeFilters[filter.uid] && activeFilters[filter.uid].size > 0
-                    ? Array.from(activeFilters[filter.uid])[0] // ✅ pick first selected option
+                  activeFilters[filter.uid] &&
+                    activeFilters[filter.uid].size > 0
+                    ? Array.from(activeFilters[filter.uid])[0]
                     : null
                 }
-                placeholder={filter.name}
+                placeholder={filter.name} 
+                searchPlaceholder={`Search ${filter.name}..`}
                 onChange={(val) => handleFilterChange(filter.uid, val)}
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                 dropdownClassName="w-full sm:w-[200px]"
@@ -358,10 +351,7 @@ export default function TableComponent({
                 showSearch={filter.showSearch || false}
                 disabled={isLoading}
               />
-
-
-            ))
-          )}
+            ))}
 
           {hasActiveFilters && (
             <Button
@@ -397,8 +387,9 @@ export default function TableComponent({
     hasActiveFilters,
     resetFilters,
     handleFilterChange,
-    onClear
+    onClear,
   ]);
+
 
   const bottomContent = React.useMemo(() => {
     return (

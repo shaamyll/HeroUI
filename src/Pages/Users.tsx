@@ -149,7 +149,7 @@ function Users() {
 
 
     const roleOptions = [
-        { name: 'Developer', uid: 'developer' },
+        { name: 'Developer', uid: 'dev7eloper' },
         { name: 'Tester', uid: 'tester' },
         { name: 'Manager', uid: 'manager' },
     ];

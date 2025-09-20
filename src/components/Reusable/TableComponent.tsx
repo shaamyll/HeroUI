@@ -13,7 +13,7 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
-import { CopyPlus, FolderOpen, Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
+import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";

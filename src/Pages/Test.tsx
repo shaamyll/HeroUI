@@ -1,19 +1,29 @@
-import CustomDropdown from "@/components/Reusable/CustomDropdown";
-import React, { useState } from "react";
+import CustomDropdown from "../components/Reusable/CustomDropdown";
+import  {  useEffect, useState } from "react";
+
 
 function Test() {
   const [selectedValue, setSelectedValue] = useState("");
-
+  const [items,setItems] = useState<any[]>([])
   const handleChange = (value: string) => {
     console.log("Selected value:", value);
     setSelectedValue(value);
   };
 
-  const options = [
-    { value: "1", label: "Option One" },
-    { value: "2", label: "Option Two" },
-    { value: "3", label: "Option Three" },
-  ];
+    useEffect(() => {
+      fetch(
+        `https://fakestoreapi.com/products`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setItems(data);
+        });
+    }, []);
+
+  const options = items.map((item)=>({
+    value:item.id.toString(),
+    label:item.title
+  }))
 
   return (
     <div className="p-4">

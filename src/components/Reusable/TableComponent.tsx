@@ -283,7 +283,7 @@ export default function TableComponent({
           )}
 
           {/* View Toggle */}
-          <div className="flex items-center gap-0 bg-gray-100 rounded-lg p-1.5 shadow-sm overflow-visible flex-shrink-0">
+          <div className="flex items-center gap-0 bg-gray-100 border border-gray-300 rounded-lg px-1.5 py-1 shadow-sm overflow-visible flex-shrink-0">
             <Tabs
               aria-label="View mode"
               selectedKey={viewMode}
@@ -292,9 +292,9 @@ export default function TableComponent({
               }
               variant="solid"
               classNames={{
-                tabList: "gap-1 p-0 overflow-visible",
+                tabList: "gap-1 p-0 overflow-visible bg-gray-100",
                 cursor: "",
-                tab: "p-2 rounded-sm relative z-10",
+                tab: "px-2 rounded-sm relative z-10",
                 tabContent: "hover:text-gray-600",
               }}
             >

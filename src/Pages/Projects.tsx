@@ -112,7 +112,7 @@ function Projects() {
   const handleAddClick = () => {
     navigate("/");
   };
-  
+
 
   // Create a wrapper for the ImageCard
   const ProductCard = ({ item, onView, onEdit, onDelete }: any) => (
@@ -125,6 +125,12 @@ function Projects() {
       item={item}
     />
   );
+
+  // callback from TableComponent
+  const handleFiltersChange = (filters: { uid: string; values: { value: string; label: string }[] }[]) => {
+    console.log("Filters from table:", filters);
+  };
+
 
   return (
     <div className="min-h-screen">
@@ -145,6 +151,7 @@ function Projects() {
           TableStructure={TableStructure}
           CardComponent={ProductCard}
           filters={filterContent}
+          onFiltersChange={handleFiltersChange}
           page={page}
           rowsPerPage={rowsPerPage}
           totalItems={totalItems}
@@ -154,6 +161,15 @@ function Projects() {
           isSearch={true}
           isSelectRows={false}
           isLoading={isLoading}
+          onFiltersChange={
+            (val) => {
+              console.log("parent", val)
+            }
+          }
+          onSearchValueChange={(val: any) => {
+            console.log("parent", val)
+          }
+          }
         />
       </div>
     </div>

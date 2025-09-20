@@ -13,12 +13,12 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
-import { FolderOpen, Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
+import { CopyPlus, FolderOpen, Grid3X3, List, RotateCcw, Search, UsersRound } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
 
-export interface TableColumn {
+export interface TableColumnProps {
   name: string;
   headerId: string;
   sortable?: boolean;
@@ -44,12 +44,14 @@ interface TableComponentProps {
   CardComponent?: React.ComponentType<CardComponent>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>, showSearch?: boolean }>;
+  onFiltersChange?: (filters: { uid: string; values: { value: string; label: string }[] }[]) => void;
+  //Search
+  onSearchValueChange?: (value: string) => void;
   statusColorMap?: Record<string, string>;
-  onStatusChange?: (id: number, isActive: boolean) => void;
   onDelete?: (id: number) => void;
   onEdit?: (data: any) => void;
   onAdd?: (data: any) => void;
-  type?: 'user' | 'project';
+  type?: any;
   isSearch: boolean;
   isSelectRows: boolean;
   isLoading?: boolean;
@@ -61,15 +63,17 @@ export default function TableComponent({
   CardComponent,
   statusOptions = [],
   filters = [],
+  onFiltersChange,
+  onSearchValueChange,
   onAdd,
   type,
   isSearch,
   isSelectRows,
-  isLoading = false
+  isLoading = false,
 }: TableComponentProps) {
-  
+
   //  headerData for columns Headers
-  const columns = React.useMemo<TableColumn[]>((): any => {
+  const columns = React.useMemo<TableColumnProps[]>((): any => {
     return TableStructure.map(col => ({
       name: col.name,
       headerId: col.headerId,
@@ -79,16 +83,23 @@ export default function TableComponent({
   }, [TableStructure]);
 
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
-  const [filterValue, setFilterValue] = useState("");
+  //Search value
+  const [searchValue, setSearchValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({});
+  //filters value - array
+  const [activeFilters, setActiveFilters] = useState<
+    Record<string, Set<{ value: string; label: string }>>
+  >({});
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.headerId || "id",
     direction: "ascending" as const,
   });
   const [page, setPage] = React.useState(1);
-  const hasSearchFilter = Boolean(filterValue);
+  const hasSearchFilter = Boolean(searchValue);
+
+  //Search value passing to parent component
+  onSearchValueChange?.(searchValue)
 
   // Check if any filters are active
   const hasActiveFilters = React.useMemo(() => {
@@ -105,33 +116,32 @@ export default function TableComponent({
         Object.values(item).some(
           (value) =>
             typeof value === 'string' &&
-            value.toLowerCase().includes(filterValue.toLowerCase())
+            value.toLowerCase().includes(searchValue.toLowerCase())
         )
       );
     }
 
     // Apply all active filters
-    filteredData = filteredData.filter(item => {
-      return Object.entries(activeFilters).every(([filterKey, filterValues]) => {
-        // Skip if no filter values are selected for this filter
-        if (filterValues.size === 0) return true;
+    filteredData = filteredData.filter((item) => {
+      return Object.entries(activeFilters).every(([filterKey, searchValues]) => {
+        if (searchValues.size === 0) return true;
 
-        // Check if the item has the filter key and its value is in the selected filters
         const itemValue = item[filterKey];
         if (itemValue === undefined) return false;
 
-        // Handle both single values and arrays of values
         const itemValues = Array.isArray(itemValue) ? itemValue : [itemValue];
-        return Array.from(filterValues).some(value =>
-          itemValues.some(itemVal =>
-            String(itemVal).toLowerCase() === String(value).toLowerCase()
+
+        return Array.from(searchValues).some((selected: any) =>
+          itemValues.some((itemVal) =>
+            String(itemVal).toLowerCase() === String(selected.label).toLowerCase()
           )
         );
       });
     });
 
+
     return filteredData;
-  }, [TableContent, filterValue, hasSearchFilter, activeFilters, isLoading]);
+  }, [TableContent, searchValue, hasSearchFilter, activeFilters, isLoading]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
 
@@ -176,60 +186,72 @@ export default function TableComponent({
 
   const onSearchChange = React.useCallback((value: any) => {
     if (value) {
-      setFilterValue(value);
+      setSearchValue(value);
       setPage(1);
     } else {
-      setFilterValue("");
+      setSearchValue("");
     }
   }, []);
 
   const onClear = React.useCallback(() => {
-    setFilterValue("");
+    setSearchValue("");
     setPage(1);
   }, []);
 
-  const handleFilterChange = useCallback((filterKey: string, selected: Set<string>) => {
-    if (selected.size === 0) {
-      setActiveFilters(prev => ({
-        ...prev,
-        [filterKey]: new Set()
-      }));
-      console.log(activeFilters)
-    } else {
-      // Set the new selection
-      setActiveFilters(prev => ({
-        ...prev,
-        [filterKey]: selected
-      }));
-    }
-    setPage(1);
-  }, []);
+  const handleFilterChange = useCallback(
+    (filterKey: string, selectedOption: { value: string; label: string } | null) => {
+      let newFilters: Record<string, Set<any>>;
+
+      if (!selectedOption) {
+        newFilters = { ...activeFilters, [filterKey]: new Set() };
+      } else {
+        newFilters = { ...activeFilters, [filterKey]: new Set([selectedOption]) };
+      }
+
+      setActiveFilters(newFilters);
+      setPage(1);
+
+      // ✅ send array format to parent
+      if (typeof onFiltersChange === "function") {
+        const arrFilters = Object.entries(newFilters).map(([uid, set]) => ({
+          uid,
+          values: Array.from(set),
+        }));
+        onFiltersChange(arrFilters);
+      }
+    },
+    [activeFilters, onFiltersChange]
+  );
 
   // Reset all filters
   const resetFilters = useCallback(() => {
-    const resetFilters: Record<string, Set<string>> = {};
+    const reset: Record<string, Set<any>> = {};
     filters.forEach(filter => {
-      resetFilters[filter.uid] = new Set();
+      reset[filter.uid] = new Set();
     });
-    setActiveFilters(resetFilters);
+    setActiveFilters(reset);
     setPage(1);
-    setFilterValue("");
-  }, [filters]);
+    setSearchValue("");
+
+    // notify parent
+    if (typeof onFiltersChange === "function") {
+      const arrFilters = filters.map(filter => ({
+        uid: filter.uid,
+        values: [],
+      }));
+      onFiltersChange(arrFilters);
+    }
+  }, [filters, onFiltersChange]);
+
 
   const topContent = React.useMemo(() => {
     return (
-      <div className="flex flex-col gap-4 my-4">
+      <div className={`flex flex-col gap-4 ${filters.length > 0 || hasActiveFilters ? 'my-4' : 'mt-4 mb-1'}`}>
         {/* Top Row: Title and Add New (mobile) or Title, Search, Add New (desktop) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Title */}
-          <div className="bg-gradient-to-r from-[#37125d] to-[#5a2d8a] rounded-lg px-3 py-5 shadow-lg flex items-center gap-2 border border-[#37125d]/20 h-[42px]">
-            <div className="bg-white/20 p-1.5 rounded-lg">
-              <UsersRound className="h-4 w-4 text-white" />
-            </div>
-            <div className="flex items-baseline gap-1">
-              <h2 className="text-md font-semibold text-white">{type}s</h2>
-              <span className="text-white/80 text-sm">({TableContent.length})</span>
-            </div>
+          <div className="bg-gray-50 rounded-lg px-4 py-2 border-2 ">
+            <h2 className="text-md font-semibold text-black">{type}s ({TableContent.length})</h2>
           </div>
 
           {/* Desktop-only Search Bar */}
@@ -245,9 +267,9 @@ export default function TableComponent({
                 }}
                 placeholder={`Search ${type}s..`}
                 startContent={<Search className="w-4 h-4 text-default-400" />}
-                value={filterValue}
+                value={searchValue}
                 variant="faded"
-                onClear={() => setFilterValue("")}
+                onClear={() => setSearchValue("")}
                 onValueChange={onSearchChange}
                 isDisabled={isLoading}
               />
@@ -306,7 +328,7 @@ export default function TableComponent({
               className="w-full"
               placeholder="Search..."
               startContent={<Search className="w-5 h-5 text-default-400" />}
-              value={filterValue}
+              value={searchValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}
               isDisabled={isLoading}
@@ -314,24 +336,29 @@ export default function TableComponent({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3 w-full rounded-lg">
+        <div className="flex flex-wrap gap-2 w-full rounded-lg">
           {filters.length > 0 && (
             filters.map((filter) => (
               <CustomDropdown
-                key={`${filter.uid}-${Object.keys(activeFilters).length}`}
-                options={filter.content.map(option => ({
-                  value: option.uid,  
+                key={filter.uid}
+                options={filter.content.map((option) => ({
+                  value: option.uid,
                   label: option.name,
                 }))}
-                value={activeFilters[filter.uid] || ""}  
+                value={
+                  activeFilters[filter.uid] && activeFilters[filter.uid].size > 0
+                    ? Array.from(activeFilters[filter.uid])[0] // ✅ pick first selected option
+                    : null
+                }
                 placeholder={filter.name}
-                onChange={(val) => handleFilterChange(filter.uid, val)}  
+                onChange={(val) => handleFilterChange(filter.uid, val)}
                 buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
                 dropdownClassName="w-full sm:w-[200px]"
                 matchWidth
                 showSearch={filter.showSearch || false}
                 disabled={isLoading}
               />
+
 
             ))
           )}
@@ -353,7 +380,7 @@ export default function TableComponent({
       </div>
     );
   }, [
-    filterValue,
+    searchValue,
     activeFilters,
     onRowsPerPageChange,
     TableContent.length,
@@ -563,28 +590,36 @@ export default function TableComponent({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="flex justify-between items-center bg-[#37125c] text-white px-4 py-2 rounded-md my-2"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex justify-between items-center bg-gradient-to-r from-[#37125c] via-[#4a1777] to-[#37125c] text-white px-6 py-3 rounded-lg my-3 shadow-lg border border-[#5d2a8a]"
         >
           <div className="flex items-center gap-4">
-            <span>
+            <span className="font-medium">
               {selectedKeys === "all"
                 ? `All ${filteredItems.length} items selected`
                 : `${selectedKeys.size} of ${filteredItems.length} selected`}
             </span>
             <button
               onClick={() => setSelectedKeys(new Set([]))}
-              className="text-white underline text-sm hover:text-gray-300"
+              className="text-white/90 underline text-sm hover:text-white transition-colors duration-200"
             >
               Clear Selection
             </button>
           </div>
 
           <div className="flex gap-3">
-            <Button size="sm" variant="flat" className="bg-white text-black">
+            <Button
+              size="sm"
+              variant="flat"
+              className="bg-white/90 text-[#37125c] hover:bg-white font-medium shadow-md"
+            >
               Print Code
             </Button>
-            <Button size="sm" color="danger">
+            <Button
+              size="sm"
+              color="danger"
+              className="bg-[#e53e3e] hover:bg-[#c53030] font-medium shadow-md"
+            >
               Delete Selected
             </Button>
           </div>

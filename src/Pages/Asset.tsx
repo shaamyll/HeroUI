@@ -37,7 +37,7 @@ function Asset() {
             headerId: "code",
             sortable: true,
             render: (item: any) => (
-                <span className="text-sm text-gray-500">{item.code}</span>
+                <span className="text-sm font-medium text-gray-700">{item.code}</span>
             ),
         },
         {
@@ -72,7 +72,7 @@ function Asset() {
             headerId: "category",
             sortable: true,
             render: (item: any) => (
-                <span className="text-gray-600">{item.category?.name}</span>
+                <span className="text-gray-600 font-medium">{item.category?.name}</span>
             ),
         },
         {
@@ -81,7 +81,7 @@ function Asset() {
             sortable: false,
             render: (item: any) =>
                 item.store ? (
-                    <span className="text-gray-600">
+                    <span className="text-gray-600 font-medium">
                         {item.store.store_name} ({item.store.store_code})
                     </span>
                 ) : (
@@ -133,8 +133,8 @@ function Asset() {
     console.log(categoryOptions)
 
     const statusOptions = [
-        { name: "Active", uid: "active" },
-        { name: "Inactive", uid: "inactive" },
+        { name: "Active", uid: "22" },
+        { name: "Inactive", uid: "in_active" },
         { name: "In Maintenance", uid: "in_maintenance" },
         { name: "Not in Use", uid: "not_in_use" },
     ];
@@ -152,7 +152,6 @@ function Asset() {
     // ✅ Card view (Grid mode)
     const AssetCard = ({ item }: any) => (
         <ImageCard
-            imageSrc="/assets/placeholder.png" // add a placeholder since API has no image
             imageAlt={item.name}
             title={item.name}
             subtitle={item.category?.name}
@@ -161,6 +160,7 @@ function Asset() {
             item={item}
         />
     );
+
 
     return (
         <div className="min-h-screen">
@@ -181,6 +181,15 @@ function Asset() {
                     TableStructure={TableStructure}
                     CardComponent={AssetCard}
                     filters={filterContent}
+                     onFiltersChange={
+                        (val)=>{
+                            console.log("parent",val)
+                        }
+                    }
+                    onSearchValueChange={(val:any)=>{
+                        console.log("parent",val)
+                    }
+                    }
                     page={page}
                     rowsPerPage={rowsPerPage}
                     totalItems={totalItems}

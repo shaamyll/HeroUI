@@ -6,14 +6,13 @@ import { motion } from 'framer-motion';
 import { Eye, PencilLine, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
 import { useNavigate } from 'react-router-dom';
-import ImageCard from '../components/Reusable/ImageCard';
-import DynamicCard from '@/components/Reusable/UserCard';
 import UserCard from '@/components/Reusable/UserCard';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [searchValue, setSearchValue] = useState("");
 
     // ✅ Delete User
     const handleDeleteUser = useCallback((id: number) => {
@@ -43,51 +42,6 @@ function Users() {
         }
         setIsDeleteOpen(false);
     };
-
-    // ✅ Edit User
-    const handleEditUser = useCallback((updatedUser: any) => {
-        setUsers(prevUsers => {
-            const updatedUsers = prevUsers.map(user =>
-                user.id === updatedUser.id ? { ...user, ...updatedUser } : user
-            );
-            addToast({
-                title: 'Success',
-                description: `User ${updatedUser.name} has been updated successfully.`,
-                color: 'success',
-                duration: 5000,
-                isClosable: true,
-            });
-            return updatedUsers;
-        });
-    }, []);
-
-    // ✅ Add User
-    const handleAddUser = useCallback((newUser: any) => {
-        setUsers(prevUsers => {
-            const newId = Math.max(...prevUsers.map(user => user.id), 0) + 1;
-            const userToAdd = {
-                ...newUser,
-                id: newId,
-                status: newUser.status || 'active',
-                role: newUser.role || 'Developer',
-                team: newUser.team || 'Development',
-            };
-
-            const updatedUsers = [...prevUsers, userToAdd];
-
-            addToast({
-                title: 'Success',
-                description: `User ${newUser.name} has been added successfully.`,
-                color: 'success',
-                isClosable: true,
-                variant: 'flat',
-                timeout: 3000,
-                shouldShowTimeoutProgress: true,
-            });
-
-            return updatedUsers;
-        });
-    }, []);
 
     // 🎨 Gradient colors
     const gradients = [
@@ -225,15 +179,13 @@ function Users() {
     };
 
     // ✅ Wrapper for DynamicCard
-const UserCardWrapper = ({ item }: any) => (
-  <UserCard
-    item={item}
-    onView={(user) => console.log("View", user)}
-    onEdit={handleEditUser}
-    onDelete={openDeleteModal}
-  />
-)
-
+    const UserCardWrapper = ({ item }: any) => (
+        <UserCard
+            item={item}
+            onView={(user) => console.log("View", user)}
+            onDelete={openDeleteModal}
+        />
+    )
 
     return (
         <div className="min-h-screen px-2">
@@ -259,10 +211,18 @@ const UserCardWrapper = ({ item }: any) => (
                     CardComponent={UserCardWrapper}
                     filters={filterContent}
                     onDelete={handleDeleteUser}
-                    onEdit={handleEditUser}
                     onAdd={handleAddClick}
                     isSearch={true}
                     isSelectRows={true}
+                    onFiltersChange={
+                        (val)=>{
+                            console.log("parent",val)
+                        }
+                    }
+                    onSearchValueChange={(val:any)=>{
+                        console.log("parent",val)
+                    }
+                    }
                 />
             </div>
             {/* Delete Modal controlled from parent */}

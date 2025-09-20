@@ -43,6 +43,7 @@ function CustomDropdown({
   showSearch = false,
   disabled = false,
 }: CustomDropdownProps) {
+  console.log(options)
   const [searchValue, setSearchValue] = useState("");
 
   // Filter options
@@ -53,19 +54,21 @@ function CustomDropdown({
       (option.description && option.description.toLowerCase().includes(searchValue.toLowerCase()))
     );
   }, [options, searchValue]);
-
+  
   // Display label
-  const displayValue = value ? value.label : placeholder;
+const displayValue = value ? value.label : placeholder;
 
-  // Handle selection change → return id and label
-  const handleSelectionChange = (keys: "all" | Set<React.Key>) => {
-    const selectedKey = Array.from(keys)[0] as string;
-    const selectedOption = options.find(opt => opt.value === selectedKey);
+// Handle selection change → return full option
+const handleSelectionChange = (keys: "all" | Set<React.Key>) => {
+  if (keys === "all") return; // no selection
+  const selectedKey = Array.from(keys)[0] as string;
+  const selectedOption = options.find(opt => opt.value === selectedKey);
 
-    if (onChange) {
-      onChange(selectedOption || null);
-    }
-  };
+  if (onChange) {
+    onChange(selectedOption || null);
+  }
+};
+
 
   // Clear search when value changes
   useEffect(() => {
@@ -74,19 +77,18 @@ function CustomDropdown({
 
   return (
     <Dropdown
-      placement="bottom-start"
       classNames={{
-        content: `${dropdownClassName} rounded-lg border border-gray-300 bg-white shadow-lg p-0 overflow-hidden`,
+        content: `${dropdownClassName} rounded-lg bg-white shadow-lg p-0 overflow-hidden`,
       }}
     >
       <DropdownTrigger>
         <Button
-          className={`${buttonClassName} flex items-center justify-between text-left ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
-          variant="faded"
-          endContent={<ChevronDown size={16} className="text-gray-500" />}
-          disabled={disabled}
+          className={`${buttonClassName} flex items-center justify-between text-left  ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
+          variant="bordered"
+          endContent={<ChevronDown size={16} className="text-gray-800 font-medium" />}
+          disabled={disabled} 
         >
-          <div className={value ? 'text-gray-900' : 'text-gray-500'}>
+          <div className={value ? 'text-gray-900' : 'text-gray-700 font-medium'}>
             {displayValue}
           </div>
         </Button>
@@ -99,11 +101,11 @@ function CustomDropdown({
         onSelectionChange={handleSelectionChange}
         variant="flat"
           classNames={{
-                list: "max-h-[200px] overflow-y-auto custom-scrollbar"
+                list: "max-h-[200px] overflow-y-auto custom-scrollbar p-1"
               }}
         topContent={
           showSearch ? (
-            <div className="border-b border-gray-200 p-1 bg-white">
+            <div className="border-b border-gray-200 pb-2 p-1 bg-white">
               <div className="relative">
                 <Input
                   placeholder={searchPlaceholder}
@@ -112,7 +114,7 @@ function CustomDropdown({
                   variant="faded"
                   size="sm"
                   classNames={{
-                    input: "text-sm pl-8",
+                    input: "text-sm",
                     inputWrapper: "rounded-md border border-gray-300 bg-white"
                   }}
                   startContent={
@@ -143,7 +145,7 @@ function CustomDropdown({
               textValue={option.label}
             >
               <div className="flex flex-col">
-                <span className="truncate font-medium">{option.label}</span>
+                <span className="truncate font-base">{option.label}</span>
                 {option.description && (
                   <span className="text-xs text-gray-500 mt-1">{option.description}</span>
                 )}

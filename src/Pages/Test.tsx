@@ -33,8 +33,7 @@ function Test() {
         value={selectedValue}
         onChange={handleChange}
         placeholder="Select an option"
-        buttonClassName="w-82"
-        dropdownClassName="w-82"
+        buttonClassName="w-1/2"
         showSearch={true}
       />
     </div>

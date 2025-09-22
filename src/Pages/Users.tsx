@@ -208,6 +208,7 @@ function Users() {
                     type="User"
                     TableStructure={TableStructure}
                     TableContent={users}
+                    searchPlaceholder="search by asset name..."
                     CardComponent={UserCardWrapper}
                     filters={filterContent}
                     onDelete={handleDeleteUser}

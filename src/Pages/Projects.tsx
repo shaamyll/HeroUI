@@ -11,25 +11,25 @@ function Projects() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  const [categories, setCategories] = useState([])
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  // ✅ Fetch products for the current page
+
   useEffect(() => {
-    fetch(
-      `https://fakestoreapi.com/products?limit=${rowsPerPage}&page=${page}`
-    )
+    setIsLoading(true);
+
+    fetch(`https://fakestoreapi.com/products`)
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data);
-        // Fakestore doesn’t return total count, so assume 20 for demo
-        setTotalItems(20);
+        const startIndex = (page - 1) * rowsPerPage;
+        const paginatedData = data.slice(startIndex, startIndex + rowsPerPage);
+
+        setProducts(paginatedData);
+        setTotalItems(data.length);
+        setTotalPages(Math.ceil(data.length / rowsPerPage));
         setIsLoading(false);
       });
+      console.log("page",page,"totalItems",totalItems,"total pages",totalPages,"Rows per page",rowsPerPage)
   }, [page, rowsPerPage]);
-
-
-  console.log(categories)
-
 
   const TableStructure = [
     { name: "ID", headerId: "id", sortable: true },
@@ -73,18 +73,17 @@ function Projects() {
           </Tooltip>
 
           {/* Edit Button */}
-          <Tooltip content="Edit user">
+          <Tooltip content="Edit product">
             <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
               <SquarePen className="w-4 h-4" />
             </button>
           </Tooltip>
 
           {/* Delete Button */}
-          <Tooltip color="danger" content="Delete user">
+          <Tooltip color="danger" content="Delete product">
             <button
               onClick={() => {
-                console.log("Deleting user:");
-
+                console.log("Deleting product:");
               }}
               className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
             >
@@ -96,7 +95,6 @@ function Projects() {
     },
   ];
 
-
   const categoryOptions = [
     { name: "Electronics", uid: "electronics" },
     { name: "Jewelery", uid: "jewelery" },
@@ -105,7 +103,12 @@ function Projects() {
   ];
 
   const filterContent = [
-    { name: "Category", uid: "category", content: categoryOptions, showSearch: false },
+    {
+      name: "Category",
+      uid: "category",
+      content: categoryOptions,
+      showSearch: false,
+    },
   ];
 
   const navigate = useNavigate();
@@ -113,9 +116,8 @@ function Projects() {
     navigate("/");
   };
 
-
   // Create a wrapper for the ImageCard
-  const ProductCard = ({ item, onView, onEdit, onDelete }: any) => (
+  const ProductCard = ({ item }: any) => (
     <ImageCard
       imageSrc={item.image}
       imageAlt={item.title}
@@ -127,10 +129,11 @@ function Projects() {
   );
 
   // callback from TableComponent
-  const handleFiltersChange = (filters: { uid: string; values: { value: string; label: string }[] }[]) => {
+  const handleFiltersChange = (
+    filters: { uid: string; values: { value: string; label: string }[] }[]
+  ) => {
     console.log("Filters from table:", filters);
   };
-
 
   return (
     <div className="min-h-screen mx-2">
@@ -156,21 +159,17 @@ function Projects() {
           page={page}
           rowsPerPage={rowsPerPage}
           totalItems={totalItems}
+          totalPages={totalPages} // ✅ added totalPages
+          currentPage={page} // ✅ added currentPage
           onPageChange={setPage}
           onRowsPerPageChange={setRowsPerPage}
           onAdd={handleAddClick}
           isSearch={true}
           isSelectRows={false}
           isLoading={isLoading}
-          onFiltersChange={
-            (val) => {
-              console.log("parent", val)
-            }
-          }
           onSearchValueChange={(val: any) => {
-            console.log("parent", val)
-          }
-          }
+            console.log("parent search", val);
+          }}
         />
       </div>
     </div>

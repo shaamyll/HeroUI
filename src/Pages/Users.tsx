@@ -75,23 +75,36 @@ const TableStructure = [
         sortable: true,
         render: (item: any) => <span>{item.id}</span>
     },
-    {
-        name: 'Name',
-        headerId: 'name',
-        sortable: true,
-        render: (item: any) => (
-            <div className="flex items-center gap-3">
-                <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md ${getGradientFromName(
-                        item.name
-                    )}`}
-                >
-                    {item.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="">{item.name}</span>
-            </div>
-        ),
-    },
+{
+  name: 'Name',
+  headerId: 'name',
+  sortable: true,
+  render: (item: any) => {
+    const isLong = item.name.length > 20;
+
+    const nameText = (
+      <span className="truncate block max-w-[160px]">{item.name}</span>
+    );
+
+    return (
+      <div className="flex items-center gap-3 max-w-[220px]">
+        <div
+          className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md ${getGradientFromName(
+            item.name
+          )}`}
+        >
+          {item.name.charAt(0).toUpperCase()}
+        </div>
+        {isLong ? (
+          <Tooltip content={item.name}>{nameText}</Tooltip>
+        ) : (
+          nameText
+        )}
+      </div>
+    );
+  },
+}
+,
     {
         name: 'Role',
         headerId: 'role',

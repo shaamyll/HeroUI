@@ -12,7 +12,6 @@ import { ChevronDown, Search, X } from "lucide-react";
 interface DropdownOption {
   value: string;
   label: string;
-  description?: string;
   startContent?: React.ReactNode;
   endContent?: React.ReactNode;
   className?: string;
@@ -56,8 +55,7 @@ function CustomDropdown({
   const filteredOptions = React.useMemo(() => {
     if (!searchValue) return options;
     return options.filter(option =>
-      option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-      (option.description && option.description.toLowerCase().includes(searchValue.toLowerCase()))
+      option.label.toLowerCase().includes(searchValue.toLowerCase())
     );
   }, [options, searchValue]);
 
@@ -305,9 +303,6 @@ function CustomDropdown({
             >
               <div className="flex flex-col">
                 <span className="truncate text-sm">{option.label}</span>
-                {option.description && (
-                  <span className="text-xs text-gray-500 mt-1">{option.description}</span>
-                )}
               </div>
             </DropdownItem>
 

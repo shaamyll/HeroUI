@@ -9,10 +9,17 @@ import { assetResponse } from "@/components/lib/AssetData";
 
 function Asset() {
     const [assets, setAssets] = useState<any[]>([]);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(3);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+
+    // server-side state
+    const [searchValue, setSearchValue] = useState("");
+    const [sortDescriptor, setSortDescriptor] = useState<any>(null);
+    const [activeFilters, setActiveFilters] = useState<any[]>([]);
+
 
     // ✅ Load mock data (replace with API later if needed)
     useEffect(() => {
@@ -22,6 +29,22 @@ function Asset() {
         setTotalItems(assetResponse.data.totalItems);
         setIsLoading(false);
     }, []);
+
+    const renderStatus = (item: any) => {
+        let color: "success" | "danger" | "warning" | "default" = "default";
+        switch (item.status) {
+            case "active": color = "success"; break;
+            case "inactive": color = "danger"; break;
+            case "in_maintenance": color = "warning"; break;
+            case "not_in_use": color = "default"; break;
+        }
+        return (
+            <Chip color={color} size="sm" variant="flat" className="capitalize">
+                {item.status.replace(/_/g, " ")}
+            </Chip>
+        );
+    };
+
 
     const TableStructure = [
         {
@@ -44,28 +67,7 @@ function Asset() {
             name: "Status",
             headerId: "status",
             sortable: true,
-            render: (item: any) => {
-                let color: "success" | "danger" | "warning" | "default" = "default";
-                switch (item.status) {
-                    case "active":
-                        color = "success";
-                        break;
-                    case "inactive":
-                        color = "danger";
-                        break;
-                    case "in_maintenance":
-                        color = "warning";
-                        break;
-                    case "not_in_use":
-                        color = "default";
-                        break;
-                }
-                return (
-                    <Chip color={color} size="sm" variant="flat" className="capitalize">
-                        {item.status.replace(/_/g, " ")}
-                    </Chip>
-                );
-            },
+            render: renderStatus
         },
         {
             name: "Category",
@@ -182,20 +184,32 @@ function Asset() {
                     searchPlaceholder="Search by Asset name..."
                     CardComponent={AssetCard}
                     filters={filterContent}
-                     onFiltersChange={
-                        (val)=>{
-                            console.log("parent",val)
+                    onFiltersChange={
+                        (val) => {
+                            console.log("parent", val)
                         }
                     }
-                    onSearchValueChange={(val:any)=>{
-                        console.log("parent",val)
+                    onSearchValueChange={(val: any) => {
+                        console.log("parent", val)
                     }
                     }
-                    page={page}
+                    onSortChange={(sortDesc) => {
+                        console.log("Sort changed:", sortDesc);
+                        setSortDescriptor(sortDesc);
+                    }}
+                    onPageChange={(newPage) => {
+                        console.log("Page changed:", newPage);
+                        setPage(newPage);
+                    }}
+                    onRowsPerPageChange={(newRowsPerPage) => {
+                        console.log("Rows per page changed:", newRowsPerPage);
+                        setRowsPerPage(newRowsPerPage);
+                        setPage(1); // Reset to first page
+                    }}
+                    page={page}    
                     rowsPerPage={rowsPerPage}
                     totalItems={totalItems}
-                    onPageChange={setPage}
-                    onRowsPerPageChange={setRowsPerPage}
+                    totalPages={totalPages}
                     onAdd={handleAddClick}
                     isSearch={true}
                     isSelectRows={true}

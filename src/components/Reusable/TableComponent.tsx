@@ -48,8 +48,10 @@ interface TableComponentProps {
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>, showSearch?: boolean }>;
   onFiltersChange?: (filters: { uid: string; values: { value: string; label: string }[] }[]) => void;
-  //Search
   onSearchValueChange?: (value: string) => void;
+  onSortChange?: (sortDescriptor: SortDescriptor) => void;
+  onPageChange?: (page: number) => void;
+  onRowsPerPageChange?: (rowsPerPage: number) => void;
   statusColorMap?: Record<string, string>;
   onDelete?: (id: number) => void;
   onEdit?: (data: any) => void;
@@ -58,6 +60,10 @@ interface TableComponentProps {
   isSearch: boolean;
   isSelectRows: boolean;
   isLoading?: boolean;
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  rowsPerPage: number;
 }
 
 export default function TableComponent({
@@ -65,21 +71,27 @@ export default function TableComponent({
   TableStructure = [],
   searchPlaceholder,
   CardComponent,
-  statusOptions = [],
   filters = [],
   onFiltersChange,
   onSearchValueChange,
+  onSortChange,
+  onPageChange,
+  onRowsPerPageChange,
   onAdd,
   type,
   isSearch,
   isSelectRows,
   isLoading = false,
+  totalItems,
+  currentPage,
+  totalPages,
+  rowsPerPage,
 }: TableComponentProps) {
 
-  //  headerData for columns Headers
+  // headerData for columns Headers
   const columns = React.useMemo<TableColumnProps[]>((): any => {
     return TableStructure.map(col => ({
-      name: col.name,
+      name: col.name, 
       headerId: col.headerId,
       render: col.render,
       sortable: col.sortable || false,
@@ -87,120 +99,44 @@ export default function TableComponent({
   }, [TableStructure]);
 
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
-  //Search value
   const [searchValue, setSearchValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  //filters value - array
   const [activeFilters, setActiveFilters] = useState<
     Record<string, Set<{ value: string; label: string }>>
   >({});
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.headerId || "id",
     direction: "ascending" as const,
   });
-  const [page, setPage] = React.useState(1);
-  const hasSearchFilter = Boolean(searchValue);
-
-  //Search value passing to parent component
-  onSearchValueChange?.(searchValue)
 
   // Check if any filters are active
   const hasActiveFilters = React.useMemo(() => {
     return Object.values(activeFilters).some(set => set.size > 0);
   }, [activeFilters]);
 
-  const filteredItems = React.useMemo(() => {
-    if (isLoading) return [];
-
-    let filteredData = [...TableContent];
-    // Apply search filter
-    if (hasSearchFilter) {
-      filteredData = filteredData.filter((item) =>
-        Object.values(item).some(
-          (value) =>
-            typeof value === 'string' &&
-            value.toLowerCase().includes(searchValue.toLowerCase())
-        )
-      );
-    }
-
-    // Apply all active filters
-    filteredData = filteredData.filter((item) => {
-      return Object.entries(activeFilters).every(([filterKey, searchValues]) => {
-        if (searchValues.size === 0) return true;
-
-        const itemValue = item[filterKey];
-        if (itemValue === undefined) return false;
-
-        const itemValues = Array.isArray(itemValue) ? itemValue : [itemValue];
-
-        return Array.from(searchValues).some((selected: any) =>
-          itemValues.some((itemVal) =>
-            String(itemVal).toLowerCase() === String(selected.label).toLowerCase()
-          )
-        );
-      });
-    });
-
-
-    return filteredData;
-  }, [TableContent, searchValue, hasSearchFilter, activeFilters, isLoading]);
-
-  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
-
-  const items = React.useMemo(() => {
-    if (isLoading) return [];
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage, isLoading]);
-
-  const sortedItems = React.useMemo(() => {
-    if (isLoading) return [];
-    return [...items].sort((a, b) => {
-      const columnKey = sortDescriptor.column as string;
-      const first = a[columnKey];
-      const second = b[columnKey];
-      if (first === undefined || second === undefined) return 0;
-      const firstValue = typeof first === 'object' ? first.name : first;
-      const secondValue = typeof second === 'object' ? second.name : second;
-      if (firstValue < secondValue) return sortDescriptor.direction === "ascending" ? -1 : 1;
-      if (firstValue > secondValue) return sortDescriptor.direction === "ascending" ? 1 : -1;
-      return 0;
-    });
-  }, [sortDescriptor, items, isLoading]);
-
-  const onNextPage = React.useCallback(() => {
-    if (page < pages) {
-      setPage(page + 1);
-    }
-  }, [page, pages]);
-
-  const onPreviousPage = React.useCallback(() => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  }, [page]);
-
-  const onRowsPerPageChange = React.useCallback((e: any) => {
-    setRowsPerPage(Number(e.target.value));
-    setPage(1);
-  }, []);
-
-  const onSearchChange = React.useCallback((value: any) => {
-    if (value) {
-      setSearchValue(value);
-      setPage(1);
-    } else {
-      setSearchValue("");
-    }
-  }, []);
+  const onSearchChange = React.useCallback((value: string) => {
+    setSearchValue(value);
+    onSearchValueChange?.(value);
+  }, [onSearchValueChange]);
 
   const onClear = React.useCallback(() => {
     setSearchValue("");
-    setPage(1);
-  }, []);
+    onSearchValueChange?.("");
+  }, [onSearchValueChange]);
+
+  const handleSortChange = React.useCallback((descriptor: SortDescriptor) => {
+    setSortDescriptor(descriptor);
+    onSortChange?.(descriptor);
+  }, [onSortChange]);
+
+  const handlePageChange = React.useCallback((page: number) => {
+    onPageChange?.(page);
+  }, [onPageChange]);
+
+  const handleRowsPerPageChange = React.useCallback((e: any) => {
+    const newRowsPerPage = Number(e.target.value);
+    onRowsPerPageChange?.(newRowsPerPage);
+  }, [onRowsPerPageChange]);
 
   const handleFilterChange = useCallback(
     (filterKey: string, selectedOption: { value: string; label: string } | null) => {
@@ -213,7 +149,6 @@ export default function TableComponent({
       }
 
       setActiveFilters(newFilters);
-      setPage(1);
 
       // callback array format to parent
       if (typeof onFiltersChange === "function") {
@@ -234,8 +169,8 @@ export default function TableComponent({
       reset[filter.uid] = new Set();
     });
     setActiveFilters(reset);
-    setPage(1);
     setSearchValue("");
+    onSearchValueChange?.("");
 
     // notify parent
     if (typeof onFiltersChange === "function") {
@@ -245,8 +180,7 @@ export default function TableComponent({
       }));
       onFiltersChange(arrFilters);
     }
-  }, [filters, onFiltersChange]);
-
+  }, [filters, onFiltersChange, onSearchValueChange]);
 
   const topContent = React.useMemo(() => {
     return (
@@ -259,7 +193,7 @@ export default function TableComponent({
           {/* Title */}
           <div className="bg-gray-50 rounded-lg px-4 py-2 border-2 flex-shrink-0">
             <h2 className="text-md font-semibold text-black">
-              {type}s ({TableContent.length})
+              {type}s ({totalItems})
             </h2>
           </div>
 
@@ -271,7 +205,7 @@ export default function TableComponent({
                 isClearable
                 classNames={{
                   base: "w-full",
-                  inputWrapper: "font-extrabold py-5",
+                  inputWrapper: "font-extrabold bg-gray-50 py-5",
                   input:
                     "placeholder:text-gray-400 placeholder:font-semibold",
                 }}
@@ -279,7 +213,7 @@ export default function TableComponent({
                 startContent={<Search className="w-4 h-4 text-default-400" />}
                 value={searchValue}
                 variant="faded"
-                onClear={() => setSearchValue("")}
+                onClear={onClear}
                 onValueChange={onSearchChange}
                 isDisabled={isLoading}
               />
@@ -375,11 +309,8 @@ export default function TableComponent({
   }, [
     searchValue,
     activeFilters,
-    onRowsPerPageChange,
-    TableContent.length,
+    totalItems,
     onSearchChange,
-    hasSearchFilter,
-    statusOptions.length,
     rowsPerPage,
     isLoading,
     type,
@@ -392,7 +323,6 @@ export default function TableComponent({
     handleFilterChange,
     onClear,
   ]);
-
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -412,7 +342,7 @@ export default function TableComponent({
                 selectedKeys={[String(rowsPerPage)]}
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0];
-                  if (val) onRowsPerPageChange({ target: { value: val } } as any);
+                  if (val) handleRowsPerPageChange({ target: { value: val } } as any);
                 }}
                 isDisabled={isLoading}
               >
@@ -439,9 +369,9 @@ export default function TableComponent({
               isCompact
               showControls
               showShadow
-              page={page}
-              total={pages}
-              onChange={setPage}
+              page={currentPage}
+              total={totalPages}
+              onChange={handlePageChange}
               isDisabled={isLoading}
               classNames={{
                 cursor: "bg-[#37125d] text-white",
@@ -450,9 +380,8 @@ export default function TableComponent({
           )}
         </div>
       </div>
-
     );
-  }, [selectedKeys, filteredItems.length, page, pages, hasSearchFilter, isLoading, rowsPerPage, onRowsPerPageChange, onPreviousPage, onNextPage]);
+  }, [selectedKeys, currentPage, totalPages, isLoading, rowsPerPage, handleRowsPerPageChange, handlePageChange]);
 
   // Default cell renderer (only used if no `render` provided from parent)
   const defaultRenderCell = useCallback(
@@ -498,8 +427,6 @@ export default function TableComponent({
     ));
   };
 
-
-
   // Generate skeleton cards for grid view
   const generateSkeletonCards = () => {
     return Array.from({ length: rowsPerPage }, (_, index) => (
@@ -522,7 +449,7 @@ export default function TableComponent({
       );
     }
 
-    if (sortedItems.length === 0) {
+    if (TableContent.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center space-y-4 py-10 min-h-[500px]">
           <motion.div
@@ -551,7 +478,7 @@ export default function TableComponent({
       auto-rows-fr
       bg-gradient-to-br from-gray-50 via-white to-gray-50
       rounded-2xl">
-          {sortedItems.map((item, index) => (
+          {TableContent.map((item, index) => (
             <motion.div
               key={item.id || index}
               initial={{ opacity: 0, y: 20 }}
@@ -571,7 +498,6 @@ export default function TableComponent({
         </div>
       </div>
     );
-
   };
 
   return (
@@ -595,8 +521,8 @@ export default function TableComponent({
           <div className="flex items-center gap-4">
             <span className="font-medium">
               {selectedKeys === "all"
-                ? `All ${filteredItems.length} items selected`
-                : `${selectedKeys.size} of ${filteredItems.length} selected`}
+                ? `All ${totalItems} items selected`
+                : `${selectedKeys.size} of ${totalItems} selected`}
             </span>
             <button
               onClick={() => setSelectedKeys(new Set([]))}
@@ -630,10 +556,8 @@ export default function TableComponent({
         <div>
           <div className="bg-white rounded-xl shadow-md mb-5 ">
             <GridView />
-            {/* Bottom content for grid view */}
           </div>
           {bottomContent}
-
         </div>
       ) : (
         <Table
@@ -650,7 +574,7 @@ export default function TableComponent({
           onSelectionChange={setSelectedKeys}
           sortDescriptor={sortDescriptor}
           topContentPlacement="outside"
-          onSortChange={setSortDescriptor}
+          onSortChange={handleSortChange}
           onRowAction={handleRowAction}
           selectionBehavior={isSelectRows ? "toggle" : "replace"}
           checkboxesProps={{ color: "default" }}
@@ -691,12 +615,12 @@ export default function TableComponent({
                 </p>
               </div>
             )}
-            items={isLoading ? [] : sortedItems}
+            items={isLoading ? [] : TableContent}
           >
             {isLoading ? (
               generateSkeletonRows().map((skeletonRow) => skeletonRow)
             ) : (
-              sortedItems.map((item, index) => (
+              TableContent.map((item, index) => (
                 <TableRow key={item.id || Math.random()}>
                   {(columnKey) => {
                     const col = columns.find((c) => c.headerId === columnKey);
@@ -707,8 +631,8 @@ export default function TableComponent({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{
                             duration: 0.5,
-                            delay: index * 0.08, // Slightly faster stagger
-                            ease: [0.25, 0.46, 0.45, 0.94] // Custom smooth easing
+                            delay: index * 0.08,
+                            ease: [0.25, 0.46, 0.45, 0.94]
                           }}
                           whileHover={{
                             scale: 1.01,

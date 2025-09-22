@@ -27,6 +27,7 @@ export type DockProps = {
   dockHeight?: number;
   magnification?: number;
   spring?: SpringOptions;
+  bottomOffset?: number; // New prop to control bottom positioning
 };
 
 type DockItemProps = {
@@ -69,6 +70,9 @@ function DockItem({
   const targetWidth = useTransform(mouseDistance, [-distance, 0, distance], [baseWidth, magnification * 1.8, baseWidth]);
   const width = useSpring(targetWidth, spring);
 
+  // Check if this item is active (clicked/selected)
+  const isActive = className.includes('bg-white/20 ring-2 ring-white/50');
+
   return (
     <motion.div
       ref={ref}
@@ -81,21 +85,26 @@ function DockItem({
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
       onClick={onClick}
-      className={`relative inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm transition-colors duration-200 px-2 whitespace-nowrap ${className}`}
+      className={`relative inline-flex items-center justify-center rounded-lg px-3 py-2 whitespace-nowrap transition-colors duration-200 ${isActive
+        ? 'bg-white/90 text-gray-900'
+        : 'bg-transparent hover:bg-white/10 text-white/70 hover:text-white/90'
+        }`}
+
+
       tabIndex={0}
       role="button"
       aria-haspopup="true"
     >
-      <div className="flex items-center gap-2">
+      <div className={`flex items-center gap-2 transition-colors duration-200 ${isActive ? 'text-gray-900' : 'text-white/70 hover:text-white/90'}`}>
         {Children.map(children, (child, index) => {
           if (React.isValidElement(child) && child.type === DockIcon) {
-            return cloneElement(child as React.ReactElement<any>, { isHovered, key: index });
+            return cloneElement(child as React.ReactElement<any>, { isHovered, isActive, key: index });
           }
           if (React.isValidElement(child) && child.type === DockText) {
-            return cloneElement(child as React.ReactElement<any>, { isHovered, key: index });
+            return cloneElement(child as React.ReactElement<any>, { isHovered, isActive, key: index });
           }
           if (React.isValidElement(child) && child.type !== DockLabel) {
-            return cloneElement(child as React.ReactElement<any>, { isHovered, key: index });
+            return cloneElement(child as React.ReactElement<any>, { isHovered, isActive, key: index });
           }
           return child;
         })}
@@ -150,16 +159,24 @@ function DockLabel({ children, className = '', ...rest }: DockLabelProps) {
 type DockIconProps = {
   className?: string;
   children: React.ReactNode;
+  isActive?: boolean;
 };
 
-function DockIcon({ children, className = '' }: DockIconProps) {
-  return <div className={`flex items-center justify-center text-white ${className}`}>{children}</div>;
+function DockIcon({ children, className = '', isActive }: DockIconProps) {
+  return (
+    <div className={`flex items-center justify-center ${isActive ? 'text-gray-900' : 'text-white/70'} ${className}`}>
+      {children}
+    </div>
+  );
 }
 
-function DockText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <span className={`text-white text-sm font-medium ml-2 ${className}`}>{children}</span>;
+function DockText({ children, className = '', isActive }: { children: React.ReactNode; className?: string; isActive?: boolean }) {
+  return (
+    <span className={`text-sm font-black ml-2 ${isActive ? 'text-gray-900' : 'text-white/60'} ${className}`}>
+      {children}
+    </span>
+  );
 }
-
 export default function Dock({
   items,
   className = '',
@@ -168,7 +185,8 @@ export default function Dock({
   distance = 200,
   panelHeight = 64,
   dockHeight = 256,
-  baseItemSize = 50
+  baseItemSize = 50,
+  bottomOffset = 8 // New prop to control vertical position
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
   const isHovered = useMotionValue(0);
@@ -188,8 +206,11 @@ export default function Dock({
           isHovered.set(0);
           mouseX.set(Infinity);
         }}
-        className={`${className} absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-end w-fit gap-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 pb-2 px-4`}
-        style={{ height: panelHeight }}
+        className={`${className} absolute left-1/2 transform -translate-x-1/2 flex items-end w-fit gap-3 pb-2 px-4`}
+        style={{ 
+          height: panelHeight,
+          bottom: `${bottomOffset * 4}px` // Convert Tailwind units to pixels
+        }}
         role="toolbar"
         aria-label="Application dock"
       >
@@ -205,7 +226,7 @@ export default function Dock({
             baseItemSize={baseItemSize}
           >
             <DockIcon index={index}>{item.icon}</DockIcon>
-            <DockLabel>{item.label}</DockLabel>
+           
           </DockItem>
         ))}
       </motion.div>

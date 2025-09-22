@@ -20,7 +20,7 @@ export function NavbarComponent() {
     { name: "Projects", link: "/projects" },
     { name: "Asset", link: "/asset" },
     { name: "Test", link: "/test" },
-    { name: "Dashboard", link: "/dashboard" },
+    // { name: "Dashboard", link: "/dashboard" },
     // { name: "Login", link: "/login" },
     // { name: "Footer", link: "/Footer" },
     { name: "cardview", link: "/cardView" },

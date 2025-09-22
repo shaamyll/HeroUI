@@ -11,6 +11,7 @@ import {
   Link,
   Image,
 } from "@heroui/react";
+import Button from "../components/Reusable/Button";
 
 const springValues: SpringOptions = {
   damping: 30,
@@ -28,6 +29,11 @@ export default function CardView() {
 
   function handleMouseLeave() {
     scale.set(1);
+  }
+
+  function handleButtonClick() {
+    console.log("Button clicked!");
+    // Add your button logic here
   }
 
   return (
@@ -56,6 +62,20 @@ export default function CardView() {
           <Divider />
           <CardBody>
             <p>Make beautiful websites regardless of your design experience.</p>
+
+            {/* Added Button here */}
+            <div className="mt-4">
+              <Button
+                variant="secondary"
+                size="small"
+                isLoading={false} // or a state variable if you want loading
+                onClick={handleButtonClick}
+                data-testid="checkout-button"
+                aria-label="Complete purchase"
+              >
+                Complete Purchase
+              </Button>
+            </div>
           </CardBody>
           <Divider />
           <CardFooter>

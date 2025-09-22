@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import DashboardHeader from '../components/common/dashBoard/dashBoardHeader';
 import type { Tab, ActionButton } from '../types/dashBoardTypes';
 import { Home, Settings, Plus, UsersIcon, BarChart3 } from "lucide-react";
-import Dock from '../components/ui/Dock';
-import type { DockItemData } from '../components/ui/Dock';
+
 const Users: React.FC = () => {
   const [activeTab, setActiveTab] = useState('users');
 

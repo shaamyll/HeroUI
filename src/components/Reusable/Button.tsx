@@ -1,5 +1,5 @@
-import React, { forwardRef,  } from 'react';
-import type{ ButtonHTMLAttributes } from 'react';
+import React, { forwardRef, useState } from 'react';
+import type { ButtonHTMLAttributes } from 'react';
 
 // Define button variants and sizes as constants
 export const BUTTON_VARIANTS = {
@@ -27,6 +27,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   variant?: ButtonVariant;
   /** Size of the button */
   size?: ButtonSize;
+  /** Custom color for the button (hex format) */
+  color?: string;
   /** Whether the button is disabled */
   disabled?: boolean;
   /** Whether the button is in loading state */
@@ -43,52 +45,72 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   'data-testid'?: string;
 }
 
-// Style configurations for different variants
-const variantStyles = {
-  [BUTTON_VARIANTS.PRIMARY]: {
-    default: {
-      backgroundColor: '#007AFF',
-      color: 'white',
-      border: '1px solid #007AFF',
+// Helper function to darken a hex color
+const darkenColor = (hex: string, amount: number = 20): string => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, (num >> 16) - amount);
+  const g = Math.max(0, ((num >> 8) & 0x00FF) - amount);
+  const b = Math.max(0, (num & 0x0000FF) - amount);
+  return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+};
+
+// Helper function to lighten a hex color for backgrounds
+const lightenColor = (hex: string, amount: number = 90): string => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.min(255, (num >> 16) + amount);
+  const g = Math.min(255, ((num >> 8) & 0x00FF) + amount);
+  const b = Math.min(255, (num & 0x0000FF) + amount);
+  return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+};
+
+// Function to generate variant styles based on color
+const getVariantStyles = (color: string) => {
+  return {
+    [BUTTON_VARIANTS.PRIMARY]: {
+      default: {
+        backgroundColor: color,
+        color: 'white',
+        border: `1px solid ${color}`,
+      },
+      hover: {
+        backgroundColor: darkenColor(color),
+        color: 'white',
+      },
     },
-    hover: {
-      backgroundColor: '#0056CC',
-      color: 'white',
+    [BUTTON_VARIANTS.SECONDARY]: {
+      default: {
+        backgroundColor: '#F2F2F7',
+        color: '#000000',
+        border: '1px solid #F2F2F7',
+      },
+      hover: {
+        backgroundColor: '#E5E5EA',
+        color: '#000000',
+      },
     },
-  },
-  [BUTTON_VARIANTS.SECONDARY]: {
-    default: {
-      backgroundColor: '#F2F2F7',
-      color: '#000000',
-      border: '1px solid #F2F2F7',
+    [BUTTON_VARIANTS.OUTLINED]: {
+      default: {
+        backgroundColor: 'transparent',
+        color: color,
+        border: `1px solid ${color}`,
+      },
+      hover: {
+        backgroundColor: color,
+        color: 'white',
+      },
     },
-    hover: {
-      backgroundColor: '#E5E5EA',
-      color: '#000000',
+    [BUTTON_VARIANTS.TEXT]: {
+      default: {
+        backgroundColor: 'transparent',
+        color: color,
+        border: '1px solid transparent',
+      },
+      hover: {
+        backgroundColor: lightenColor(color),
+        color: color,
+      },
     },
-  },
-  [BUTTON_VARIANTS.OUTLINED]: {
-    default: {
-      backgroundColor: 'transparent',
-      color: '#007AFF',
-      border: '1px solid #007AFF',
-    },
-    hover: {
-      backgroundColor: '#007AFF',
-      color: 'white',
-    },
-  },
-  [BUTTON_VARIANTS.TEXT]: {
-    default: {
-      backgroundColor: 'transparent',
-      color: '#007AFF',
-      border: '1px solid transparent',
-    },
-    hover: {
-      backgroundColor: '#F2F2F7',
-      color: '#007AFF',
-    },
-  },
+  };
 };
 
 const sizeStyles = {
@@ -147,6 +169,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       variant = BUTTON_VARIANTS.OUTLINED,
       size = BUTTON_SIZES.MEDIUM,
+      color = '#007AFF',
       disabled = false,
       isLoading = false,
       fullWidth = false,
@@ -158,11 +181,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const [isHovered, setIsHovered] = React.useState<boolean>(false);
-    const [isFocused, setIsFocused] = React.useState<boolean>(false);
-    const [isPressed, setIsPressed] = React.useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [isFocused, setIsFocused] = useState<boolean>(false);
+    const [isPressed, setIsPressed] = useState<boolean>(false);
 
-    // Get styles based on variant and size
+    // Get styles based on variant, size, and color
+    const variantStyles = getVariantStyles(color);
     const currentVariantStyles = variantStyles[variant];
     const currentSizeStyles = sizeStyles[size];
     const activeStyles = isHovered ? currentVariantStyles.hover : currentVariantStyles.default;

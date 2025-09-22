@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import DashboardHeader from '../components/common/dashBoard/dashBoardHeader';
 import type { Tab, ActionButton } from '../types/dashBoardTypes';
 import { Home, Settings, Plus, UsersIcon, BarChart3 } from "lucide-react";
-import Dock from '../components/ui/Dock';
-import type { DockItemData } from '../components/ui/Dock';
+
 const Users: React.FC = () => {
   const [activeTab, setActiveTab] = useState('users');
 
@@ -12,7 +11,10 @@ const Users: React.FC = () => {
     { id: 'home', name: 'Home', icon: <Home />, path: '/' },
     { id: 'users', name: 'Users', icon: <UsersIcon />, path: '/users' },
     { id: 'analytics', name: 'Analytics', icon: <BarChart3 />, path: '/analytics' },
-    { id: 'settings', name: 'Settings', icon: <Settings />, path: '/settings' },
+    { id: 'settings1', name: 'phase', icon: <Settings />, path: '/settings' },
+    { id: 'settings2', name: 'product', icon: <Settings />, path: '/settings' },
+    { id: 'settings3', name: 'dummmy', icon: <Settings />, path: '/settings' },
+    
   ];
 
   const actionButtons: ActionButton[] = [

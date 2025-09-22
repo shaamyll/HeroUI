@@ -186,7 +186,7 @@ export default function Dock({
   panelHeight = 64,
   dockHeight = 256,
   baseItemSize = 50,
-  bottomOffset = 8 // New prop to control vertical position
+  bottomOffset = 16 // New prop to control vertical position
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
   const isHovered = useMotionValue(0);

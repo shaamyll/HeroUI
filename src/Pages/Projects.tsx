@@ -105,7 +105,7 @@ function Projects() {
   ];
 
   const filterContent = [
-    { name: "Select Category", uid: "category", content: categoryOptions, showSearch: false },
+    { name: "Category", uid: "category", content: categoryOptions, showSearch: false },
   ];
 
   const navigate = useNavigate();
@@ -149,6 +149,7 @@ function Projects() {
           type="Project"
           TableContent={products}
           TableStructure={TableStructure}
+          searchPlaceholder="Search by project name..."
           CardComponent={ProductCard}
           filters={filterContent}
           onFiltersChange={handleFiltersChange}

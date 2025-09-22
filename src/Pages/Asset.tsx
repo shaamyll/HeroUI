@@ -179,6 +179,7 @@ function Asset() {
                     type="Asset"
                     TableContent={assets}
                     TableStructure={TableStructure}
+                    searchPlaceholder="Search by Asset name..."
                     CardComponent={AssetCard}
                     filters={filterContent}
                      onFiltersChange={

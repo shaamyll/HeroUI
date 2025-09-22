@@ -41,6 +41,7 @@ interface TableComponentProps {
   TableStructure?: Array<{
     render: any; name: string; headerId: string; sortable?: boolean
   }>;
+  searchPlaceholder: string;
   CardComponent?: React.ComponentType<CardComponent>;
   statusOptions?: Array<{ name: string; uid: string }>;
   filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>, showSearch?: boolean }>;
@@ -60,6 +61,7 @@ interface TableComponentProps {
 export default function TableComponent({
   TableContent,
   TableStructure = [],
+  searchPlaceholder,
   CardComponent,
   statusOptions = [],
   filters = [],
@@ -211,7 +213,7 @@ export default function TableComponent({
       setActiveFilters(newFilters);
       setPage(1);
 
-      // ✅ send array format to parent
+      // callback array format to parent
       if (typeof onFiltersChange === "function") {
         const arrFilters = Object.entries(newFilters).map(([uid, set]) => ({
           uid,
@@ -259,7 +261,7 @@ export default function TableComponent({
             </h2>
           </div>
 
-          {/* Search Bar (always visible, single version) */}
+          {/* Search Bar always visible */}
           {isSearch && (
             <div className="flex-grow min-w-[200px]">
               <Input
@@ -271,7 +273,7 @@ export default function TableComponent({
                   input:
                     "placeholder:text-gray-400 placeholder:font-semibold",
                 }}
-                placeholder={`Search ${type}s..`}
+                placeholder={searchPlaceholder}
                 startContent={<Search className="w-4 h-4 text-default-400" />}
                 value={searchValue}
                 variant="faded"
@@ -342,12 +344,10 @@ export default function TableComponent({
                     ? Array.from(activeFilters[filter.uid])[0]
                     : null
                 }
-                placeholder={filter.name} 
+                placeholder={`Select ${filter.name}`} 
                 searchPlaceholder={`Search ${filter.name}..`}
                 onChange={(val) => handleFilterChange(filter.uid, val)}
-                buttonClassName="w-full sm:w-[200px] justify-between truncate bg-gray-50 text-small"
-                dropdownClassName="w-full sm:w-[200px]"
-                matchWidth
+                 buttonClassName="min-w-[180px] max-w-[250px] flex-auto justify-between bg-gray-50 text-small"
                 showSearch={filter.showSearch || false}
                 disabled={isLoading}
               />
@@ -367,6 +367,7 @@ export default function TableComponent({
             </Button>
           )}
         </div>
+
       </div>
     );
   }, [

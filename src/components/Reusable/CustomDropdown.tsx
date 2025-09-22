@@ -30,6 +30,7 @@ interface CustomDropdownProps {
   showSearch?: boolean;
   matchWidth?: boolean;
   disabled?: boolean;
+  width?: string | number; 
 }
 
 function CustomDropdown({
@@ -41,12 +42,16 @@ function CustomDropdown({
   dropdownClassName,
   searchPlaceholder = "Search options...",
   showSearch = false,
+  matchWidth = true, 
   disabled = false,
+  width,
 }: CustomDropdownProps) {
   
   const [searchValue, setSearchValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [triggerWidth, setTriggerWidth] = useState<number | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   // Filter options
@@ -62,6 +67,41 @@ function CustomDropdown({
   useEffect(() => {
     setHighlightedIndex(0);
   }, [filteredOptions]);
+
+  // Measure width
+  useEffect(() => {
+    const measureTriggerWidth = () => {
+      if (triggerRef.current && matchWidth) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        setTriggerWidth(rect.width);
+      }
+    };
+
+    // Initial measurement
+    measureTriggerWidth();
+
+    // Add resize observer for responsive width updates
+    const resizeObserver = new ResizeObserver(measureTriggerWidth);
+    if (triggerRef.current) {
+      resizeObserver.observe(triggerRef.current);
+    }
+
+    // Add window resize listener as fallback
+    window.addEventListener('resize', measureTriggerWidth);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', measureTriggerWidth);
+    };
+  }, [matchWidth]);
+
+  // Re-measure when dropdown opens to ensure accurate width
+  useEffect(() => {
+    if (isOpen && matchWidth && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setTriggerWidth(rect.width);
+    }
+  }, [isOpen, matchWidth]);
   
   // Display label
   const displayValue = value ? value.label : placeholder;
@@ -75,7 +115,7 @@ function CustomDropdown({
     if (onChange) {
       onChange(selectedOption || null);
     }
-    setIsOpen(false); // Close dropdown after selection
+    setIsOpen(false);
   };
 
   // Update highlighted index on mouse enter
@@ -128,9 +168,9 @@ function CustomDropdown({
 
     else if (e.key === "Enter") {
       e.preventDefault();
-      const selected = filteredOptions[highlightedIndex]; // Fixed: use filteredOptions instead of options
+      const selected = filteredOptions[highlightedIndex];
       if (selected && onChange) {
-        onChange(selected); // Fixed: pass full object instead of just value
+        onChange(selected);
         setIsOpen(false);
       }
     }
@@ -162,6 +202,13 @@ function CustomDropdown({
     setSearchValue("");
   }, [value]);
 
+  // Calculate dropdown content width
+  const dropdownContentWidth = matchWidth && triggerWidth 
+    ? `${triggerWidth}px` 
+    : width 
+      ? typeof width === 'number' ? `${width}px` : width
+      : 'auto';
+
   return (
     <Dropdown
       isOpen={isOpen}
@@ -172,8 +219,12 @@ function CustomDropdown({
     >
       <DropdownTrigger>
         <Button
+          ref={triggerRef}
           className={`${buttonClassName} flex items-center justify-between text-left ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
           variant="bordered"
+          style={{ 
+            width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined 
+          }}
           endContent={<ChevronDown size={16} className="text-gray-800 font-medium" />}
           disabled={disabled} 
         >
@@ -190,7 +241,12 @@ function CustomDropdown({
         onSelectionChange={handleSelectionChange}
         variant="flat"
         classNames={{
-          list: "max-h-[200px] overflow-y-auto custom-scrollbar p-1 [&_*]:outline-none [&_*]:ring-0"
+          list: "max-h-[200px] overflow-y-auto custom-scrollbar p-0 [&_*]:outline-none [&_*]:ring-0"
+        }}
+        style={{
+          width: dropdownContentWidth,
+          minWidth: dropdownContentWidth,
+          maxWidth: dropdownContentWidth
         }}
         topContent={
           showSearch ? (
@@ -204,7 +260,7 @@ function CustomDropdown({
                   variant="faded"
                   size="sm"
                   autoFocus={isOpen && showSearch}
-                  onKeyDown={handleKeyDown} //keyboard handler
+                  onKeyDown={handleKeyDown}
                   classNames={{
                     input: "text-sm focus:outline-none [&:focus]:outline-none !outline-none",
                     inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&:focus-within]:border-gray-400 !outline-none"
@@ -234,7 +290,7 @@ function CustomDropdown({
               endContent={option.endContent}
               className={`${option.className} ${showSearch && index === 0 ? 'mt-0' : ''} ${
                 index === highlightedIndex ? 'bg-gray-100' : ''
-              } focus:ring-0 focus:bg-gray-100 hover:bg-gray-50 data-[focus=true]:bg-gray-100 data-[focus=true]:outline-none data-[focus=true]:ring-0 data-[hover=true]:bg-gray-50 data-[hover=true]:outline-none [&:focus]:outline-none [&:hover]:outline-none [&[data-focus=true]]:outline-none [&[data-hover=true]]:outline-none !outline-none`}
+              } focus:ring-0 focus:bg-gray-100 hover:bg-gray-100 data-[focus=true]:bg-gray-100 data-[focus=true]:outline-none data-[focus=true]:ring-0 data-[hover=true]:bg-gray-50 data-[hover=true]:outline-none [&:focus]:outline-none [&:hover]:outline-none [&[data-focus=true]]:outline-none [&[data-hover=true]]:outline-none !outline-none`}
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)} 

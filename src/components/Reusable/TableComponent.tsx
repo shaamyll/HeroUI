@@ -12,6 +12,8 @@ import {
   Skeleton,
   Tab,
   Tabs,
+  SelectItem,
+  Select,
 } from "@heroui/react";
 import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
 import { motion } from "framer-motion";
@@ -344,10 +346,10 @@ export default function TableComponent({
                     ? Array.from(activeFilters[filter.uid])[0]
                     : null
                 }
-                placeholder={`Select ${filter.name}`} 
+                placeholder={`Select ${filter.name}`}
                 searchPlaceholder={`Search ${filter.name}..`}
                 onChange={(val) => handleFilterChange(filter.uid, val)}
-                 buttonClassName="min-w-[180px] max-w-[250px] flex-auto justify-between bg-gray-50 text-small"
+                buttonClassName="min-w-[180px] max-w-[250px] flex-auto bg-gray-50 justify-between text-small"
                 showSearch={filter.showSearch || false}
                 disabled={isLoading}
               />
@@ -402,17 +404,22 @@ export default function TableComponent({
           ) : (
             <>
               <span className="font-medium text-gray-500">Rows per page:</span>
-              <select
-                className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 shadow-sm 
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition ml-2"
-                onChange={onRowsPerPageChange}
-                value={rowsPerPage}
-                disabled={isLoading}
+              <Select
+                size="sm"
+                variant="flat"
+                aria-label="Rows per page"
+                className="ml-2 w-[100px]"
+                selectedKeys={[String(rowsPerPage)]}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0];
+                  if (val) onRowsPerPageChange({ target: { value: val } } as any);
+                }}
+                isDisabled={isLoading}
               >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-              </select>
+                <SelectItem key="5">5</SelectItem>
+                <SelectItem key="10">10</SelectItem>
+                <SelectItem key="15">15</SelectItem>
+              </Select>
             </>
           )}
         </div>

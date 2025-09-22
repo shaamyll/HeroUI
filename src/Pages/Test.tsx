@@ -26,14 +26,14 @@ function Test() {
   }))
 
   return (
-    <div className="p-4">
+    <div className="p-4 min-h-screen">
       <h2 className="mb-2 text-lg font-semibold">Test Dropdown</h2>
       <CustomDropdown
         options={options}
         value={selectedValue}
         onChange={handleChange}
         placeholder="Select an option"
-        buttonClassName="w-1/2"
+        buttonClassName="w-full"
         showSearch={true}
       />
     </div>

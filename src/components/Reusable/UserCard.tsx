@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardBody, CardFooter, Divider, Chip, Tooltip } from "@heroui/react"
-import { Eye, PencilLine, Trash2 } from "lucide-react"
+import { Eye, SquarePen, Trash2 } from "lucide-react"
 
 // 🎨 Gradient colors
 const gradients = [
@@ -98,7 +98,7 @@ const UserCard = ({ item, onView, onEdit, onDelete }: UserCardProps) => {
             onClick={() => onEdit?.(item)}
             className="flex items-center justify-center w-6 h-6 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 active:opacity-70"
           >
-            <PencilLine className="w-4 h-4" />
+            <SquarePen className="w-4 h-4" />
           </button>
         </Tooltip>
 

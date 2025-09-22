@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import TableComponent from "../components/Reusable/TableComponent";
 import { Chip, Tooltip } from "@heroui/react";
 import { motion } from "framer-motion";
-import { Eye, PencilLine, Trash2 } from "lucide-react";
+import { Eye, SquarePen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ImageCard from "../components/Reusable/ImageCard";
 
@@ -75,7 +75,7 @@ function Projects() {
           {/* Edit Button */}
           <Tooltip content="Edit user">
             <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
-              <PencilLine className="w-4 h-4" />
+              <SquarePen className="w-4 h-4" />
             </button>
           </Tooltip>
 

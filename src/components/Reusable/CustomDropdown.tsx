@@ -25,12 +25,11 @@ interface CustomDropdownProps {
   value?: DropdownOption | null;
   onChange?: (option: DropdownOption | null) => void;
   buttonClassName?: string;
-  dropdownClassName?: string;
   searchPlaceholder?: string;
   showSearch?: boolean;
   matchWidth?: boolean;
   disabled?: boolean;
-  width?: string | number; 
+  width?: string | number;
 }
 
 function CustomDropdown({
@@ -39,14 +38,13 @@ function CustomDropdown({
   value,
   onChange,
   buttonClassName,
-  dropdownClassName,
   searchPlaceholder = "Search options...",
   showSearch = false,
-  matchWidth = true, 
+  matchWidth = true,
   disabled = false,
   width,
 }: CustomDropdownProps) {
-  
+
   const [searchValue, setSearchValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [triggerWidth, setTriggerWidth] = useState<number | null>(null);
@@ -102,7 +100,7 @@ function CustomDropdown({
       setTriggerWidth(rect.width);
     }
   }, [isOpen, matchWidth]);
-  
+
   // Display label
   const displayValue = value ? value.label : placeholder;
 
@@ -133,10 +131,10 @@ function CustomDropdown({
         const itemHeight = 48; // Approximate height of each item
         const containerHeight = scrollableContainer.clientHeight;
         const scrollTop = scrollableContainer.scrollTop;
-        
+
         const itemTop = index * itemHeight;
         const itemBottom = itemTop + itemHeight;
-        
+
         if (itemTop < scrollTop) {
           // Item is above visible area
           scrollableContainer.scrollTop = itemTop;
@@ -190,7 +188,7 @@ function CustomDropdown({
           return;
         }
 
-      }, 150); 
+      }, 150);
     }
     if (!isOpen) {
       setSearchValue('');
@@ -203,9 +201,9 @@ function CustomDropdown({
   }, [value]);
 
   // Calculate dropdown content width
-  const dropdownContentWidth = matchWidth && triggerWidth 
-    ? `${triggerWidth}px` 
-    : width 
+  const dropdownContentWidth = matchWidth && triggerWidth
+    ? `${triggerWidth}px`
+    : width
       ? typeof width === 'number' ? `${width}px` : width
       : 'auto';
 
@@ -214,19 +212,19 @@ function CustomDropdown({
       isOpen={isOpen}
       onOpenChange={(open) => setIsOpen(open)}
       classNames={{
-        content: `${dropdownClassName} rounded-lg bg-white shadow-lg p-0 overflow-hidden`,
+        content: ` rounded-lg bg-white shadow-lg p-0 overflow-hidden`,
       }}
     >
       <DropdownTrigger>
         <Button
           ref={triggerRef}
           className={`${buttonClassName} flex items-center justify-between text-left ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
-          variant="bordered"
-          style={{ 
-            width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined 
+          variant="faded"
+          style={{
+            width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined
           }}
           endContent={<ChevronDown size={16} className="text-gray-800 font-medium" />}
-          disabled={disabled} 
+          disabled={disabled}
         >
           <div className={value ? 'text-gray-900' : 'text-gray-700 font-medium'}>
             {displayValue}
@@ -241,7 +239,7 @@ function CustomDropdown({
         onSelectionChange={handleSelectionChange}
         variant="flat"
         classNames={{
-          list: "max-h-[200px] overflow-y-auto custom-scrollbar p-0 [&_*]:outline-none [&_*]:ring-0"
+          list: "max-h-[200px] overflow-y-auto custom-scrollbar p-1 [&_*]:outline-none [&_*]:ring-0"
         }}
         style={{
           width: dropdownContentWidth,
@@ -288,12 +286,16 @@ function CustomDropdown({
               key={option.value}
               startContent={option.startContent}
               endContent={option.endContent}
-              className={`${option.className} ${showSearch && index === 0 ? 'mt-0' : ''} ${
-                index === highlightedIndex ? 'bg-gray-100' : ''
-              } focus:ring-0 focus:bg-gray-100 hover:bg-gray-100 data-[focus=true]:bg-gray-100 data-[focus=true]:outline-none data-[focus=true]:ring-0 data-[hover=true]:bg-gray-50 data-[hover=true]:outline-none [&:focus]:outline-none [&:hover]:outline-none [&[data-focus=true]]:outline-none [&[data-hover=true]]:outline-none !outline-none`}
+              className={`
+              ${option.className || ''}
+              ${showSearch && index === 0 ? 'mt-0' : ''}
+              ${index === highlightedIndex ? 'bg-gray-100' : ''}
+              focus:bg-gray-100 hover:bg-gray-100
+              outline-none ring-0 transition-none
+             `}
               color={option.color}
               textValue={option.label}
-              onMouseEnter={() => handleItemMouseEnter(index)} 
+              onMouseEnter={() => handleItemMouseEnter(index)}
               onFocus={(e) => {
                 if (showSearch && searchInputRef.current) {
                   e.preventDefault();
@@ -302,12 +304,13 @@ function CustomDropdown({
               }}
             >
               <div className="flex flex-col">
-                <span className="truncate font-base">{option.label}</span>
+                <span className="truncate text-sm">{option.label}</span>
                 {option.description && (
                   <span className="text-xs text-gray-500 mt-1">{option.description}</span>
                 )}
               </div>
             </DropdownItem>
+
           ))
         ) : (
           <DropdownItem

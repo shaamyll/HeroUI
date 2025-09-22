@@ -12,6 +12,7 @@ import DisplayComponents from './Pages/DisplayComponents';
 import StatCardUsage from './Pages/StatCardUsage';
 import Asset from './Pages/Asset';
 import Test from './Pages/Test';
+import DashBoardDumy from './Pages/DashBoardDumy';
 function App() {
   const hideNavbar = location.pathname === '/HomePage';
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path='/HomePage' element={<HomePage />} />
         <Route path='/displaycomponents' element={<DisplayComponents />} />
         <Route path='/statCardUsage' element={<StatCardUsage />} />
+        <Route path='/dashBoardDumy' element={<DashBoardDumy />} />
 
       </Routes>
     </>

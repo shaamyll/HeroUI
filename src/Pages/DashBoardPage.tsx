@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DashboardHeader from '../components/common/DashboardHeader';
 import DotGrid from '../components/DotGrid';
 import { Home, Settings, Plus, Trash2, UsersIcon, Pencil } from "lucide-react";
- 
+
 const Users: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home'); // Changed to match a tab that exists
   const [userCount] = useState(145); // Your user count from state/API
@@ -39,7 +39,19 @@ const Users: React.FC = () => {
       name: 'Demo',
       icon: <Pencil className="h-5 w-5" />,
       path: '/demo',
-    }
+    },
+    {
+      id: 'settings1',
+      name: 'art',
+      icon: <Settings className="h-5 w-5" />,
+      path: '/settings',
+    },
+    {
+      id: 'endha',
+      name: '...more',
+      icon: <Settings className="h-5 w-5" />,
+      path: '/settings',
+    },
   ];
 
   // Define action buttons
@@ -89,7 +101,7 @@ const Users: React.FC = () => {
     <div className="min-h-screen bg-gray-50 relative">
       {/* Full-page DotGrid background */}
       <div className="fixed inset-0 -z-10">
-        <DotGrid        
+        <DotGrid
           baseColor="#FAF9F7"
           activeColor="#FAF9F7"
         />
@@ -105,7 +117,8 @@ const Users: React.FC = () => {
           actionButtons={actionButtons}
           mobileFloatingButtons={mobileFloatingButtons}
           userPermissions={userPermissions}
-          bgColor="bg-violet-950"
+          bgColor=""
+          headerClassName="bg-[#27104F]"
           showMobileNav={true}
           mobileBreakpoint={768}
           dockProps={{
@@ -130,7 +143,7 @@ const Users: React.FC = () => {
           <p className="text-gray-600">
             Current active tab: <span className="font-semibold capitalize">{activeTab}</span>
           </p>
-          
+
           {/* Add some sample content based on active tab */}
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
             {activeTab === 'home' && (

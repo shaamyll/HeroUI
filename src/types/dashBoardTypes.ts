@@ -1,4 +1,4 @@
-// types/dashBoardTypes.ts - Simplified and consistent with implementation
+// types/dashBoardTypes.ts - Updated interface
 import type { ReactNode } from 'react';
 
 export interface Tab {
@@ -47,11 +47,13 @@ export interface DotGridConfiguration {
   enabled?: boolean;
 }
 
-// FIXED: Simple DashboardHeaderProps interface - matches implementation exactly
+// UPDATED: DashboardHeaderProps now includes activeTab and onTabChange
 export interface DashboardHeaderProps {
   title: string;
   subtitle: string;
   tabs: Tab[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
   actionButtons?: ActionButton[];
   bgColor?: string;
 }

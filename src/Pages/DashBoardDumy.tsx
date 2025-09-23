@@ -35,12 +35,12 @@ const Users: React.FC = () => {
           title="User Management"
           subtitle="Manage your team members"
           tabs={tabs}
-         
           bgColor="bg-violet-950"
           actionButtons={actionButtons}
-
+          activeTab={activeTab}        // controlled prop
+          onTabChange={setActiveTab}
         />
-      
+
 
 
         {/* Your page content */}

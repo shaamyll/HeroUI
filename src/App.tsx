@@ -9,6 +9,7 @@ import Login from './Pages/Login';
 import CardView from './Pages/CardView';
 import HomePage from './Pages/HomePage';
 import DisplayComponents from './Pages/DisplayComponents';
+import DisplayUsersForm from './Pages/DispalyUsersForm';
 import StatCardUsage from './Pages/StatCardUsage';
 import Asset from './Pages/Asset';
 import Test from './Pages/Test';
@@ -30,6 +31,7 @@ function App() {
         <Route path='/cardView' element={<CardView />} />
         <Route path='/HomePage' element={<HomePage />} />
         <Route path='/displaycomponents' element={<DisplayComponents />} />
+        <Route path='/displayusersform' element={<DisplayUsersForm />} />
         <Route path='/statCardUsage' element={<StatCardUsage />} />
 
       </Routes>

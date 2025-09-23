@@ -25,6 +25,7 @@ export function NavbarComponent() {
     // { name: "Footer", link: "/Footer" },
     { name: "cardview", link: "/cardView" },
     { name: "Components", link: "/displaycomponents" },
+    { name: "UsersForm", link: "/displayusersform" },
     { name: "statCard", link: "/statCardUsage" },
   ];
 

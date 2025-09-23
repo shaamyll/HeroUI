@@ -35,6 +35,7 @@ function Test() {
         placeholder="Select an option"
         buttonClassName="w-full"
         showSearch={true}
+        selectionMode="multiple"
       />
     </div>
   );

@@ -19,7 +19,6 @@ interface DropdownOption {
 }
 
 interface CustomDropdownProps {
-  selectionMode?:string;
   options?: DropdownOption[];
   placeholder?: string;
   value?: DropdownOption | null;
@@ -33,7 +32,6 @@ interface CustomDropdownProps {
 }
 
 function CustomDropdown({
-  selectionMode='single',
   options = [],
   placeholder = "Select an option",
   value,
@@ -307,6 +305,12 @@ function CustomDropdown({
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)}
+                onFocus={(e) => {
+                if (showSearch && searchInputRef.current) {
+                  e.preventDefault();
+                  searchInputRef.current.focus();
+                }
+              }}
             >
               <div className="flex flex-col">
                 <span className="truncate text-sm">{option.label}</span>

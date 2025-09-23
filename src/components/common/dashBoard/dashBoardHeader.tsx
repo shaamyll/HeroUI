@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+// UPDATE: dashboardheader.tsx - Use utils properly
+import React, { useEffect, useState, useCallback } from 'react';
 import { clsx } from 'clsx';
 import {
   HeaderBackground,
@@ -7,88 +8,15 @@ import {
   MobileActionMenu,
   ActionButtonComponent
 } from './components';
-
-// Types
-interface Tab {
-  id: string;
-  name: string;
-  icon?: React.ReactNode;
-  path: string;
-  isActive?: boolean;
-}
-
-interface ActionButton {
-  id: string;
-  label: string;
-  icon?: React.ReactNode;
-  onClick: () => void;
-  variant?: 'primary' | 'secondary';
-  className?: string;
-  permissions?: string[];
-}
-
-interface DashboardHeaderProps {
-  title: string;
-  subtitle: string;
-  tabs: Tab[];
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
-  actionButtons?: ActionButton[];
-  showMobileNav?: boolean;
-  mobileBreakpoint?: number;
-  mobileFloatingButtons?: ActionButton[];
-  userPermissions?: string[];
-  bgColor?: string;
-  bgImage?: string;
-  headerClassName?: string;
-  titleClassName?: string;
-  subtitleClassName?: string;
-  additionalContent?: React.ReactNode;
-  dockProps?: {
-    distance?: number;
-    panelHeight?: number;
-    baseItemSize?: number;
-    dockHeight?: number;
-    magnification?: number;
-    spring?: {
-      mass?: number;
-      stiffness?: number;
-      damping?: number;
-    };
-    offsetTop?: number;
-  };
-  dotGridConfig?: {
-    dotSize?: number;
-    gap?: number;
-    baseColor?: string;
-    activeColor?: string;
-    proximity?: number;
-    shockRadius?: number;
-    shockStrength?: number;
-    resistance?: number;
-    returnDuration?: number;
-    opacity?: number;
-    enabled?: boolean;
-  };
-}
-
-// Utilities
-const isSSR = typeof window === 'undefined';
-const safeWindow = isSSR ? null : window;
-const safeDocument = typeof document !== 'undefined' ? document : null;
-const safeNavigator = typeof navigator !== 'undefined' ? navigator : null;
-
-const isValidImageUrl = (url: string): boolean => {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.protocol === 'data:' || 
-           urlObj.protocol === 'blob:' || 
-           urlObj.protocol === 'https:' ||
-           (urlObj.protocol === 'http:' && urlObj.hostname === 'localhost');
-  } catch {
-    return false;
-  }
-};
+import {
+  isValidImageUrl,
+  filterButtonsByPermissions,
+  checkDeviceCapabilities,
+  checkIsMobile,
+  createDebouncedResizeHandler,
+  safeWindow
+} from './utils';
+import type { DashboardHeaderProps } from '../../../types/dashBoardTypes';
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   title,
@@ -122,63 +50,42 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     enabled: true
   }
 }) => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => checkIsMobile(mobileBreakpoint));
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
-  const [isLowPowerDevice, setIsLowPowerDevice] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const fabRef = useRef<HTMLButtonElement>(null);
+  const [isLowPowerDevice, setIsLowPowerDevice] = useState(() => checkDeviceCapabilities());
 
-  // Check mobile breakpoint and device capabilities
+  // Handle responsive breakpoint changes
   useEffect(() => {
-    if (isSSR || !safeWindow) return;
+    if (!safeWindow) return;
 
-    const checkMobile = () => {
-      setIsMobile(safeWindow!.innerWidth < mobileBreakpoint);
+    const updateMobileState = () => {
+      setIsMobile(checkIsMobile(mobileBreakpoint));
     };
 
-    const checkDeviceCapabilities = () => {
-      if (!safeWindow || !safeNavigator) return;
-      
-      const isLowPower = 
-        safeWindow.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-        (safeNavigator.hardwareConcurrency && safeNavigator.hardwareConcurrency <= 2) ||
-        ('connection' in safeNavigator && (safeNavigator as any).connection?.effectiveType === 'slow-2g');
-      
-      setIsLowPowerDevice(isLowPower);
-    };
-
-    checkMobile();
-    checkDeviceCapabilities();
+    const { handler, cleanup } = createDebouncedResizeHandler(updateMobileState);
     
-    safeWindow.addEventListener('resize', checkMobile);
-    return () => safeWindow.removeEventListener('resize', checkMobile);
+    safeWindow.addEventListener('resize', handler);
+    return cleanup;
   }, [mobileBreakpoint]);
 
   const toggleActionMenu = useCallback(() => {
-    setIsActionMenuOpen(!isActionMenuOpen);
-  }, [isActionMenuOpen]);
+    setIsActionMenuOpen(prev => !prev);
+  }, []);
 
-  // Filter action buttons based on permissions
-  const getFilteredButtons = useCallback((buttons: ActionButton[]) => {
-    return buttons.filter(button => {
-      if (!button.permissions || button.permissions.length === 0) return true;
-      return button.permissions.some(permission => userPermissions.includes(permission));
-    });
-  }, [userPermissions]);
+  const closeActionMenu = useCallback(() => {
+    setIsActionMenuOpen(false);
+  }, []);
 
-  const filteredActionButtons = useMemo(() => getFilteredButtons(actionButtons), [actionButtons, getFilteredButtons]);
-  const filteredMobileButtons = useMemo(() => getFilteredButtons(mobileFloatingButtons), [mobileFloatingButtons, getFilteredButtons]);
+  // Filter buttons using utility function
+  const filteredActionButtons = filterButtonsByPermissions(actionButtons, userPermissions);
+  const filteredMobileButtons = filterButtonsByPermissions(mobileFloatingButtons, userPermissions);
 
-  const headerStyle = useMemo(() => {
-    if (bgImage && isValidImageUrl(bgImage)) {
-      return { 
-        backgroundImage: `url(${bgImage})`, 
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center' 
-      };
-    }
-    return {};
-  }, [bgImage]);
+  // Header style with safe image validation
+  const headerStyle = bgImage && isValidImageUrl(bgImage) ? {
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  } : {};
 
   return (
     <div className="mb-8 pt-8">
@@ -278,7 +185,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           userPermissions={userPermissions}
           isOpen={isActionMenuOpen}
           onToggle={toggleActionMenu}
-          onClose={() => setIsActionMenuOpen(false)}
+          onClose={closeActionMenu}
         />
       )}
     </div>

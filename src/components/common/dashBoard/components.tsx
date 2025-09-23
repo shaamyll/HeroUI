@@ -1,49 +1,18 @@
-// components.tsx
+// dashboard/components.tsx
 import React, { memo, useCallback, useRef, useEffect, useMemo } from 'react';
 import { HomeIcon } from "lucide-react";
 import { clsx } from 'clsx';
 import Dock from '../../ui/Dock';
 import DotGrid from "../../DotGrid";
 import ErrorBoundary from '../ErrorBoundary';
+import type { Tab, ActionButton, DotGridConfiguration } from'../../../types/dashBoardTypes';
 
-// Import types from your types file
-interface Tab {
-  id: string;
-  name: string;
-  icon?: React.ReactNode;
-  path: string;
-  isActive?: boolean;
-}
-
-interface ActionButton {
-  id: string;
-  label: string;
-  icon?: React.ReactNode;
-  onClick: () => void;
-  variant?: 'primary' | 'secondary';
-  className?: string;
-  permissions?: string[];
-}
-
+// Additional interface for internal use only
 interface DockItemData {
   icon: React.ReactNode;
   label: React.ReactNode;
   onClick: () => void;
   className?: string;
-}
-
-interface DotGridConfiguration {
-  dotSize?: number;
-  gap?: number;
-  baseColor?: string;
-  activeColor?: string;
-  proximity?: number;
-  shockRadius?: number;
-  shockStrength?: number;
-  resistance?: number;
-  returnDuration?: number;
-  opacity?: number;
-  enabled?: boolean;
 }
 
 // SSR-safe utilities
@@ -56,7 +25,7 @@ export const PermissionWrapper: React.FC<{
   requiredPermissions: string[];
   children: React.ReactNode;
 }> = ({ userPermissions, requiredPermissions, children }) => {
-  const hasPermission = !requiredPermissions.length || 
+  const hasPermission = !requiredPermissions.length ||
     requiredPermissions.some(p => userPermissions.includes(p));
   return hasPermission ? <>{children}</> : null;
 };
@@ -76,12 +45,20 @@ export const ActionButtonComponent = memo<{
 
   return (
     <PermissionWrapper userPermissions={userPermissions} requiredPermissions={button.permissions || []}>
-      <button type="button" onClick={handleClick} className={className} aria-label={button.label} role={role}>
+      <button 
+        type="button" 
+        onClick={handleClick} 
+        className={className} 
+        aria-label={button.label} 
+        role={role}
+      >
         {button.icon}{button.label}
       </button>
     </PermissionWrapper>
   );
 });
+
+ActionButtonComponent.displayName = 'ActionButtonComponent';
 
 // Mobile Navigation
 export const SimpleMobileNav: React.FC<{
@@ -98,7 +75,9 @@ export const SimpleMobileNav: React.FC<{
           onClick={() => onTabChange(tab.id)}
           className={clsx(
             'flex flex-col items-center px-3 py-2 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2',
-            activeTab === tab.id ? 'text-violet-600 bg-violet-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            activeTab === tab.id 
+              ? 'text-violet-600 bg-violet-50' 
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
           )}
           aria-current={activeTab === tab.id ? 'page' : undefined}
         >
@@ -116,7 +95,7 @@ export const HeaderBackground: React.FC<{
   isLowPowerDevice: boolean;
 }> = ({ dotGridConfig, isLowPowerDevice }) => {
   if (!dotGridConfig.enabled || isLowPowerDevice) return null;
-  
+
   return (
     <div className="absolute inset-0 pointer-events-none -m-4" style={{ opacity: dotGridConfig.opacity }}>
       <ErrorBoundary fallback={<div className="absolute inset-0 bg-gradient-to-br from-violet-100 to-violet-200 opacity-20" />}>
@@ -137,7 +116,7 @@ export const HeaderBackground: React.FC<{
   );
 };
 
-// Desktop Dock Navigation Component  
+// Desktop Dock Navigation Component
 export const DesktopDockNavigation: React.FC<{
   tabs: Tab[];
   activeTab: string;
@@ -146,7 +125,7 @@ export const DesktopDockNavigation: React.FC<{
   isMobile: boolean;
 }> = ({ tabs, activeTab, onTabChange, dockProps, isMobile }) => {
   // Convert tabs to dock items
-  const dockItems: DockItemData[] = useMemo(() => 
+  const dockItems: DockItemData[] = useMemo(() =>
     tabs.map(tab => ({
       icon: (
         <div className="flex items-center">
@@ -165,7 +144,7 @@ export const DesktopDockNavigation: React.FC<{
   if (isMobile || !dockItems.length) return null;
 
   return (
-    <nav 
+    <nav
       className="relative w-full px-3 sm:px-4 z-20"
       role="navigation"
       aria-label="Main navigation"
@@ -177,7 +156,7 @@ export const DesktopDockNavigation: React.FC<{
           paddingBottom: '4px'
         }}
       >
-        <div 
+        <div
           className="relative w-full px-3 sm:px-4 z-20"
           style={{ marginTop: `${dockProps.offsetTop || -96}px` }}
         >
@@ -235,12 +214,14 @@ export const MobileActionMenu: React.FC<{
 
   useEffect(() => {
     if (isSSR || !safeDocument) return;
+    
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (isOpen && !target?.closest('#mobile-action-menu') && !target?.closest('#mobile-fab')) {
         onClose();
       }
     };
+    
     safeDocument.addEventListener('mousedown', handleClickOutside);
     return () => safeDocument.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, onClose]);
@@ -248,12 +229,12 @@ export const MobileActionMenu: React.FC<{
   return (
     <div className="block lg:hidden">
       <div className="fixed bottom-24 right-4 z-50">
-        <button 
-          ref={fabRef} 
-          id="mobile-fab" 
-          type="button" 
-          onClick={onToggle} 
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-all hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2" 
+        <button
+          ref={fabRef}
+          id="mobile-fab"
+          type="button"
+          onClick={onToggle}
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-all hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
           aria-expanded={isOpen}
         >
           {isOpen ? (
@@ -267,16 +248,21 @@ export const MobileActionMenu: React.FC<{
           )}
         </button>
         {isOpen && (
-          <div ref={menuRef} id="mobile-action-menu" className="absolute bottom-14 right-0 z-50 rounded-lg bg-white p-2 shadow-lg border" style={{ minWidth: '180px' }}>
+          <div 
+            ref={menuRef} 
+            id="mobile-action-menu" 
+            className="absolute bottom-14 right-0 z-50 rounded-lg bg-white p-2 shadow-lg border" 
+            style={{ minWidth: '180px' }}
+          >
             <div className="flex flex-col space-y-2">
               {buttons.map((button) => (
-                <ActionButtonComponent 
-                  key={button.id} 
-                  button={button} 
-                  userPermissions={userPermissions} 
-                  className="flex items-center gap-3 whitespace-nowrap rounded-md px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100" 
-                  onClick={onClose} 
-                  role="menuitem" 
+                <ActionButtonComponent
+                  key={button.id}
+                  button={button}
+                  userPermissions={userPermissions}
+                  className="flex items-center gap-3 whitespace-nowrap rounded-md px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+                  onClick={onClose}
+                  role="menuitem"
                 />
               ))}
             </div>

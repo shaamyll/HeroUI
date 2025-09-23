@@ -9,7 +9,7 @@ import {
 } from "@heroui/react";
 import { ChevronDown, Search, X } from "lucide-react";
 
-interface DropdownOption {
+export interface DropdownOption {
   value: string;
   label: string;
   startContent?: React.ReactNode;
@@ -19,6 +19,7 @@ interface DropdownOption {
 }
 
 interface CustomDropdownProps {
+  selectionMode?:string;
   options?: DropdownOption[];
   placeholder?: string;
   value?: DropdownOption | null;
@@ -32,6 +33,7 @@ interface CustomDropdownProps {
 }
 
 function CustomDropdown({
+  selectionMode='single',
   options = [],
   placeholder = "Select an option",
   value,

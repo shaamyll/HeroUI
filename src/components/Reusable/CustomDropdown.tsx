@@ -9,7 +9,7 @@ import {
 } from "@heroui/react";
 import { ChevronDown, Search, X } from "lucide-react";
 
-interface DropdownOption {
+export interface DropdownOption {
   value: string;
   label: string;
   startContent?: React.ReactNode;

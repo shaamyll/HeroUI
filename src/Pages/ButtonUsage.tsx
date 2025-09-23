@@ -1,7 +1,7 @@
 import Button, { BUTTON_VARIANTS, BUTTON_SIZES } from "@/components/Reusable/Button";
 
 import React, { useState, useEffect } from "react";
-
+import ThemeToggle from "../components/Theme";
 // Usage Demo Component
 export default function ButtonUsageDemo() {
   // State type = an object where keys are strings and values are booleans
@@ -30,6 +30,9 @@ export default function ButtonUsageDemo() {
       <h1 style={{ marginBottom: '40px', color: '#1d1d1f', fontSize: '32px', fontWeight: '600' }}>
         Button Component Usage Examples
       </h1>
+      <div>
+        <ThemeToggle/>
+      </div>
 
       {/* Button Variants */}
       <section style={{ marginBottom: '40px' }}>

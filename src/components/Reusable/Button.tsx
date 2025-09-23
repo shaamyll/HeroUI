@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useState, useMemo } from 'react';
 import type { ButtonHTMLAttributes } from 'react';
 
 // Define button variants and sizes as constants
@@ -43,27 +43,71 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   'aria-label'?: string;
   /** Test ID for testing */
   'data-testid'?: string;
+  /** Loading text to show when isLoading is true */
+  loadingText?: string;
 }
 
-// Helper function to darken a hex color
+// Standardized focus ring color for better accessibility
+const FOCUS_RING_COLOR = '#2684FF';
+
+// Helper function to normalize hex color (handle shorthand)
+const normalizeHex = (hex: string): string => {
+  const cleanHex = hex.replace('#', '');
+  if (cleanHex.length === 3) {
+    return '#' + cleanHex.split('').map(char => char + char).join('');
+  }
+  return '#' + cleanHex.padStart(6, '0');
+};
+
+// Helper function to validate and parse hex color
+const parseHexColor = (hex: string): { r: number; g: number; b: number } | null => {
+  try {
+    const normalized = normalizeHex(hex);
+    const num = parseInt(normalized.slice(1), 16);
+    if (isNaN(num)) return null;
+    
+    return {
+      r: (num >> 16) & 255,
+      g: (num >> 8) & 255,
+      b: num & 255,
+    };
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to convert RGB back to hex
+const rgbToHex = (r: number, g: number, b: number): string => {
+  const clamp = (val: number) => Math.max(0, Math.min(255, Math.round(val)));
+  const toHex = (val: number) => clamp(val).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
+// Helper function to darken a hex color with better error handling
 const darkenColor = (hex: string, amount: number = 20): string => {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.max(0, (num >> 16) - amount);
-  const g = Math.max(0, ((num >> 8) & 0x00FF) - amount);
-  const b = Math.max(0, (num & 0x0000FF) - amount);
-  return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+  const parsed = parseHexColor(hex);
+  if (!parsed) return hex; // Return original if parsing fails
+  
+  return rgbToHex(
+    parsed.r - amount,
+    parsed.g - amount,
+    parsed.b - amount
+  );
 };
 
-// Helper function to lighten a hex color for backgrounds
+// Helper function to lighten a hex color with better error handling
 const lightenColor = (hex: string, amount: number = 90): string => {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.min(255, (num >> 16) + amount);
-  const g = Math.min(255, ((num >> 8) & 0x00FF) + amount);
-  const b = Math.min(255, (num & 0x0000FF) + amount);
-  return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+  const parsed = parseHexColor(hex);
+  if (!parsed) return hex; // Return original if parsing fails
+  
+  return rgbToHex(
+    parsed.r + amount,
+    parsed.g + amount,
+    parsed.b + amount
+  );
 };
 
-// Function to generate variant styles based on color
+// Function to generate variant styles based on color (memoized)
 const getVariantStyles = (color: string) => {
   return {
     [BUTTON_VARIANTS.PRIMARY]: {
@@ -136,30 +180,73 @@ const sizeStyles = {
   },
 };
 
-// Loading spinner component
+// CSS-in-JS styles to avoid inline style performance issues
+const buttonCSS = `
+  .button-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 50px;
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .button-base:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .button-base:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .button-base:focus-visible {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px ${FOCUS_RING_COLOR}66, 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .button-pressed {
+    transform: scale(0.98);
+  }
+
+  .button-full-width {
+    width: 100%;
+  }
+
+  @keyframes button-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .button-loading-spinner {
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: button-spin 1s linear infinite;
+  }
+`;
+
+// Loading spinner component with better sizing
 const LoadingIndicator: React.FC<{ size: number }> = ({ size }) => (
-  <>
-    <style>
-      {`
-        @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}
-    </style>
-    <div
-      style={{
-        width: size,
-        height: size,
-        border: '2px solid transparent',
-        borderTop: '2px solid currentColor',
-        borderRadius: '50%',
-        animation: 'rotate 1s linear infinite',
-      }}
-      role="progressbar"
-      aria-label="Loading"
-    />
-  </>
+  <div
+    className="button-loading-spinner"
+    style={{
+      width: size,
+      height: size,
+    }}
+    role="progressbar"
+    aria-label="Loading"
+  />
 );
 
 // Main Button component
@@ -175,21 +262,36 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth = false,
       className = '',
       onClick,
+      loadingText,
       'aria-label': ariaLabel,
       'data-testid': testId,
+      type, // Extract type to handle user override
       ...htmlAttributes
     },
     ref
   ) => {
     const [isHovered, setIsHovered] = useState<boolean>(false);
-    const [isFocused, setIsFocused] = useState<boolean>(false);
     const [isPressed, setIsPressed] = useState<boolean>(false);
 
-    // Get styles based on variant, size, and color
-    const variantStyles = getVariantStyles(color);
+    // Memoize expensive computations
+    const variantStyles = useMemo(() => getVariantStyles(color), [color]);
     const currentVariantStyles = variantStyles[variant];
     const currentSizeStyles = sizeStyles[size];
-    const activeStyles = isHovered ? currentVariantStyles.hover : currentVariantStyles.default;
+    
+    // Memoize active styles
+    const activeStyles = useMemo(() => {
+      return isHovered ? currentVariantStyles.hover : currentVariantStyles.default;
+    }, [isHovered, currentVariantStyles]);
+
+    // Memoize button styles
+    const buttonStyles = useMemo((): React.CSSProperties => ({
+      minHeight: currentSizeStyles.minHeight,
+      padding: currentSizeStyles.padding,
+      fontSize: currentSizeStyles.fontSize,
+      backgroundColor: activeStyles.backgroundColor,
+      color: activeStyles.color,
+      border: activeStyles.border,
+    }), [currentSizeStyles, activeStyles]);
 
     // Handle click with loading and disabled states
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
@@ -206,84 +308,65 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       setIsHovered(false);
       setIsPressed(false);
     };
-    const handleFocus = (): void => setIsFocused(true);
-    const handleBlur = (): void => setIsFocused(false);
     const handleMouseDown = (): void => setIsPressed(true);
     const handleMouseUp = (): void => setIsPressed(false);
 
-    // Determine if button is interactive
-    const isInteractive = !disabled && !isLoading;
-
-    // Base button styles
-    const buttonStyles: React.CSSProperties = {
-      // Layout
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      width: fullWidth ? '100%' : 'auto',
-      minHeight: currentSizeStyles.minHeight,
-      padding: currentSizeStyles.padding,
-      
-      // Typography
-      fontSize: currentSizeStyles.fontSize,
-      fontWeight: '500',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      lineHeight: '1.2',
-      textAlign: 'center',
-      textDecoration: 'none',
-      whiteSpace: 'nowrap',
-      
-      // Appearance
-      backgroundColor: activeStyles.backgroundColor,
-      color: activeStyles.color,
-      border: activeStyles.border,
-      borderRadius: '50px',
-      
-      // Interactions
-      cursor: isInteractive ? 'pointer' : 'not-allowed',
-      outline: 'none',
-      userSelect: 'none',
-      WebkitTapHighlightColor: 'transparent',
-      
-      // Transitions
-      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      
-      // States
-      opacity: disabled ? 0.6 : 1,
-      transform: isPressed ? 'scale(0.98)' : isFocused ? 'scale(1.02)' : 'scale(1)',
-      boxShadow: isFocused 
-        ? `0 0 0 3px ${activeStyles.color}33` 
-        : '0 1px 3px rgba(0, 0, 0, 0.1)',
-    };
-
     // Loading indicator size based on button size
-    const indicatorSize = size === BUTTON_SIZES.SMALL ? 14 : 
-                         size === BUTTON_SIZES.MEDIUM ? 16 : 
-                         size === BUTTON_SIZES.LARGE ? 18 : 20;
+    const indicatorSize = useMemo(() => {
+      switch (size) {
+        case BUTTON_SIZES.SMALL: return 14;
+        case BUTTON_SIZES.MEDIUM: return 16;
+        case BUTTON_SIZES.LARGE: return 18;
+        case BUTTON_SIZES.EXTRA_LARGE: return 20;
+        default: return 16;
+      }
+    }, [size]);
+
+    // Determine button content based on loading state
+    const buttonContent = useMemo(() => {
+      if (isLoading) {
+        return (
+          <>
+            <LoadingIndicator size={indicatorSize} />
+            {loadingText || 'Loading...'}
+          </>
+        );
+      }
+      return children;
+    }, [isLoading, indicatorSize, loadingText, children]);
+
+    // Build className
+    const buttonClassName = useMemo(() => {
+      const classes = ['button-base'];
+      if (fullWidth) classes.push('button-full-width');
+      if (isPressed) classes.push('button-pressed');
+      if (className) classes.push(className);
+      return classes.join(' ');
+    }, [fullWidth, isPressed, className]);
 
     return (
-      <button
-        ref={ref}
-        type="button"
-        disabled={disabled || isLoading}
-        onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        style={buttonStyles}
-        className={className}
-        aria-label={ariaLabel}
-        aria-disabled={disabled || isLoading}
-        data-testid={testId}
-        {...htmlAttributes}
-      >
-        {isLoading && <LoadingIndicator size={indicatorSize} />}
-        {children}
-      </button>
+      <>
+        <style dangerouslySetInnerHTML={{ __html: buttonCSS }} />
+        <button
+          ref={ref}
+          type={type || 'button'} // Allow user override of type
+          disabled={disabled || isLoading}
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          style={buttonStyles}
+          className={buttonClassName}
+          aria-label={ariaLabel}
+          aria-disabled={disabled || isLoading}
+          aria-busy={isLoading}
+          data-testid={testId}
+          {...htmlAttributes}
+        >
+          {buttonContent}
+        </button>
+      </>
     );
   }
 );

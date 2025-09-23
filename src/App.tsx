@@ -15,12 +15,24 @@ import Test from './Pages/Test';
 import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
+import ThemeToggle from './components/Theme';
+
+  
 function App() {
+   
   const hideNavbar = location.pathname === '/HomePage';
   return (
     <>
       {!hideNavbar && <NavbarComponent />}
+      
+      
+                
+                   
+              
+    
+
       <Routes>
+        
         <Route path='/' element={<Home />} />
         <Route path='/auth' element={<Auth />} />
         <Route path='/users' element={<Users />} />

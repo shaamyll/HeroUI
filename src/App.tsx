@@ -17,7 +17,7 @@ import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import ThemeToggle from './components/Theme';
-import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
+// import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
 
   
 function App() {

@@ -16,6 +16,7 @@ import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import ThemeToggle from './components/Theme';
+import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
 
   
 function App() {
@@ -49,6 +50,7 @@ function App() {
         <Route path='/dashBoardDumy' element={<DashBoardDumy />} />
         <Route path='/buttonUsage' element={<ButtonUsageDemo />} />
          <Route path='/statsCardchk' element={<Dashboard/>}/>
+         <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/>
 
       </Routes>
     </>

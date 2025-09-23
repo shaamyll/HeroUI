@@ -31,6 +31,7 @@ import {
   type AnimationType,
   type Spring
 } from 'framer-motion';
+import type { JSX } from "react/jsx-runtime";
 
 function cn(...classes: (string | undefined | null | boolean)[]): string {
   return classes.filter(Boolean).join(' ');
@@ -312,7 +313,7 @@ const CameraIcon = ({ fill = "currentColor", size, height, width, ...props }: Sv
 );
 
 // Data for Autocomplete
-export const animals: Animal[] = [
+export const AutocompleteData: Animal[] = [
   {label: "Cat", key: "cat", description: "The second most popular pet in the world"},
   {label: "Dog", key: "dog", description: "The most popular pet in the world"},
   {label: "Elephant", key: "elephant", description: "The largest land animal"},
@@ -634,7 +635,7 @@ const CommonComponents: React.FC<CommonComponentsProps> = ({
 };
 
 // Child Components for each feature
-const RotatingTextComponent = (props) => <RotatingText {...props} />;
+const RotatingTextComponent = (props: JSX.IntrinsicAttributes & RotatingTextProps & React.RefAttributes<RotatingTextRef>) => <RotatingText {...props} />;
 const AccordionComponent = ({ itemClasses, defaultContent }: AccordionProps) => (
   <Accordion
     className="p-2 flex flex-col gap-1 w-full max-w-[300px]"

@@ -9,7 +9,7 @@ import {
 } from "@heroui/react";
 import { ChevronDown, Search, X } from "lucide-react";
 
-interface DropdownOption {
+export interface DropdownOption {
   value: string;
   label: string;
   startContent?: React.ReactNode;
@@ -19,6 +19,7 @@ interface DropdownOption {
 }
 
 interface CustomDropdownProps {
+  selectionMode?:string;
   options?: DropdownOption[];
   placeholder?: string;
   value?: DropdownOption | null;
@@ -32,6 +33,7 @@ interface CustomDropdownProps {
 }
 
 function CustomDropdown({
+  selectionMode='single',
   options = [],
   placeholder = "Select an option",
   value,
@@ -119,30 +121,33 @@ function CustomDropdown({
     setHighlightedIndex(index);
   };
 
-  // Scroll highlighted item into view
+  const menuRef = useRef<HTMLDivElement>(null);
+
+
   const scrollToHighlightedItem = (index: number) => {
-    // Use setTimeout to ensure the DOM has updated
-    setTimeout(() => {
-      // Find the scrollable list container
-      const scrollableContainer = document.querySelector('[role="menu"]') as HTMLElement;
-      if (scrollableContainer) {
-        const itemHeight = 48; // Approximate height of each item
-        const containerHeight = scrollableContainer.clientHeight;
-        const scrollTop = scrollableContainer.scrollTop;
+    const menuContainer = menuRef.current || document.querySelector('[data-id="custom-dropdown-list"]');
+    if (!menuContainer) return;
 
-        const itemTop = index * itemHeight;
-        const itemBottom = itemTop + itemHeight;
+    const scrollableContainer = menuContainer.querySelector('[role="menu"]') as HTMLElement;
+    if (!scrollableContainer) return;
 
-        if (itemTop < scrollTop) {
-          // Item is above visible area
-          scrollableContainer.scrollTop = itemTop;
-        } else if (itemBottom > scrollTop + containerHeight) {
-          // Item is below visible area
-          scrollableContainer.scrollTop = itemBottom - containerHeight;
-        }
+    requestAnimationFrame(() => {
+      const itemHeight = 48;
+      const containerHeight = scrollableContainer.clientHeight;
+      const scrollTop = scrollableContainer.scrollTop;
+
+      const itemTop = index * itemHeight;
+      const itemBottom = itemTop + itemHeight;
+
+      if (itemTop < scrollTop) {
+        scrollableContainer.scrollTop = itemTop;
+      } else if (itemBottom > scrollTop + containerHeight) {
+        scrollableContainer.scrollTop = itemBottom - containerHeight;
       }
-    }, 0);
+
+    });
   };
+
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -177,19 +182,26 @@ function CustomDropdown({
     }
   };
 
-  // Focus search input when dropdown opens and clear search when closed
+  // highlight the currently selected option if it exists in filtered list
+  useEffect(() => {
+    if (isOpen && value) {
+      const index = filteredOptions.findIndex(option => option.value === value.value);
+      if (index !== -1) {
+        setHighlightedIndex(index);
+        setTimeout(() => scrollToHighlightedItem(index), 0);
+      }
+    }
+  }, [isOpen, value, filteredOptions]);
+
   useEffect(() => {
     if (isOpen && showSearch) {
       setTimeout(() => {
-        if (searchInputRef.current) {
-          searchInputRef.current.focus();
-          return;
-        }
-
-      }, 150);
+        searchInputRef.current?.focus();
+      }, 50);
     }
     if (!isOpen) {
       setSearchValue('');
+      setHighlightedIndex(0);
     }
   }, [isOpen, showSearch]);
 
@@ -231,6 +243,7 @@ function CustomDropdown({
       </DropdownTrigger>
 
       <DropdownMenu
+        ref={menuRef}
         disallowEmptySelection={false}
         selectionMode="single"
         selectedKeys={value ? new Set([value.value]) : new Set()}
@@ -294,12 +307,6 @@ function CustomDropdown({
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)}
-              onFocus={(e) => {
-                if (showSearch && searchInputRef.current) {
-                  e.preventDefault();
-                  searchInputRef.current.focus();
-                }
-              }}
             >
               <div className="flex flex-col">
                 <span className="truncate text-sm">{option.label}</span>

@@ -2,18 +2,29 @@
 import React, { useState } from 'react';
 import DashboardHeader from '../components/common/dashBoard/dashBoardHeader';
 import type { Tab, ActionButton } from '../types/dashBoardTypes';
-import { Home, Settings, Plus, UsersIcon, BarChart3 } from "lucide-react";
-
+import {Bell,ChartNoAxesColumn,DollarSign,Home,Landmark,Layers,LayoutList,Plus,Settings} from 'lucide-react';
 const Users: React.FC = () => {
   const [activeTab, setActiveTab] = useState('users');
 
   const tabs: Tab[] = [
-    { id: 'home', name: 'Home', icon: <Home />, path: '/' },
-    { id: 'users', name: 'Users', icon: <UsersIcon />, path: '/users' },
-    { id: 'analytics', name: 'Analytics', icon: <BarChart3 />, path: '/analytics' },
-    { id: 'settings1', name: 'phase', icon: <Settings />, path: '/settings' },
-    { id: 'settings2', name: 'product', icon: <Settings />, path: '/settings' },
-    { id: 'settings3', name: 'dummmy', icon: <Settings />, path: '/settings' },
+    //    {
+    //   id: 'overview',
+    //   name: 'Overview',
+    //   icon: <Home className="mr-2 h-5 w-5" />,
+    //   path: '/projects',
+    // },
+    // {
+    //   id: 'projectTracking',
+    //   name: 'Project Tracking',
+    //   icon: <Layers className="mr-2 h-5 w-5" />,
+    //   path: '/projects/projectTracking',
+    // },
+    {id: 'analytics',name: 'Analytics',icon: <ChartNoAxesColumn className="mr-2 h-5 w-5" />,path: '#',},
+    {id: 'finance', name: 'Finance',icon: <Landmark className="mr-2 h-5 w-5" />,path: '/projects/finance', },
+    {id: 'advanceFinance',name: 'Advance',icon: <DollarSign className="mr-2 h-5 w-5" />,path: '/projects/advanceFinance', },
+    {id: 'allGeneralTask',name: 'General',icon: <LayoutList className="mr-2 h-5 w-5" />,path: '/projects/allGeneralTask',},
+    {id: 'notification',name: 'Notification',icon: <Bell className="mr-2 h-5 w-5" />,path: '/projects/notification',},
+    {id: 'settings',name: 'Settings',icon: <Settings className="mr-2 h-5 w-5" />,path: '/projects/settings',},
 
   ];
 
@@ -32,8 +43,8 @@ const Users: React.FC = () => {
 
         {/* Simple Dashboard Header */}
         <DashboardHeader
-          title="User Management"
-          subtitle="Manage your team members"
+          title="PROJECTS DASHBOARD"
+          subtitle="Monitoring 115 projects across Saudi Arabia"
           tabs={tabs}
           bgColor="bg-violet-950"
           actionButtons={actionButtons}

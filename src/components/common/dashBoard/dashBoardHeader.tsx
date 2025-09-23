@@ -19,7 +19,7 @@ export interface DashboardHeaderProps {
   tabs: Tab[];
   actionButtons?: ActionButton[];
   bgColor?: string;
-   activeTab?: string;
+  activeTab?: string;
   onTabChange?: (tabId: string) => void;
 }
 
@@ -28,16 +28,16 @@ const DEFAULTS = {
   userPermissions: [] as string[],
   mobileBreakpoint: 768,
   dotGridConfig: {
-    dotSize: 2, 
-    gap: 9, 
-    baseColor: '#FAF5F7', 
+    dotSize: 2,
+    gap: 9,
+    baseColor: '#FAF5F7',
     activeColor: '#FAF5F7',
-    proximity: 100, 
-    shockRadius: 250, 
-    shockStrength: 5, 
+    proximity: 100,
+    shockRadius: 250,
+    shockStrength: 5,
     resistance: 750,
-    returnDuration: 1.5, 
-    opacity: 0.2, 
+    returnDuration: 1.5,
+    opacity: 0.2,
     enabled: true
   },
   dockProps: {
@@ -59,7 +59,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   // Internal state management
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
-  
+
   // Use dashboard state hook with defaults
   const {
     isMobile,
@@ -68,9 +68,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     toggleActionMenu,
     closeActionMenu
   } = useDashboardState(
-    actionButtons, 
+    actionButtons,
     [], // No mobile floating buttons
-    DEFAULTS.userPermissions, 
+    DEFAULTS.userPermissions,
     DEFAULTS.mobileBreakpoint
   );
 
@@ -84,21 +84,36 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         'relative flex flex-col items-center justify-between overflow-hidden rounded-xl text-white transition-all duration-300 ease-in-out py-2 h-[190px] max-w-7xl mx-auto',
         bgColor
       )}>
-        
+
         {/* Background */}
-        <HeaderBackground 
-          dotGridConfig={DEFAULTS.dotGridConfig} 
-          isLowPowerDevice={isLowPowerDevice} 
+        <HeaderBackground
+          dotGridConfig={DEFAULTS.dotGridConfig}
+          isLowPowerDevice={isLowPowerDevice}
         />
-        
+
         {/* Header Content */}
         <div className="relative flex w-full flex-col items-center justify-between p-2 sm:p-1 sm:flex-row z-10">
           {/* Title Section */}
           <div className="flex-1 text-center sm:text-left px-4">
-            <h1 className="mb-1 mt-2 text-2xl font-bold sm:text-3xl">
+            <h1
+              className="mb-1 font-bold"
+              style={{
+                fontFamily: "Helvetica, sans-serif",
+                fontSize: "30px",
+                color: "#FFFFFF",
+              }}
+            >
               {title}
             </h1>
-            <p className="text-white/90">
+
+            <p
+              className="mt-0 font-normal"
+              style={{
+                fontFamily: "Helvetica, sans-serif",
+                fontSize: "16px",
+                color: "#FFFFFF",
+              }}
+            >
               {subtitle}
             </p>
           </div>
@@ -135,25 +150,29 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       </div>
 
       {/* Mobile Navigation */}
-      {isMobile && (
-        <SimpleMobileNav
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-      )}
+      {
+        isMobile && (
+          <SimpleMobileNav
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        )
+      }
 
       {/* Mobile Action Menu */}
-      {filteredActionButtons.length > 2 && isMobile && (
-        <MobileActionMenu
-          buttons={filteredActionButtons}
-          userPermissions={DEFAULTS.userPermissions}
-          isOpen={isActionMenuOpen}
-          onToggle={toggleActionMenu}
-          onClose={closeActionMenu}
-        />
-      )}
-    </div>
+      {
+        filteredActionButtons.length > 2 && isMobile && (
+          <MobileActionMenu
+            buttons={filteredActionButtons}
+            userPermissions={DEFAULTS.userPermissions}
+            isOpen={isActionMenuOpen}
+            onToggle={toggleActionMenu}
+            onClose={closeActionMenu}
+          />
+        )
+      }
+    </div >
   );
 };
 

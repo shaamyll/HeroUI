@@ -51,6 +51,41 @@ function SearchableSelect({
     const [isOpen, setIsOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
+    const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (!filteredOptions.length) return;
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    setHighlightedIndex(prev => (prev + 1) % filteredOptions.length);
+  }
+  else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    setHighlightedIndex(prev => (prev - 1 + filteredOptions.length) % filteredOptions.length);
+  }
+  else if (e.key === "Enter") {
+    e.preventDefault();
+    const selected = filteredOptions[highlightedIndex];
+    if (selected && onChange) {
+      if (selectionMode === 'single') {
+        onChange(selected);
+      } else {
+        const isSelected = selectedValues.some(v => v.value === selected.value);
+        if (isSelected) {
+          const updatedValues = selectedValues.filter(v => v.value !== selected.value);
+          onChange(updatedValues);
+        } else {
+          onChange([...selectedValues, selected]);
+        }
+      }
+    }
+  }
+  else if (e.key === "Escape") {
+    setIsOpen(false);
+  }
+};
+
     // Determine default closeOnSelect behavior
     const shouldCloseOnSelect = closeOnSelect !== undefined ? closeOnSelect : selectionMode === 'single';
 
@@ -120,6 +155,23 @@ function SearchableSelect({
     useEffect(() => {
         setSearchValue("");
     }, [value]);
+
+    const listboxRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  if (!listboxRef.current || highlightedIndex < 0) return;
+
+  const optionElements = listboxRef.current.querySelectorAll('[role="option"]');
+  if (optionElements.length === 0 || highlightedIndex >= optionElements.length) return;
+
+  const highlightedElement = optionElements[highlightedIndex] as HTMLElement;
+  if (!highlightedElement) return;
+
+  highlightedElement.scrollIntoView({
+    block: 'nearest',
+    behavior: 'auto'
+  });
+}, [highlightedIndex]);
 
     // Custom render function for multi-selection with chips
     const renderValue = (items: any) => {
@@ -233,6 +285,7 @@ function SearchableSelect({
                     <div className="sticky top-0 z-10 border-b border-gray-200 pb-2 p-1 bg-white">
                         <div className="relative">
                             <Input
+                            onKeyDown={handleKeyDown}
                                 ref={searchInputRef}
                                 placeholder={searchPlaceholder}
                                 value={searchValue}

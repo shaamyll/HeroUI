@@ -11,7 +11,7 @@ import {
 } from "@heroui/react";
 import { ChevronDown, Search, X } from "lucide-react";
 
-interface DropdownOption {
+export interface DropdownOption {
   value: string;
   label: string;
   startContent?: React.ReactNode;
@@ -190,7 +190,19 @@ function CustomDropdown({
       const itemHeight = 48;
       const containerHeight = scrollableContainer.clientHeight;
       const scrollTop = scrollableContainer.scrollTop;
+    const menuContainer = menuRef.current || document.querySelector('[data-id="custom-dropdown-list"]');
+    if (!menuContainer) return;
 
+    const scrollableContainer = menuContainer.querySelector('[role="menu"]') as HTMLElement;
+    if (!scrollableContainer) return;
+
+    requestAnimationFrame(() => {
+      const itemHeight = 48;
+      const containerHeight = scrollableContainer.clientHeight;
+      const scrollTop = scrollableContainer.scrollTop;
+
+      const itemTop = index * itemHeight;
+      const itemBottom = itemTop + itemHeight;
       const itemTop = index * itemHeight;
       const itemBottom = itemTop + itemHeight;
 
@@ -198,9 +210,14 @@ function CustomDropdown({
         scrollableContainer.scrollTop = itemTop;
       } else if (itemBottom > scrollTop + containerHeight) {
         scrollableContainer.scrollTop = itemBottom - containerHeight;
+      if (itemTop < scrollTop) {
+        scrollableContainer.scrollTop = itemTop;
+      } else if (itemBottom > scrollTop + containerHeight) {
+        scrollableContainer.scrollTop = itemBottom - containerHeight;
       }
     });
   };
+
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -262,9 +279,12 @@ function CustomDropdown({
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 50);
+        searchInputRef.current?.focus();
+      }, 50);
     }
     if (!isOpen) {
       setSearchValue('');
+      setHighlightedIndex(0);
       setHighlightedIndex(0);
     }
   }, [isOpen, showSearch]);
@@ -401,6 +421,7 @@ const buttonContent = React.useMemo(() => {
 
       <DropdownMenu
         ref={menuRef}
+        ref={menuRef}
         disallowEmptySelection={false}
         selectionMode={selectionMode === 'multiple' ? 'multiple' : 'single'}
         selectedKeys={selectedKeys}
@@ -464,12 +485,6 @@ const buttonContent = React.useMemo(() => {
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)}
-              onFocus={(e) => {
-                if (showSearch && searchInputRef.current) {
-                  e.preventDefault();
-                  searchInputRef.current.focus();
-                }
-              }}
             >
               <div className="flex flex-col">
                 <span className="truncate text-sm">{option.label}</span>

@@ -121,32 +121,32 @@ function CustomDropdown({
     setHighlightedIndex(index);
   };
 
-  const menuRef = useRef<HTMLDivElement>(null);
+const menuRef = useRef<HTMLDivElement>(null);
 
 
-  const scrollToHighlightedItem = (index: number) => {
-    const menuContainer = menuRef.current || document.querySelector('[data-id="custom-dropdown-list"]');
-    if (!menuContainer) return;
+const scrollToHighlightedItem = (index: number) => {
+  const menuContainer = menuRef.current || document.querySelector('[data-id="custom-dropdown-list"]');
+  if (!menuContainer) return;
 
-    const scrollableContainer = menuContainer.querySelector('[role="menu"]') as HTMLElement;
-    if (!scrollableContainer) return;
+  const scrollableContainer = menuContainer.querySelector('[role="menu"]') as HTMLElement;
+  if (!scrollableContainer) return;
 
-    requestAnimationFrame(() => {
-      const itemHeight = 48;
-      const containerHeight = scrollableContainer.clientHeight;
-      const scrollTop = scrollableContainer.scrollTop;
+  requestAnimationFrame(() => {
+    const itemHeight = 48;
+    const containerHeight = scrollableContainer.clientHeight;
+    const scrollTop = scrollableContainer.scrollTop;
 
-      const itemTop = index * itemHeight;
-      const itemBottom = itemTop + itemHeight;
+    const itemTop = index * itemHeight;
+    const itemBottom = itemTop + itemHeight;
 
-      if (itemTop < scrollTop) {
-        scrollableContainer.scrollTop = itemTop;
-      } else if (itemBottom > scrollTop + containerHeight) {
-        scrollableContainer.scrollTop = itemBottom - containerHeight;
-      }
-
-    });
-  };
+    if (itemTop < scrollTop) {
+      scrollableContainer.scrollTop = itemTop;
+    } else if (itemBottom > scrollTop + containerHeight) {
+      scrollableContainer.scrollTop = itemBottom - containerHeight;
+    }
+    
+  });
+};
 
 
   // Handle keyboard navigation
@@ -182,28 +182,28 @@ function CustomDropdown({
     }
   };
 
-  // highlight the currently selected option if it exists in filtered list
-  useEffect(() => {
-    if (isOpen && value) {
-      const index = filteredOptions.findIndex(option => option.value === value.value);
-      if (index !== -1) {
-        setHighlightedIndex(index);
-        setTimeout(() => scrollToHighlightedItem(index), 0);
-      }
+  // When dropdown opens, highlight the currently selected option if it exists in filtered list
+useEffect(() => {
+  if (isOpen && value) {
+    const index = filteredOptions.findIndex(option => option.value === value.value);
+    if (index !== -1) {
+      setHighlightedIndex(index);
+      setTimeout(() => scrollToHighlightedItem(index), 0);
     }
-  }, [isOpen, value, filteredOptions]);
+  }
+}, [isOpen, value, filteredOptions]);
 
-  useEffect(() => {
-    if (isOpen && showSearch) {
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 50);
-    }
-    if (!isOpen) {
-      setSearchValue('');
-      setHighlightedIndex(0);
-    }
-  }, [isOpen, showSearch]);
+useEffect(() => {
+  if (isOpen && showSearch) {
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 50);
+  }
+  if (!isOpen) {
+    setSearchValue('');
+    setHighlightedIndex(0); 
+  }
+}, [isOpen, showSearch]);
 
   // Clear search when value changes
   useEffect(() => {
@@ -243,7 +243,7 @@ function CustomDropdown({
       </DropdownTrigger>
 
       <DropdownMenu
-        ref={menuRef}
+      ref={menuRef}
         disallowEmptySelection={false}
         selectionMode="single"
         selectedKeys={value ? new Set([value.value]) : new Set()}
@@ -307,6 +307,12 @@ function CustomDropdown({
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)}
+                   onFocus={(e) => {
+                if (showSearch && searchInputRef.current) {
+                  e.preventDefault();
+                  searchInputRef.current.focus();
+                }
+              }}
             >
               <div className="flex flex-col">
                 <span className="truncate text-sm">{option.label}</span>

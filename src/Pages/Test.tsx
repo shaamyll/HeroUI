@@ -1,10 +1,12 @@
-import CustomDropdown from "../components/Reusable/CustomDropdown";
+import CustomDropdown from "@/components/Reusable/CustomDropdown";
+import SearchableSelect from "@/components/Reusable/SearchableSelect";
 import  {  useEffect, useState } from "react";
 
 
 function Test() {
   const [selectedValue, setSelectedValue] = useState("");
   const [items,setItems] = useState<any[]>([])
+
   const handleChange = (value: string) => {
     console.log("Selected value:", value);
     setSelectedValue(value);
@@ -33,9 +35,21 @@ function Test() {
         value={selectedValue}
         onChange={handleChange}
         placeholder="Select an option"
-        buttonClassName="w-full"
+        buttonClassName="w-1/2"
         showSearch={true}
+        selectionMode="multiple"
       />
+
+    <br/><br/><br/>
+
+      <SearchableSelect
+       options={options}
+        value={selectedValue}
+        onChange={handleChange}
+        placeholder="Select an option"
+        buttonClassName="w-1/2"
+        showSearch={true}
+        selectionMode="single"/>
     </div>
   );
 }

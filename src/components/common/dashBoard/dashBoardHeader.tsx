@@ -42,11 +42,12 @@ const DEFAULTS = {
   },
   dockProps: {
     distance: 250,
-    panelHeight: 80,
-    baseItemSize: 48,
+    panelHeight: 90,
+    baseItemSize: 50,
     magnification: 80,
     spring: { mass: 0.1, stiffness: 150, damping: 12 },
-    offsetTop: -96
+    offsetTop: -96,
+     
   }
 };
 
@@ -96,7 +97,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Title Section */}
           <div className="flex-1 text-center sm:text-left px-4">
             <h1
-              className="mb-1 font-bold"
+              className="mb-0 font-bold"
               style={{
                 fontFamily: "Helvetica, sans-serif",
                 fontSize: "30px",

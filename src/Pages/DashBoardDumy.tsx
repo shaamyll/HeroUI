@@ -14,7 +14,7 @@ const Users: React.FC = () => {
     { id: 'settings1', name: 'phase', icon: <Settings />, path: '/settings' },
     { id: 'settings2', name: 'product', icon: <Settings />, path: '/settings' },
     { id: 'settings3', name: 'dummmy', icon: <Settings />, path: '/settings' },
-    
+
   ];
 
   const actionButtons: ActionButton[] = [
@@ -35,8 +35,8 @@ const Users: React.FC = () => {
           title="User Management"
           subtitle="Manage your team members"
           tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+         
+          bgColor="bg-violet-950"
           actionButtons={actionButtons}
 
         />

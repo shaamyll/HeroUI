@@ -1,5 +1,5 @@
-// UPDATE: dashboardheader.tsx - Use utils properly
-import React, { useEffect, useState, useCallback } from 'react';
+// DashboardHeader.tsx - Ultra simplified and short
+import React, { useState } from 'react';
 import { clsx } from 'clsx';
 import {
   HeaderBackground,
@@ -8,113 +8,61 @@ import {
   MobileActionMenu,
   ActionButtonComponent
 } from './components';
-import {
-  isValidImageUrl,
-  filterButtonsByPermissions,
-  checkDeviceCapabilities,
-  checkIsMobile,
-  createDebouncedResizeHandler,
-  safeWindow
-} from './utils';
-import type { DashboardHeaderProps } from '../../../types/dashBoardTypes';
+import { useDashboardState } from '../../hooks/useDashBoard';
+import { filterButtonsByPermissions } from './utils';
+import type { ActionButton, Tab } from '../../../types/dashBoardTypes';
+
+// Simplified props interface - only essential props
+export interface DashboardHeaderProps {
+  title: string;
+  subtitle: string;
+  tabs: Tab[];
+  actionButtons?: ActionButton[];
+  bgColor?: string;
+}
+
+// Default configurations dont touch while creating a dashboard
+const DEFAULTS = {
+  userPermissions: [] as string[],
+  dotGridConfig: {
+    dotSize: 2, gap: 9, baseColor: '#FAF5F7', activeColor: '#FAF5F7',
+    proximity: 100, shockRadius: 250, shockStrength: 5, resistance: 750,
+    returnDuration: 1.5, opacity: 0.2, enabled: true
+  }
+};
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   title,
   subtitle,
   tabs,
-  activeTab,
-  onTabChange,
   actionButtons = [],
-  showMobileNav = true,
-  mobileBreakpoint = 768,
-  mobileFloatingButtons = [],
-  userPermissions = [],
-  bgColor = "bg-violet-950",
-  bgImage,
-  headerClassName = '',
-  titleClassName = '',
-  subtitleClassName = '',
-  additionalContent,
-  dockProps = {},
-  dotGridConfig = {
-    dotSize: 2,
-    gap: 9,
-    baseColor: '#FAF5F7',
-    activeColor: '#FAF5F7',
-    proximity: 100,
-    shockRadius: 250,
-    shockStrength: 5,
-    resistance: 750,
-    returnDuration: 1.5,
-    opacity: 0.2,
-    enabled: true
-  }
+  bgColor = "bg-violet-950"
 }) => {
-  const [isMobile, setIsMobile] = useState(() => checkIsMobile(mobileBreakpoint));
-  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
-  const [isLowPowerDevice, setIsLowPowerDevice] = useState(() => checkDeviceCapabilities());
+  const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
+  const {
+    isMobile,
+    isActionMenuOpen,
+    isLowPowerDevice,
+    toggleActionMenu,
+    closeActionMenu
+  } = useDashboardState(actionButtons, [], DEFAULTS.userPermissions, 768);
 
-  // Handle responsive breakpoint changes
-  useEffect(() => {
-    if (!safeWindow) return;
-
-    const updateMobileState = () => {
-      setIsMobile(checkIsMobile(mobileBreakpoint));
-    };
-
-    const { handler, cleanup } = createDebouncedResizeHandler(updateMobileState);
-    
-    safeWindow.addEventListener('resize', handler);
-    return cleanup;
-  }, [mobileBreakpoint]);
-
-  const toggleActionMenu = useCallback(() => {
-    setIsActionMenuOpen(prev => !prev);
-  }, []);
-
-  const closeActionMenu = useCallback(() => {
-    setIsActionMenuOpen(false);
-  }, []);
-
-  // Filter buttons using utility function
-  const filteredActionButtons = filterButtonsByPermissions(actionButtons, userPermissions);
-  const filteredMobileButtons = filterButtonsByPermissions(mobileFloatingButtons, userPermissions);
-
-  // Header style with safe image validation
-  const headerStyle = bgImage && isValidImageUrl(bgImage) ? {
-    backgroundImage: `url(${bgImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center'
-  } : {};
+  const filteredActionButtons = filterButtonsByPermissions(actionButtons, DEFAULTS.userPermissions);
 
   return (
     <div className="mb-8 pt-8">
       {/* Main Header */}
-      <div
-        style={headerStyle}
-        className={`relative flex flex-col items-center justify-between overflow-hidden rounded-xl ${bgColor} text-white transition-all duration-300 ease-in-out ${headerClassName} py-2 h-[190px] max-w-7xl mx-auto`}
-      >
-        {/* Background Animation */}
-        <HeaderBackground dotGridConfig={dotGridConfig} isLowPowerDevice={isLowPowerDevice} />
+      <div className={`relative flex flex-col items-center justify-between overflow-hidden rounded-xl ${bgColor} text-white transition-all duration-300 ease-in-out py-2 h-[190px] max-w-7xl mx-auto`}>
+        
+        <HeaderBackground dotGridConfig={DEFAULTS.dotGridConfig} isLowPowerDevice={isLowPowerDevice} />
 
         {/* Header Content */}
         <div className="relative flex w-full flex-col items-center justify-between p-2 sm:p-1 sm:flex-row z-10">
           {/* Title Section */}
           <div className="flex-1 text-center sm:text-left px-4">
-            <h1 className={`mb-1 mt-2 text-2xl font-bold sm:text-3xl ${titleClassName}`}>
-              {title}
-            </h1>
-            <p className={`text-white/90 ${subtitleClassName}`}>
-              {subtitle}
-            </p>
+            <h1 className="mb-1 mt-2 text-2xl font-bold sm:text-3xl">{title}</h1>
+            <p className="text-white/90">{subtitle}</p>
           </div>
-
-          {/* Additional Content */}
-          {additionalContent && (
-            <div className="relative z-30 flex w-full items-center justify-center md:w-auto">
-              {additionalContent}
-            </div>
-          )}
 
           {/* Desktop Action Buttons */}
           {filteredActionButtons.length > 0 && (
@@ -123,7 +71,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 <ActionButtonComponent
                   key={button.id}
                   button={button}
-                  userPermissions={userPermissions}
+                  userPermissions={DEFAULTS.userPermissions}
                   className={clsx(
                     'inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors',
                     button.variant === 'secondary'
@@ -141,48 +89,26 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <DesktopDockNavigation
           tabs={tabs}
           activeTab={activeTab}
-          onTabChange={onTabChange}
-          dockProps={dockProps}
+          onTabChange={setActiveTab}
+          dockProps={{}}
           isMobile={isMobile}
         />
       </div>
 
       {/* Mobile Navigation */}
-      {isMobile && showMobileNav && (
+      {isMobile && (
         <SimpleMobileNav
           tabs={tabs}
           activeTab={activeTab}
-          onTabChange={onTabChange}
+          onTabChange={setActiveTab}
         />
-      )}
-
-      {/* Mobile Floating Action Buttons */}
-      {filteredMobileButtons.length > 0 && (
-        <div className="block lg:hidden">
-          {filteredMobileButtons.map((button, index) => (
-            <div
-              key={button.id}
-              className="fixed right-4 z-50"
-              style={{ bottom: `${96 + (index * 48)}px` }}
-            >
-              <ActionButtonComponent
-                button={button}
-                userPermissions={userPermissions}
-                className={clsx(
-                  'flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-all hover:bg-violet-700',
-                  button.className
-                )}
-              />
-            </div>
-          ))}
-        </div>
       )}
 
       {/* Mobile Action Menu */}
       {filteredActionButtons.length > 2 && isMobile && (
         <MobileActionMenu
           buttons={filteredActionButtons}
-          userPermissions={userPermissions}
+          userPermissions={DEFAULTS.userPermissions}
           isOpen={isActionMenuOpen}
           onToggle={toggleActionMenu}
           onClose={closeActionMenu}

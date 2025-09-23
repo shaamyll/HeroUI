@@ -114,16 +114,19 @@ export default function TableComponent({
     return Object.values(activeFilters).some(set => set.size > 0);
   }, [activeFilters]);
 
+  //search
   const onSearchChange = React.useCallback((value: string) => {
     setSearchValue(value);
     onSearchValueChange?.(value);
   }, [onSearchValueChange]);
 
+  //search clear
   const onClear = React.useCallback(() => {
     setSearchValue("");
     onSearchValueChange?.("");
   }, [onSearchValueChange]);
 
+  //Sort
   const handleSortChange = React.useCallback((descriptor: SortDescriptor) => {
     setSortDescriptor(descriptor);
     onSortChange?.(descriptor);
@@ -358,11 +361,11 @@ export default function TableComponent({
         <div className="flex justify-center w-full sm:w-auto">
           {isLoading ? (
             <div className="flex items-center gap-2">
-              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-md" />
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-8 w-8" />
               ))}
-              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-md" />
             </div>
           ) : (
             <Pagination
@@ -411,7 +414,7 @@ export default function TableComponent({
                 <Skeleton className="h-4 w-4 rounded-sm" />
               )}
               <Skeleton
-                className={`h-4 rounded-md ${colIndex === 0
+                className={`h-4 rounded-sm ${colIndex === 0
                   ? "w-20"
                   : colIndex === 1
                     ? "w-32"

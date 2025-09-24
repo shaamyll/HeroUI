@@ -68,109 +68,109 @@ function Users() {
     } as const;
 
     type UserStatus = keyof typeof statusColorMap;
-const TableStructure = [
-    { 
-        name: 'ID', 
-        headerId: 'id', 
-        sortable: true,
-        render: (item: any) => <span>{item.id}</span>
-    },
-{
-  name: 'Name',
-  headerId: 'name',
-  sortable: true,
-  render: (item: any) => {
-    const isLong = item.name.length > 20;
+    const TableStructure = [
+        {
+            name: 'ID',
+            headerId: 'id',
+            sortable: true,
+            render: (item: any) => <span>{item.id}</span>
+        },
+        {
+            name: 'Name',
+            headerId: 'name',
+            sortable: true,
+            render: (item: any) => {
+                const isLong = item.name.length > 20;
 
-    const nameText = (
-      <span className="truncate block max-w-[160px]">{item.name}</span>
-    );
+                const nameText = (
+                    <span className="truncate block max-w-[160px]">{item.name}</span>
+                );
 
-    return (
-      <div className="flex items-center gap-3 max-w-[220px]">
-        <div
-          className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md ${getGradientFromName(
-            item.name
-          )}`}
-        >
-          {item.name.charAt(0).toUpperCase()}
-        </div>
-        {isLong ? (
-          <Tooltip content={item.name}>{nameText}</Tooltip>
-        ) : (
-          nameText
-        )}
-      </div>
-    );
-  },
-}
-,
-    {
-        name: 'Role',
-        headerId: 'role',
-        sortable: true,
-        render: (item: any) => (
-            <p className="text-bold text-small">{item.role}</p>
-        ),
-    },
-    { 
-        name: 'Team', 
-        headerId: 'team', 
-        sortable: true,
-        render: (item: any) => <span>{item.team}</span>
-    },
-    {
-        name: 'Status',
-        headerId: 'status',
-        sortable: true,
-        render: (item: any) => (
-            <Chip color={statusColorMap[item.status as UserStatus]} size="sm" variant="flat">
-                {item.status}
-            </Chip>
-        ),
-    },
-    { 
-        name: 'Email', 
-        headerId: 'email', 
-        sortable: true,
-        render: (item: any) => <span>{item.email}</span>
-    },
-    {
-        name: 'Actions',
-        headerId: 'actions',
-        sortable: false,
-        render: (item: any) => (
-            <div className="flex items-center gap-3">
-                {/* View Button */}
-                <Tooltip content="Details">
-                    <button className="flex items-center justify-center w-7 h-7 rounded-lg  bg-blue-50 text-gray-600 hover:bg-blue-100 active:opacity-70">
-                        <Eye className="w-4 h-4" />
-                    </button>
-                </Tooltip>
+                return (
+                    <div className="flex items-center gap-3 max-w-[220px]">
+                        <div
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md ${getGradientFromName(
+                                item.name
+                            )}`}
+                        >
+                            {item.name.charAt(0).toUpperCase()}
+                        </div>
+                        {isLong ? (
+                            <Tooltip content={item.name}>{nameText}</Tooltip>
+                        ) : (
+                            nameText
+                        )}
+                    </div>
+                );
+            },
+        }
+        ,
+        {
+            name: 'Role',
+            headerId: 'role',
+            sortable: true,
+            render: (item: any) => (
+                <p className="text-bold text-small">{item.role}</p>
+            ),
+        },
+        {
+            name: 'Team',
+            headerId: 'team',
+            sortable: true,
+            render: (item: any) => <span>{item.team}</span>
+        },
+        {
+            name: 'Status',
+            headerId: 'status',
+            sortable: true,
+            render: (item: any) => (
+                <Chip color={statusColorMap[item.status as UserStatus]} size="sm" variant="flat">
+                    {item.status}
+                </Chip>
+            ),
+        },
+        {
+            name: 'Email',
+            headerId: 'email',
+            sortable: true,
+            render: (item: any) => <span>{item.email}</span>
+        },
+        {
+            name: 'Actions',
+            headerId: 'actions',
+            sortable: false,
+            render: (item: any) => (
+                <div className="flex items-center gap-3">
+                    {/* View Button */}
+                    <Tooltip content="Details">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg  bg-blue-50 text-gray-600 hover:bg-blue-100 active:opacity-70">
+                            <Eye className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
 
-                {/* Edit Button */}
-                <Tooltip content="Edit user">
-                    <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-25 text-gray-600 hover:bg-green-100  active:opacity-70">
-                        <SquarePen className="w-4 h-4" />
-                    </button>
-                </Tooltip>
+                    {/* Edit Button */}
+                    <Tooltip content="Edit user">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-25 text-gray-600 hover:bg-green-100  active:opacity-70">
+                            <SquarePen className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
 
-                {/* Delete Button */}
-                <Tooltip color="danger" content="Delete user">
-                    <button
-                        onClick={() => {
-                            console.log("Deleting user:", item);
-                            openDeleteModal(item);
-                        }}
-                        className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 active:opacity-70"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </Tooltip>
-            </div>
-        ),
-    },
-];
+                    {/* Delete Button */}
+                    <Tooltip color="danger" content="Delete user">
+                        <button
+                            onClick={() => {
+                                console.log("Deleting user:", item);
+                                openDeleteModal(item);
+                            }}
+                            className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 active:opacity-70"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </Tooltip>
+                </div>
+            ),
+        },
+    ];
 
 
 
@@ -242,12 +242,12 @@ const TableStructure = [
                     isSearch={true}
                     isSelectRows={true}
                     onFiltersChange={
-                        (val)=>{
-                            console.log("parent",val)
+                        (val) => {
+                            console.log("parent", val)
                         }
                     }
-                    onSearchValueChange={(val:any)=>{
-                        console.log("parent",val)
+                    onSearchValueChange={(val: any) => {
+                        console.log("parent", val)
                     }
                     }
                 />

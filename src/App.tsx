@@ -16,14 +16,14 @@ import Test from './Pages/Test';
 import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
-import ThemeToggle from './components/Theme';
-import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
+import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
 
-  
+   
 function App() {
    
   const hideNavbar = location.pathname === '/HomePage';
+  
   return (
     <>
       {!hideNavbar && <NavbarComponent />}
@@ -36,6 +36,7 @@ function App() {
         <Route path='/auth' element={<Auth />} />
         <Route path='/users' element={<Users />} />
         <Route path='/projects' element={<Projects />} />
+        <Route path='/SettingsProject' element={<SettingsProject />} />
         <Route path='/test' element={<Test/>}/>
         <Route path='/asset' element={<Asset/>}/>
         {/* <Route path='/dashboard' element={<DashBoardPage />} /> */}
@@ -50,10 +51,11 @@ function App() {
           <Route path='/dashBoardUsage2' element={<Dummy />} />
         <Route path='/buttonUsage' element={<ButtonUsageDemo />} />
          <Route path='/statsCardchk' element={<Dashboard/>}/>
-         <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/>
+         {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
 
       </Routes>
     </>
+    
   );
 }
 

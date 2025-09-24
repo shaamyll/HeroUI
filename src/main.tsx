@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { Providers } from "./providers";
 import { BrowserRouter } from "react-router-dom";
-import { HeroUIProvider } from "@heroui/react"; // ⬅️ import HeroUI provider
+import { HeroUIProvider } from "@heroui/react"; 
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

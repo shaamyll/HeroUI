@@ -1,0 +1,179 @@
+import { useEffect, useState } from "react";
+import TableComponent from "../components/Reusable/TableComponent";
+import { Chip, Tooltip } from "@heroui/react";
+import { motion } from "framer-motion";
+import { Eye, SquarePen, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import ImageCard from "../components/Reusable/ImageCard";
+
+function Projects() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    fetch(`https://fakestoreapi.com/products`)
+      .then((res) => res.json())
+      .then((data) => {
+        const startIndex = (page - 1) * rowsPerPage;
+        const paginatedData = data.slice(startIndex, startIndex + rowsPerPage);
+
+        setProducts(paginatedData);
+        setTotalItems(data.length);
+        setTotalPages(Math.ceil(data.length / rowsPerPage));
+        setIsLoading(false);
+      });
+      console.log("page",page,"totalItems",totalItems,"total pages",totalPages,"Rows per page",rowsPerPage)
+  }, [page, rowsPerPage]);
+
+  const TableStructure = [
+    { name: "ID", headerId: "id", sortable: true },
+    {
+      name: "Title",
+      headerId: "title",
+      sortable: true,
+      render: (item: any) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={item.image}
+            alt={item.title}
+            className="w-10 h-10 rounded"
+          />
+          <span>{item.title}</span>
+        </div>
+      ),
+    },
+    { name: "Category", headerId: "category", sortable: true },
+    {
+      name: "Price",
+      headerId: "price",
+      sortable: true,
+      render: (item: any) => (
+        <Chip color="success" size="sm" variant="flat">
+          ${item.price}
+        </Chip>
+      ),
+    },
+    {
+      name: "Actions",
+      headerId: "actions",
+      sortable: false,
+      render: () => (
+        <div className="flex items-center gap-3">
+          {/* View Button */}
+          <Tooltip content="Details">
+            <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+              <Eye className="w-4 h-4" />
+            </button>
+          </Tooltip>
+
+          {/* Edit Button */}
+          <Tooltip content="Edit product">
+            <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+              <SquarePen className="w-4 h-4" />
+            </button>
+          </Tooltip>
+
+          {/* Delete Button */}
+          <Tooltip color="danger" content="Delete product">
+            <button
+              onClick={() => {
+                console.log("Deleting product:");
+              }}
+              className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
+  const categoryOptions = [
+    { name: "Electronics", uid: "electronics" },
+    { name: "Jewelery", uid: "jewelery" },
+    { name: "Men's clothing", uid: "men's clothing" },
+    { name: "Women's clothing", uid: "women's clothing" },
+  ];
+
+  const filterContent = [
+    {
+      name: "Category",
+      uid: "category",
+      content: categoryOptions,
+      showSearch: false,
+    },
+  ];
+
+  const navigate = useNavigate();
+  const handleAddClick = () => {
+    navigate("/");
+  };
+
+  // Create a wrapper for the ImageCard
+  const ProductCard = ({ item }: any) => (
+    <ImageCard
+      imageSrc={item.image}
+      imageAlt={item.title}
+      title={item.title}
+      subtitle={item.category}
+      description={`$${item.price}`}
+      item={item}
+    />
+  );
+
+  // callback from TableComponent
+  const handleFiltersChange = (
+    filters: { uid: string; values: { value: string; label: string }[] }[]
+  ) => {
+    console.log("Filters from table:", filters);
+  };
+
+  return (
+    <div className="min-h-screen mx-2">
+      <div className="max-w-[1400px] mx-auto mt-10">
+        {/* <div className="w-full bg-purple-950 rounded-2xl p-6 ">
+          <motion.h3
+            className="text-2xl font-bold text-white pb-8"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            Projects Table :
+          </motion.h3>
+        </div> */}
+        <TableComponent
+          type="Project"
+          TableContent={products}
+          TableStructure={TableStructure}
+          searchPlaceholder="Search by project name..."
+          CardComponent={ProductCard}
+          filters={filterContent}
+          onFiltersChange={handleFiltersChange}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          totalItems={totalItems}
+          totalPages={totalPages} // ✅ added totalPages
+          currentPage={page} // ✅ added currentPage
+          onPageChange={setPage}
+          onRowsPerPageChange={setRowsPerPage}
+          onAdd={handleAddClick}
+          isSearch={true}
+          isSelectRows={false}
+          isLoading={isLoading}
+          onSearchValueChange={(val: any) => {
+            console.log("parent search", val);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default Projects;

@@ -16,12 +16,26 @@ import Test from './Pages/Test';
 import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
+import ThemeToggle from './components/Theme';
+import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
+import Dummy from './Pages/DashBoardUsage2';
+
+  
 function App() {
+   
   const hideNavbar = location.pathname === '/HomePage';
   return (
     <>
       {!hideNavbar && <NavbarComponent />}
+      
+      
+                
+                   
+              
+    
+
       <Routes>
+        
         <Route path='/' element={<Home />} />
         <Route path='/auth' element={<Auth />} />
         <Route path='/users' element={<Users />} />
@@ -37,8 +51,10 @@ function App() {
         <Route path='/displayusersform' element={<DisplayUsersForm />} />
         <Route path='/statCardUsage' element={<StatCardUsage />} />
         <Route path='/dashBoardDumy' element={<DashBoardDumy />} />
+          <Route path='/dashBoardUsage2' element={<Dummy />} />
         <Route path='/buttonUsage' element={<ButtonUsageDemo />} />
          <Route path='/statsCardchk' element={<Dashboard/>}/>
+         <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/>
 
       </Routes>
     </>

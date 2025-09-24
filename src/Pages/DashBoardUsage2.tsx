@@ -2,29 +2,48 @@
 import React, { useState } from 'react';
 import DashboardHeader from '../components/common/dashBoard/dashBoardHeader';
 import type { Tab, ActionButton } from '../types/dashBoardTypes';
-import {Bell,ChartNoAxesColumn,DollarSign,Home,Landmark,Layers,LayoutList,Plus,Settings} from 'lucide-react';
-const Users: React.FC = () => {
+import {
+  BookOpen,
+  FileText,
+  ClipboardCheck,
+  Bell,
+ 
+} from 'lucide-react';
+const Dummy: React.FC = () => {
   const [activeTab, setActiveTab] = useState('users');
 
   const tabs: Tab[] = [
-    //    {
-    //   id: 'overview',
-    //   name: 'Overview',
-    //   icon: <Home className="mr-2 h-5 w-5" />,
-    //   path: '/projects',
-    // },
-    // {
-    //   id: 'projectTracking',
-    //   name: 'Project Tracking',
-    //   icon: <Layers className="mr-2 h-5 w-5" />,
-    //   path: '/projects/projectTracking',
-    // },
-    {id: 'analytics',name: 'Analytics',icon: <ChartNoAxesColumn className="mr-2 h-5 w-5" />,path: '#',},
-    {id: 'finance', name: 'Finance',icon: <Landmark className="mr-2 h-5 w-5" />,path: '/projects/finance', },
-    {id: 'advanceFinance',name: 'Advance',icon: <DollarSign className="mr-2 h-5 w-5" />,path: '/projects/advanceFinance', },
-    {id: 'allGeneralTask',name: 'General',icon: <LayoutList className="mr-2 h-5 w-5" />,path: '/projects/allGeneralTask',},
-    {id: 'notification',name: 'Notification',icon: <Bell className="mr-2 h-5 w-5" />,path: '/projects/notification',},
-    {id: 'settings',name: 'Settings',icon: <Settings className="mr-2 h-5 w-5" />,path: '/projects/settings',},
+     {
+    id: 'overview',
+    name: 'Overview',
+    icon: <BookOpen className="mr-2 h-5 w-5" />,
+    path: '/sop',
+  },
+  {
+    id: 'recipes',
+    name: 'Recipes',
+    icon: <FileText className="mr-2 h-5 w-5" />,
+    path: '/sop/recipes',
+  },
+  {
+    id: 'manuals',
+    name: 'Manuals',
+    icon: <BookOpen className="mr-2 h-5 w-5" />,
+    path: '/sop/manuals',
+  },
+  {
+    id: 'checklists',
+    name: 'Checklists',
+    icon: <ClipboardCheck className="mr-2 h-5 w-5" />,
+    path: '/sop/checklists',
+  },
+  {
+    id: 'announcements',
+    name: 'Announcements',
+    icon: <Bell className="mr-2 h-5 w-5" />,
+    path: '/sop/announcements',
+  },
+
 
   ];
 
@@ -32,7 +51,7 @@ const Users: React.FC = () => {
     {
       id: 'create-user',
       label: 'Add User',
-      icon: <Plus />,
+      icon: <Bell />,
       onClick: () => console.log('Creating user...'),
     },
   ];
@@ -43,10 +62,10 @@ const Users: React.FC = () => {
 
         {/* Simple Dashboard Header */}
         <DashboardHeader
-          title="PROJECTS DASHBOARD"
-          subtitle="Monitoring 115 projects across Saudi Arabia"
+          title="Standard Operating Procedures"
+          subtitle="Monitoring Standard Operating Procedures across all locations"
           tabs={tabs}
-          bgColor="bg-violet-950"
+          bgColor="bg-green-900"
           actionButtons={actionButtons}
           activeTab={activeTab}        // controlled prop
           onTabChange={setActiveTab}
@@ -85,4 +104,4 @@ const Users: React.FC = () => {
   );
 };
 
-export default Users;
+export default Dummy;

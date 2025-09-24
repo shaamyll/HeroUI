@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@heroui/accordion": "^2.2.23",
     "@heroui/button": "^2.2.25",
     "@heroui/card": "^2.2.24",
     "@heroui/chip": "^2.2.21",
@@ -30,7 +31,7 @@
     "@types/three": "^0.180.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.12",
+    "framer-motion": "^12.23.18",
     "gsap": "^3.13.0",
     "lucide-react": "^0.542.0",
     "motion": "^12.23.12",

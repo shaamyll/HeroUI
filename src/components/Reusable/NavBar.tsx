@@ -12,14 +12,16 @@ import {
 } from "../ui/resizable-navbar";
 import { useState } from "react";
 
-
+import ThemeToggle from "../Theme";
 export function NavbarComponent() {
+  
   const navItems = [
     { name: "Home", link: "/" },
     { name: "Users", link: "/users" },
     { name: "Projects", link: "/projects" },
     { name: "Asset", link: "/asset" },
     { name: "Test", link: "/test" },
+    { name: "Button", link: "/buttonusage" },
     // { name: "Dashboard", link: "/dashboard" },
     // { name: "Login", link: "/login" },
     // { name: "Footer", link: "/Footer" },
@@ -27,22 +29,26 @@ export function NavbarComponent() {
     { name: "Components", link: "/displaycomponents" },
     { name: "UsersForm", link: "/displayusersform" },
     { name: "statCard", link: "/statCardUsage" },
+    
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="relative w-full sticky top-0 z-50 ">
+      
       <Navbar
         className="
     bg-white backdrop-blur-lg
     text-white 
   "
+  
       >
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
           <NavItems
+          
             items={navItems}
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
@@ -54,6 +60,7 @@ export function NavbarComponent() {
               SignUp
             </NavbarButton>
           </div> */}
+          
         </NavBody>
 
         {/* Mobile Navigation */}

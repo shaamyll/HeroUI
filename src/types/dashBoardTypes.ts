@@ -1,4 +1,4 @@
-// types/dashboard.ts
+// types/dashBoardTypes.ts - Updated interface
 import type { ReactNode } from 'react';
 
 export interface Tab {
@@ -47,38 +47,57 @@ export interface DotGridConfiguration {
   enabled?: boolean;
 }
 
+// UPDATED: DashboardHeaderProps now includes activeTab and onTabChange
 export interface DashboardHeaderProps {
-  // Basic header info
   title: string;
   subtitle: string;
-
-  // Tabs configuration
   tabs: Tab[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
-
-  // Action buttons
   actionButtons?: ActionButton[];
-
-  // Mobile configuration
-  showMobileNav?: boolean;
-  mobileBreakpoint?: number;
-  mobileFloatingButtons?: ActionButton[];
-
-  // User permissions
-  userPermissions?: string[];
-
-  // Styling
   bgColor?: string;
-  bgImage?: string;
-  headerClassName?: string;
-  titleClassName?: string;
-  subtitleClassName?: string;
+}
 
-  // Additional content
-  additionalContent?: ReactNode;
+// Supporting interfaces for internal components (not part of main props)
+export interface HeaderBackgroundProps {
+  dotGridConfig: DotGridConfiguration;
+  isLowPowerDevice: boolean;
+}
 
-  // Configurations
-  dockProps?: DockConfiguration;
-  dotGridConfig?: DotGridConfiguration;
+export interface DesktopDockNavigationProps {
+  tabs: Tab[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+  dockProps: DockConfiguration;
+  isMobile: boolean;
+}
+
+export interface SimpleMobileNavProps {
+  tabs: Tab[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+}
+
+export interface MobileActionMenuProps {
+  buttons: ActionButton[];
+  userPermissions: string[];
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+}
+
+export interface ActionButtonComponentProps {
+  button: ActionButton;
+  userPermissions: string[];
+  className?: string;
+  onClick?: () => void;
+}
+
+// Hook return type
+export interface DashboardState {
+  isMobile: boolean;
+  isActionMenuOpen: boolean;
+  isLowPowerDevice: boolean;
+  toggleActionMenu: () => void;
+  closeActionMenu: () => void;
 }

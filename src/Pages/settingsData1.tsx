@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react';
-import TableComponent from '../components/Reusable/TableComponent';
+import DynamicTable from '../components/Reusable/DynamicTable';
 import { userData } from '../Data/User';
 import { addToast, Chip, Tooltip } from '@heroui/react';
-import { motion } from 'framer-motion';
 import { Eye, SquarePen, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
 import { useNavigate } from 'react-router-dom';
@@ -231,7 +230,7 @@ const TableStructure = [
                 {/* </div> */}
 
                 {/* Table */}
-                <TableComponent
+                <DynamicTable
                     type="User"
                     TableStructure={TableStructure}
                     TableContent={users}

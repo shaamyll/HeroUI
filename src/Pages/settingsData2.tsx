@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import TableComponent from "../components/Reusable/TableComponent";
+import DynamicTable from "../components/Reusable/DynamicTable";
 import { Chip, Tooltip } from "@heroui/react";
-import { motion } from "framer-motion";
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ImageCard from "../components/Reusable/ImageCard";
@@ -128,7 +127,7 @@ function Projects() {
     />
   );
 
-  // callback from TableComponent
+  // callback from DynamicTable
   const handleFiltersChange = (
     filters: { uid: string; values: { value: string; label: string }[] }[]
   ) => {
@@ -148,7 +147,7 @@ function Projects() {
             Projects Table :
           </motion.h3>
         </div> */}
-        <TableComponent
+        <DynamicTable
           type="Project"
           TableContent={products}
           TableStructure={TableStructure}

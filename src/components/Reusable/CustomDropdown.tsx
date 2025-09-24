@@ -401,7 +401,8 @@ const buttonContent = React.useMemo(() => {
         style={{
           width: dropdownContentWidth,
           minWidth: dropdownContentWidth,
-          maxWidth: dropdownContentWidth
+          maxWidth: dropdownContentWidth,
+          boxSizing: 'border-box'
         }}
         topContent={
           showSearch ? (

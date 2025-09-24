@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import TableComponent from '../components/Reusable/TableComponent';
 import { userData } from '../Data/User';
 import { addToast, Chip, Tooltip } from '@heroui/react';
 import { motion } from 'framer-motion';
@@ -7,6 +6,7 @@ import { Eye, SquarePen, Trash2 } from 'lucide-react';
 import DeleteModal from '../components/Reusable/DeleteModal';
 import { useNavigate } from 'react-router-dom';
 import UserCard from '@/components/Reusable/UserCard';
+import DynamicTable from '../components/Reusable/DynamicTable';
 
 function Users() {
     const [users, setUsers] = useState([...userData.users]);
@@ -124,7 +124,9 @@ function Users() {
             headerId: 'status',
             sortable: true,
             render: (item: any) => (
-                <Chip color={statusColorMap[item.status as UserStatus]} size="sm" variant="flat">
+                <Chip color={statusColorMap[item.status as UserStatus]} size="sm" variant="flat" classNames={{
+                    content: "font-semibold capitalize",
+                }}>
                     {item.status}
                 </Chip>
             ),
@@ -143,14 +145,14 @@ function Users() {
                 <div className="flex items-center gap-3">
                     {/* View Button */}
                     <Tooltip content="Details">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg  bg-blue-50 text-gray-600 hover:bg-blue-100 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-600 hover:bg-blue-100 active:opacity-70">
                             <Eye className="w-4 h-4" />
                         </button>
                     </Tooltip>
 
                     {/* Edit Button */}
                     <Tooltip content="Edit user">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-25 text-gray-600 hover:bg-green-100  active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg  text-gray-600 hover:bg-green-100  active:opacity-70">
                             <SquarePen className="w-4 h-4" />
                         </button>
                     </Tooltip>
@@ -162,7 +164,7 @@ function Users() {
                                 console.log("Deleting user:", item);
                                 openDeleteModal(item);
                             }}
-                            className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 active:opacity-70"
+                            className="flex items-center justify-center w-7 h-7 rounded-lg text-red-500 hover:bg-red-100 active:opacity-70"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -172,10 +174,8 @@ function Users() {
         },
     ];
 
-
-
     const roleOptions = [
-        { name: 'Developer', uid: 'dev7eloper' },
+        { name: 'Developer', uid: 'developer' },
         { name: 'Tester', uid: 'tester' },
         { name: 'Manager', uid: 'manager' },
     ];
@@ -194,8 +194,8 @@ function Users() {
 
     const filterContent = [
         { name: 'Status', uid: 'status', content: statusOptions, showSearch: false },
-        { name: 'Role', uid: 'role', content: roleOptions, showSearch: true },
         { name: 'Team', uid: 'team', content: teamOptions, showSearch: false },
+        { name: 'Role', uid: 'role', content: roleOptions, showSearch: true, dependsOn: 'team' },
     ];
 
     const navigate = useNavigate()
@@ -230,7 +230,7 @@ function Users() {
                 </div>
 
                 {/* Table */}
-                <TableComponent
+                <DynamicTable
                     type="User"
                     TableStructure={TableStructure}
                     TableContent={users}
@@ -241,16 +241,12 @@ function Users() {
                     onAdd={handleAddClick}
                     isSearch={true}
                     isSelectRows={true}
-                    onFiltersChange={
-                        (val) => {
-                            console.log("parent", val)
-                        }
-                    }
+                    onFiltersChange={(val) => {
+                        console.log("parent", val);
+                    }}
                     onSearchValueChange={(val: any) => {
-                        console.log("parent", val)
-                    }
-                    }
-                />
+                        console.log("parent", val);
+                    }} totalItems={0} currentPage={0} totalPages={0} rowsPerPage={0} />
             </div>
             {/* Delete Modal controlled from parent */}
             <DeleteModal

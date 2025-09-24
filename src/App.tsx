@@ -29,11 +29,7 @@ function App() {
       {!hideNavbar && <NavbarComponent />}
       
       
-                
-                   
-              
-    
-
+        
       <Routes>
         
         <Route path='/' element={<Home />} />

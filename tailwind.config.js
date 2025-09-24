@@ -15,7 +15,7 @@ export default {
         "purple-dark": {
           extend: "dark", 
           colors: {
-            background: "#0D001A",
+            background: "#e5e7eb",
             foreground: "#ffffff",
             primary: {
               50: "#3B096C",

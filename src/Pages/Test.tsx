@@ -46,10 +46,10 @@ function Test() {
         value={customDropdownValue}
         onChange={handleCustomDropdownChange}
         placeholder="Select an option"
-        buttonClassName="w-[200px]"
+        buttonClassName="w-[150px]"
         showSearch={true}
         selectionMode="multiple"
-        matchWidth={false}
+        matchWidth={true}
       />
 
       <br />
@@ -61,8 +61,9 @@ function Test() {
         options={searchableSelectOptions}
         value={searchableSelectValue}
         onChange={handleSearchableSelectChange}
-        placeholder="Select an option"
-        buttonClassName="w-[180px]"
+        label="Select an Area"
+        placeholder="select an Area"
+        buttonClassName="w-[400px]"
         showSearch={true}
         selectionMode="multiple"
       />

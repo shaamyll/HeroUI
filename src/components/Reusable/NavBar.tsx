@@ -11,7 +11,6 @@ import {
   MobileNavMenu,
 } from "../ui/resizable-navbar";
 import { useState } from "react";
-
 import ThemeToggle from "../Theme";
 export function NavbarComponent() {
   
@@ -27,7 +26,7 @@ export function NavbarComponent() {
     // { name: "Footer", link: "/Footer" },
     { name: "cardview", link: "/cardView" },
     { name: "Components", link: "/displaycomponents" },
-    { name: "UsersForm", link: "/displayusersform" },
+    { name: "Create User", link: "/displayusersform" },
     { name: "statCard", link: "/statCardUsage" },
     
   ];

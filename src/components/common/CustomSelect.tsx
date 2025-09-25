@@ -27,7 +27,7 @@ export interface SelectProps {
   color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
   size?: "sm" | "md" | "lg";
   radius?: "none" | "sm" | "md" | "lg" | "full";
-  placeholder?: string;
+  placeholder?: string; 
   labelPlacement?: "inside" | "outside" | "outside-left";
   label?: ReactNode;
   description?: ReactNode;

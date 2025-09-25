@@ -1,7 +1,7 @@
 // hooks/useToast.ts
 import { useCallback } from "react";
 import { addToast } from "@heroui/react";
-import type { ToastConfig } from "../common/ToastButton";
+import type { ToastConfig } from "../components/common/ToastButton";
 
 export const UseToast = () => {
   const showToast = useCallback((config: ToastConfig) => {

@@ -18,6 +18,7 @@ import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
+import AssetForm from './Pages/AssetForm';
 
    
 function App() {
@@ -39,6 +40,7 @@ function App() {
         <Route path='/SettingsProject' element={<SettingsProject />} />
         <Route path='/test' element={<Test/>}/>
         <Route path='/asset' element={<Asset/>}/>
+        <Route path='/create-asset' element={<AssetForm/>}/>
         {/* <Route path='/dashboard' element={<DashBoardPage />} /> */}
         <Route path='/login' element={<Login />} />
         <Route path='/Footer' element={<footer />} />

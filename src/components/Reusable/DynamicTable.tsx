@@ -15,7 +15,7 @@ import {
   SelectItem,
   Select,
 } from "@heroui/react";
-import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
+import { FolderOpen, Grid3X3, List, Plus, RotateCcw, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Selection, SortDescriptor } from "@heroui/react";
 import SearchableSelect from "./SearchableSelect";
@@ -192,9 +192,9 @@ export default function DynamicTable({
           }`}
       >
         {/* Top Row: Title, Search, Toggle, Add New */}
-        <div className="flex flex-wrap items-center gap-3 w-full">
+        <div className="flex flex-wrap items-center gap-2 w-full">
           {/* Title */}
-          <div className="bg-gray-50 rounded-lg px-4 py-2 border-2 flex-shrink-0">
+          <div className="bg-white rounded-lg px-4 py-2 border-2 flex-shrink-0">
             <h2 className="text-md font-semibold text-black">
               {type}s ({totalItems})
             </h2>
@@ -208,12 +208,12 @@ export default function DynamicTable({
                 isClearable
                 classNames={{
                   base: "w-full",
-                  inputWrapper: "font-extrabold bg-gray-50 py-5",
+                  inputWrapper: "font-extrabold bg-white py-5",
                   input:
-                    "placeholder:text-gray-400 placeholder:font-semibold",
+                    "placeholder:text-gray-500 placeholder:font-medium",
                 }}
                 placeholder={searchPlaceholder}
-                startContent={<Search className="w-4 h-4 text-default-400" />}
+                startContent={<Search className="w-4 h-4 text-gray-500" />}
                 value={searchValue}
                 variant="faded"
                 onClear={onClear}
@@ -256,10 +256,11 @@ export default function DynamicTable({
           <div className="flex-shrink-0">
             {onAdd && (
               <Button
-                className="bg-gradient-to-r rounded-xl from-[#37125d] to-[#5a2d8a] text-white font-semibold"
+                className="bg-gradient-to-r rounded-lg from-[#37125d] to-[#5a2d8a] text-white font-semibold"
                 size="md"
                 onPress={() => onAdd(type)}
                 isDisabled={isLoading}
+                startContent={<Plus className="h-4 w-4"/>}
               >
                 Create {type}
               </Button>
@@ -295,7 +296,7 @@ export default function DynamicTable({
                   placeholder={`Select ${filter.name}`}
                   searchPlaceholder={`Search ${filter.name}..`}
                   onChange={(val:any) => handleFilterChange(filter.uid, val)}
-                  buttonClassName="min-w-[180px] max-w-[250px] flex-auto  justify-between text-small"
+                  buttonClassName="min-w-[100px] max-w-[220px] flex-auto  justify-between"
                   showSearch={filter.showSearch || false}
                   disabled={isDisabled}
                   // matchWidth={true}
@@ -343,7 +344,7 @@ export default function DynamicTable({
       <div className="pb-10 px-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 w-full">
         {/* Rows per page */}
         <div className="flex justify-between items-center w-full sm:w-auto text-sm text-gray-600">
-          {isLoading ? (
+          {isLoading ? (  
             <Skeleton className="h-8 w-32" />
           ) : (
             <>
@@ -529,8 +530,8 @@ export default function DynamicTable({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="flex justify-between items-center bg-gradient-to-r from-[#37125c] via-[#4a1777] to-[#37125c] text-white px-6 py-3 rounded-lg my-3 shadow-lg border border-[#5d2a8a]"
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="flex justify-between items-center bg-gradient-to-r from-[#37125c] via-[#4a1777] to-[#37125c] text-white px-6 py-1.5 rounded-lg my-3"
         >
           <div className="flex items-center gap-4">
             <span className="font-medium">
@@ -591,7 +592,7 @@ export default function DynamicTable({
           onSortChange={handleSortChange}
           onRowAction={handleRowAction}
           selectionBehavior={isSelectRows ? "toggle" : "replace"}
-          checkboxesProps={{ color: "default" }}
+          checkboxesProps={{ color: "primary" }}
         >
           <TableHeader columns={columns}>
             {(column) => (

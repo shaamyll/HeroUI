@@ -2,7 +2,7 @@ export let userData = {
      users : [
   {
     id: 1,
-    name: "Tony ReicherReichertReichertReichertt",
+    name: "Tony",
     role: "CEO",
     team: "Management",
     status: "active",

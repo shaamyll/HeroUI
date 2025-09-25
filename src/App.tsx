@@ -1,11 +1,11 @@
 import { Route, Routes } from 'react-router-dom';
 import Home from './Pages/Home';
-import { NavbarComponent } from './components/Reusable/NavBar';
+import  NavbarComponent  from './components/Reusable/NavbarComponent';
 import Users from './Pages/Users';
 import Projects from './Pages/Projects';
 import Auth from './Pages/Auth';
 // import DashBoardPage from './Pages/DashBoardPage';
-import Login from './Pages/Login';
+import Login from './Pages/Login';  
 import CardView from './Pages/CardView';
 import HomePage from './Pages/HomePage';
 import DisplayComponents from './Pages/DisplayComponents';

@@ -55,7 +55,7 @@ function Asset() {
             headerId: "name",
             sortable: true,
             render: (item: any) => (
-                <span className="font-medium text-gray-700">{item.name}</span>
+                <span className="font-medium text-gray-800">{item.name}</span>
             ),
         },
         {
@@ -63,7 +63,7 @@ function Asset() {
             headerId: "code",
             sortable: true,
             render: (item: any) => (
-                <span className="text-sm font-medium text-gray-700">{item.code}</span>
+                <span className="text-sm font-medium text-gray-800">{item.code}</span>
             ),
         },
         {
@@ -77,7 +77,7 @@ function Asset() {
             headerId: "category",
             sortable: true,
             render: (item: any) => (
-                <span className="text-gray-600 font-medium">{item.category?.name}</span>
+                <span className="text-gray-800 font-medium">{item.category?.name}</span>
             ),
         },
         {
@@ -86,20 +86,12 @@ function Asset() {
             sortable: false,
             render: (item: any) =>
                 item.store ? (
-                    <span className="text-gray-600 font-medium">
+                    <span className="text-gray-800 font-medium">
                         {item.store.store_name} ({item.store.store_code})
                     </span>
                 ) : (
-                    <span className="text-gray-400">No Store</span>
+                    <span className="text-gray-800 font-medium">N/A</span>
                 ),
-        },
-        {
-            name: "Tags",
-            headerId: "tags",
-            sortable: false,
-            render: (item: any) => (
-                <span className="text-gray-400">—</span>
-            ),
         },
         {
             name: "Actions",

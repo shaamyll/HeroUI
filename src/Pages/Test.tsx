@@ -37,7 +37,7 @@ function Test() {
   }, []);
 
   return (
-    <div className="p-4 min-h-screen w-1/2">
+    <div className="p-4 min-h-screen w-full flex flex-col gap-6">
       <h2 className="mb-2 text-lg font-semibold">Test Dropdowns</h2>
 
       {/* Custom Dropdown */}
@@ -46,15 +46,11 @@ function Test() {
         value={customDropdownValue}
         onChange={handleCustomDropdownChange}
         placeholder="Select an option"
-        buttonClassName="w-[150px]"
+        buttonClassName="w-full sm:w-1/2 lg:w-1/3" // responsive widths
         showSearch={true}
         selectionMode="multiple"
         matchWidth={true}
       />
-
-      <br />
-      <br />
-      <br />
 
       {/* Searchable Select */}
       <SearchableSelect
@@ -62,8 +58,8 @@ function Test() {
         value={searchableSelectValue}
         onChange={handleSearchableSelectChange}
         label="Select an Area"
-        placeholder="select an Area"
-        buttonClassName="w-[400px]"
+        placeholder="Select an Area"
+        buttonClassName="w-full sm:w-3/4 lg:w-1/3" // responsive widths
         showSearch={true}
         selectionMode="multiple"
       />

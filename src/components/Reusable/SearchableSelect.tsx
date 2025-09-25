@@ -7,6 +7,7 @@ import {
     Tooltip
 } from "@heroui/react";
 import { Search, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface DropdownOption {
     value: string;
@@ -44,7 +45,7 @@ function SearchableSelect({
     showSearch = false,
     disabled = false,
     width,
-    maxSelectedDisplay = 8,
+    maxSelectedDisplay = 3,
     closeOnSelect,
     label,
 }: SearchableSelectProps) {
@@ -112,7 +113,7 @@ function SearchableSelect({
     useEffect(() => {
         if (showSearch && searchInputRef.current) {
             // Use multiple timeouts with increasing delays to handle different scenarios
-            const timeouts = [50, 100, 200].map(delay => 
+            const timeouts = [50, 100, 200].map(delay =>
                 window.setTimeout(() => {
                     if (searchInputRef.current) {
                         searchInputRef.current.focus();
@@ -158,80 +159,123 @@ function SearchableSelect({
     // Custom render function for multi-selection with chips
     const renderValue = (items: any) => {
         if (items.length === 0) {
-            return <span className="text-gray-500">{placeholder}</span>;
-        }
-
-        if (selectionMode === 'single') {
-            const selectedOption = selectedValues[0];
             return (
-                <div className="text-gray-900 truncate" title={selectedOption?.label}>
-                    {selectedOption?.label}
-                </div>
-            );
+                <motion.span
+                    className="text-muted-foreground"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    {placeholder}
+                </motion.span>
+            )
         }
 
-        // Multi-selection: show up to 5 chips, then "+N more"
-        const visibleChips = selectedValues.slice(0, 5);
-        const extraCount = selectedValues.length - 5;
+        if (selectionMode === "single") {
+            const selectedOption = selectedValues[0]
+            return (
+                <motion.div
+                    className="text-foreground truncate"
+                    title={selectedOption?.label}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                    {selectedOption?.label}
+                </motion.div>
+            )
+        }
+
+        // Multi-selection: show up to 3 chips, then "+N more"
+        const visibleChips = selectedValues.slice(0, maxSelectedDisplay);
+        const extraCount = selectedValues.length - maxSelectedDisplay;
 
         return (
-            <div className="flex flex-wrap items-center gap-1 max-w-full">
-                {visibleChips.map((selectedValue) => (
-                    <Tooltip
-                        color="default"
-                        key={selectedValue.value}
-                        content={selectedValue.label}
-                        placement="top"
-                        delay={0}
-                    >
-                        <Chip
-                            size="sm"
-                            variant="flat"
-                            color="warning"
-                            onClose={() => handleChipClose(selectedValue)}
-                            classNames={{
-                                base: "max-w-full",
-                                content: "truncate text-xs px-2 max-w-[120px]"
+            <div className="flex flex-wrap items-center gap-1.5 max-w-full">
+                <AnimatePresence mode="popLayout">
+                    {visibleChips.map((selectedValue, index) => (
+                        <motion.div
+                            key={selectedValue.value}
+                            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                            transition={{
+                                duration: 0.2,
+                                delay: index * 0.05,
+                                ease: "easeOut",
                             }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            layout
                         >
-                            {selectedValue.label}
-                        </Chip>
-                    </Tooltip>
-                ))}
+                            <Tooltip color="default" content={selectedValue.label} placement="top" delay={1000}>
+                                <Chip
+                                    size="sm"
+                                    variant="flat"
+                                    onClose={() => handleChipClose(selectedValue)}
+                                    classNames={{
+                                        base: "max-w-full rounded-md bg-secondary text-secondary-foreground border-0 hover:bg-secondary/80 transition-all duration-200",
+                                        content: "truncate text-xs px-2 max-w-[120px] font-medium",
+                                        closeButton:
+                                            "text-secondary-foreground/60 hover:text-secondary-foreground hover:bg-secondary-foreground/10 rounded-full transition-all duration-200 hover:scale-110",
+                                    }}
+                                >
+                                    {selectedValue.label}
+                                </Chip>
+                            </Tooltip>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
 
                 {extraCount > 0 && (
-                    <Tooltip
-                        content={
-                            <div className="flex flex-col gap-1 p-2 max-w-xs">
-                                {selectedValues.slice(5).map((item, idx) => (
-                                    <div key={idx} className="text-xs text-black truncate" title={item.label}>
-                                        {item.label}
-                                    </div>
-                                ))}
-                            </div>
-                        }
-                        placement="top"
-                        delay={0}
-                        classNames={{
-                            content: "bg-white rounded-md shadow-lg"
-                        }}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        layout
                     >
-                        <Chip
-                            size="sm"
-                            variant="solid"
-                            color="default"
+                        <Tooltip
+                            content={
+                                <div className="flex flex-col gap-1 p-2 max-w-xs">
+                                    {selectedValues.slice(maxSelectedDisplay).map((item, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            className="text-xs text-foreground truncate"
+                                            title={item.label}
+                                            initial={{ opacity: 0, x: -5 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.2, delay: idx * 0.03 }}
+                                        >
+                                            {item.label}
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            }
+                            placement="top"
+                            delay={1000}
                             classNames={{
-                                base: "cursor-default",
-                                content: "text-xs px-2"
+                                content: "bg-popover border border-border rounded-md shadow-lg",
                             }}
                         >
-                            +{extraCount} more
-                        </Chip>
-                    </Tooltip>
+                            <Chip
+                                size="sm"
+                                variant="flat"
+                                color="default"
+                                classNames={{
+                                    base: "cursor-default bg-muted text-muted-foreground border-0 transition-all duration-200",
+                                    content: "text-xs px-2 font-medium",
+                                }}
+                            >
+                                +{extraCount} more
+                            </Chip>
+                        </Tooltip>
+                    </motion.div>
                 )}
             </div>
-        );
-    };
+        )
+    }
+
 
     return (
         <Select
@@ -241,7 +285,7 @@ function SearchableSelect({
             classNames={{
                 base: buttonClassName,
                 trigger: `min-h-[40px] py-2 bg-white`,
-                value: "text-left",
+                value: "text-left font-semibold",
                 popoverContent: "p-0 overflow-hidden"
             }}
             isMultiline={selectionMode === 'multiple'}
@@ -256,11 +300,9 @@ function SearchableSelect({
                 width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined
             }}
             renderValue={renderValue}
-            // Handle open/close state changes
             onOpenChange={(open) => {
                 setIsOpen(open);
                 if (!open) {
-                    // Clear any pending focus timeouts when closing
                     focusTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
                     focusTimeoutsRef.current = [];
                 }
@@ -288,7 +330,7 @@ function SearchableSelect({
                                 size="sm"
                                 classNames={{
                                     input: "text-sm focus:outline-none [&:focus]:outline-none !outline-none",
-                                    inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&:focus-within]:border-gray-400 !outline-none"
+                                    // inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&:focus-within]:border-gray-400 !outline-none"
                                 }}
                                 startContent={<Search size={14} className="text-gray-400" />}
                                 endContent={searchValue && (
@@ -315,7 +357,7 @@ function SearchableSelect({
                         py-2 px-2
                     `}
                     classNames={{
-                        base: "data-[selected=true]:bg-blue-50",
+                        base: "data-[selected=true]:bg-gray-200",
                         wrapper: "w-full flex items-center justify-between pr-8",
                         title: "truncate text-sm flex-1 mr-4",
                         selectedIcon: "flex-shrink-0"

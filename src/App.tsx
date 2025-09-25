@@ -16,10 +16,10 @@ import Test from './Pages/Test';
 import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
-import ThemeToggle from './components/Theme';
-// import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
+import SettingsProject from './Pages/settingsPageusage1';
+import Dummy from './Pages/DashBoardUsage2';
 
-  
+   
 function App() {
    
   const hideNavbar = location.pathname === '/HomePage';
@@ -29,11 +29,7 @@ function App() {
       {!hideNavbar && <NavbarComponent />}
       
       
-                
-                   
-              
-    
-
+        
       <Routes>
         
         <Route path='/' element={<Home />} />

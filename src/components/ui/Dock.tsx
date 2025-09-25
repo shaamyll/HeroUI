@@ -66,7 +66,7 @@ function DockItem({
   const size = useSpring(targetSize, spring);
 
   // Calculate width to accommodate text + icon
-  const baseWidth = baseItemSize * 2.7; // Wider base to fit text
+  const baseWidth = baseItemSize * 3.5; // Wider base to fit text
   const targetWidth = useTransform(mouseDistance, [-distance, 0, distance], [baseWidth, magnification * 1.5, baseWidth]);
   const width = useSpring(targetWidth, spring);
 

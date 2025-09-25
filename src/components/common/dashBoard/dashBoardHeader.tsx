@@ -43,7 +43,7 @@ const DEFAULTS = {
   dockProps: {
     distance: 250,
     panelHeight: 90,
-    baseItemSize: 50,
+    baseItemSize: 40,
     magnification: 80,
     spring: { mass: 0.1, stiffness: 150, damping: 12 },
     offsetTop: -96,

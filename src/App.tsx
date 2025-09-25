@@ -18,7 +18,6 @@ import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import ThemeToggle from './components/Theme';
 // import SettingsLeftContainer from './components/common/settings/SettingsLeftContainer';
-
   
 function App() {
    
@@ -26,13 +25,6 @@ function App() {
   return (
     <>
       {!hideNavbar && <NavbarComponent />}
-      
-      
-                
-                   
-              
-    
-
       <Routes>
         
         <Route path='/' element={<Home />} />

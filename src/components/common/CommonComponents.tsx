@@ -636,6 +636,7 @@ const CommonComponents: React.FC<CommonComponentsProps> = ({
 
 // Child Components for each feature
 const RotatingTextComponent = (props: JSX.IntrinsicAttributes & RotatingTextProps & React.RefAttributes<RotatingTextRef>) => <RotatingText {...props} />;
+
 const AccordionComponent = ({ itemClasses, defaultContent }: AccordionProps) => (
   <Accordion
     className="p-2 flex flex-col gap-1 w-full max-w-[300px]"

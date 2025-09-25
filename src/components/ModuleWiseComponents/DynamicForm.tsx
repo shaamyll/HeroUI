@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@heroui/react";
 import CustomDropdown, { type DropdownOption } from "../Reusable/CustomDropdown";
-import type { InputConfig } from "../common/CustomInput";
+import CustomInput from "../common/CustomInput";
 import InputTypeComponents from "../common/CustomInput";
 
 export interface FormConfig {

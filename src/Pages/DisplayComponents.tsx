@@ -751,7 +751,7 @@ const handleFruitSelectionChange = (keys: any) => {
             placeholder="Minimum 8 characters"
             isRequired
             errorMessage="Password must be at least 8 characters"
-            isInvalid={!!password && password.length < 8}
+            isInvalid={!!password && !validatePassword(password)}
           />
         </div>
 

@@ -6,7 +6,7 @@ interface CreateUserFormProps {
   isSubmitting?: boolean;
 }
 
-export default function CreateUserForm({ onSubmit, onCancel, isSubmitting }: CreateUserFormProps) {
+export default function EditUserForm({ onSubmit, onCancel, isSubmitting }: CreateUserFormProps) {
   const createFields = [
     {
       name: "fullName",
@@ -80,8 +80,8 @@ export default function CreateUserForm({ onSubmit, onCancel, isSubmitting }: Cre
 
   return (
     <CustomForm
-      formTitle="Create New User"
-      submitButtonText="Create User"
+      formTitle="Edit User"
+      submitButtonText="Update User"
       cancelButtonText="Cancel"
       onSubmit={onSubmit}
       onCancel={onCancel}

@@ -5,6 +5,7 @@ import { Button } from "@heroui/react";
 export interface ButtonProps {
   label?: string;
   isDisabled?: boolean;
+  type?: "button" | "submit" | "reset";
   size?: "sm" | "md" | "lg";
   radius?: "none" | "sm" | "md" | "lg" | "full";
   color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
@@ -19,6 +20,7 @@ export interface ButtonProps {
 export default function CustomButton({
   label = "Button",
   isDisabled = false,
+  type = "button",
   size = "md",
   radius = "md",
   color = "default",
@@ -33,6 +35,7 @@ export default function CustomButton({
     <Button
       isDisabled={isDisabled}
       size={size}
+      type={type}
       radius={radius}
       color={color}
       variant={variant}

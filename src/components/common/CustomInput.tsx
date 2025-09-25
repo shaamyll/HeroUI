@@ -83,9 +83,9 @@ export default function CustomInput({
   className = ""
 }: InputProps) {
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (value: string) => {
     if (onChange) {
-      onChange(e.target.value);
+      onChange(value);
     }
   };
 
@@ -97,11 +97,11 @@ export default function CustomInput({
       radius={radius}
       label={label}
       value={value}
-      defaultValue={defaultValue}
+      defaultValue={value === undefined ? defaultValue : undefined} 
       placeholder={placeholder}
       description={description}
       errorMessage={errorMessage}
-      // validate={validate} // Uncomment if needed for your use case
+      validate={validate} // Uncomment if needed for your use case
       validationBehavior={validationBehavior}
       minLength={minLength}
       maxLength={maxLength}
@@ -119,7 +119,7 @@ export default function CustomInput({
       // ref={baseRef} // Uncomment if needed for your use case
       disableAnimation={disableAnimation}
       classNames={classNames}
-      onValueChange={onChange}
+      onValueChange={handleChange}
       onClear={onClear}
       onFocus={onFocus}
       onBlur={onBlur}

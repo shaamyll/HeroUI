@@ -11,14 +11,14 @@ import HomePage from './Pages/HomePage';
 import DisplayComponents from './Pages/DisplayComponents';
 import DisplayUsersForm from './Pages/DispalyUsersForm';
 import StatCardUsage from './Pages/StatCardUsage';
-import Asset from './Pages/Asset';
+import Asset from './Pages/Asset/Asset';
 import Test from './Pages/Test';
 import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
-import AssetForm from './Pages/AssetForm';
+import AssetForm from './Pages/Asset/AssetForm';
 
    
 function App() {

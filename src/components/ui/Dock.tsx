@@ -56,18 +56,18 @@ function DockItem({
 
   const mouseDistance = useTransform(mouseX, val => {
     const rect = ref.current?.getBoundingClientRect() ?? {
-      x: 0,
+      x: 1,
       width: baseItemSize
     };
     return val - rect.x - baseItemSize / 2;
   });
 
-  const targetSize = useTransform(mouseDistance, [-distance, 0, distance], [baseItemSize, magnification, baseItemSize]);
+  const targetSize = useTransform(mouseDistance, [-distance, 0, distance], [baseItemSize, baseItemSize*1.3, baseItemSize]);
   const size = useSpring(targetSize, spring);
 
   // Calculate width to accommodate text + icon
-  const baseWidth = baseItemSize * 2.5; // Wider base to fit text
-  const targetWidth = useTransform(mouseDistance, [-distance, 0, distance], [baseWidth, magnification * 1.8, baseWidth]);
+  const baseWidth = baseItemSize * 2.7; // Wider base to fit text
+  const targetWidth = useTransform(mouseDistance, [-distance, 0, distance], [baseWidth, magnification * 1.5, baseWidth]);
   const width = useSpring(targetWidth, spring);
 
   // Check if this item is active (clicked/selected)
@@ -85,9 +85,9 @@ function DockItem({
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
       onClick={onClick}
-      className={`relative inline-flex items-center justify-center rounded-lg px-3 py-2 whitespace-nowrap transition-colors duration-200 ${isActive
-        ? 'bg-white/90 text-gray-900'
-        : 'bg-transparent hover:bg-white/10 text-white/70 hover:text-white/90'
+      className={`relative inline-flex items-center justify-center rounded-lg px-3 py-0.5 min-h-[16px] whitespace-nowrap transition-colors duration-200 ${isActive
+          ? 'bg-white/90 text-gray-900'
+          : 'bg-transparent hover:bg-white/10 text-white/70 hover:text-white/90'
         }`}
 
 
@@ -207,7 +207,7 @@ export default function Dock({
           mouseX.set(Infinity);
         }}
         className={`${className} absolute left-1/2 transform -translate-x-1/2 flex items-end w-fit gap-3 pb-2 px-4`}
-        style={{ 
+        style={{
           height: panelHeight,
           bottom: `${bottomOffset * 4}px` // Convert Tailwind units to pixels
         }}
@@ -226,7 +226,7 @@ export default function Dock({
             baseItemSize={baseItemSize}
           >
             <DockIcon index={index}>{item.icon}</DockIcon>
-           
+
           </DockItem>
         ))}
       </motion.div>

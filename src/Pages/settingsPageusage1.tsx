@@ -118,7 +118,7 @@ export default function SettingsProject() {
   ];
 
   return (
-    <div>
+    <div className="min-h-screen w-full bg-white">
       <DashboardHeader
         title="Standard Operating Procedures"
         subtitle="Monitoring Standard Operating Procedures across all locations"
@@ -126,7 +126,7 @@ export default function SettingsProject() {
         bgColor="bg-green-900"
         actionButtons={actionButtons}
       />
-      <div className="p-6">
+      <div className="p-6 bg-white w-full">
         <Accordion items={accordionItems} />
       </div>
     </div>

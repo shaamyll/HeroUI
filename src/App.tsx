@@ -18,7 +18,7 @@ import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
-
+import StatsDumy from './Pages/StatsDumy';
    
 function App() {
    
@@ -52,6 +52,7 @@ function App() {
         <Route path='/buttonUsage' element={<ButtonUsageDemo />} />
          <Route path='/statsCardchk' element={<Dashboard/>}/>
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
+         <Route path='/statsDumy' element={<StatsDumy/>}/>
 
       </Routes>
     </>

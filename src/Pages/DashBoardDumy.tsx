@@ -2,7 +2,13 @@
 import React, { useState } from 'react';
 import DashboardHeader from '../components/common/dashBoard/dashBoardHeader';
 import type { Tab, ActionButton } from '../types/dashBoardTypes';
-import {Bell,ChartNoAxesColumn,DollarSign,Home,Landmark,Layers,LayoutList,Plus,Settings} from 'lucide-react';
+import { Bell, ChartNoAxesColumn, DollarSign, Home, Landmark, Layers, LayoutList, Plus, Settings } from 'lucide-react';
+import {
+  BookOpen,
+  FileText,
+  ClipboardCheck,
+
+} from 'lucide-react';
 const Users: React.FC = () => {
   const [activeTab, setActiveTab] = useState('users');
 
@@ -19,12 +25,19 @@ const Users: React.FC = () => {
     //   icon: <Layers className="mr-2 h-5 w-5" />,
     //   path: '/projects/projectTracking',
     // },
-    {id: 'analytics',name: 'Analytics',icon: <ChartNoAxesColumn className="mr-2 h-5 w-5" />,path: '#',},
-    {id: 'finance', name: 'Finance',icon: <Landmark className="mr-2 h-5 w-5" />,path: '/projects/finance', },
-    {id: 'advanceFinance',name: 'Advance',icon: <DollarSign className="mr-2 h-5 w-5" />,path: '/projects/advanceFinance', },
-    {id: 'allGeneralTask',name: 'General',icon: <LayoutList className="mr-2 h-5 w-5" />,path: '/projects/allGeneralTask',},
-    {id: 'notification',name: 'Notification',icon: <Bell className="mr-2 h-5 w-5" />,path: '/projects/notification',},
-    {id: 'settings',name: 'Settings',icon: <Settings className="mr-2 h-5 w-5" />,path: '/projects/settings',},
+    { id: 'analytics', name: 'Analytics', icon: <ChartNoAxesColumn className="mr-2 h-5 w-5" />, path: '#', },
+    { id: 'finance', name: 'Finance', icon: <Landmark className="mr-2 h-5 w-5" />, path: '/projects/finance', },
+    { id: 'advanceFinance', name: 'Advance', icon: <DollarSign className="mr-2 h-5 w-5" />, path: '/projects/advanceFinance', },
+    { id: 'allGeneralTask', name: 'General', icon: <LayoutList className="mr-2 h-5 w-5" />, path: '/projects/allGeneralTask', },
+    { id: 'notification', name: 'Notification', icon: <Bell className="mr-2 h-5 w-5" />, path: '/projects/notification', },
+    { id: 'settings', name: 'Settings', icon: <Settings className="mr-2 h-5 w-5" />, path: '/projects/settings', },
+
+  ];
+  const tabs2: Tab[] = [
+
+    { id: 'analytics', name: 'Overview', icon: <ChartNoAxesColumn className="mr-2 h-5 w-5" />, path: '#', },
+    { id: 'finance', name: 'Audits', icon: <Landmark className="mr-2 h-5 w-5" />, path: '/projects/finance', },
+    { id: 'advanceFinance', name: 'settings', icon: <DollarSign className="mr-2 h-5 w-5" />, path: '/projects/advanceFinance', },
 
   ];
 
@@ -34,6 +47,38 @@ const Users: React.FC = () => {
       label: 'Add User',
       icon: <Plus />,
       onClick: () => console.log('Creating user...'),
+    },
+  ];
+  const tabs3: Tab[] = [
+    {
+      id: 'overview',
+      name: 'Overview',
+      icon: <BookOpen className="mr-2 h-5 w-5" />,
+      path: '/sop',
+    },
+    {
+      id: 'recipes',
+      name: 'Recipes',
+      icon: <FileText className="mr-2 h-5 w-5" />,
+      path: '/sop/recipes',
+    },
+    {
+      id: 'manuals',
+      name: 'Manuals',
+      icon: <BookOpen className="mr-2 h-5 w-5" />,
+      path: '/sop/manuals',
+    },
+    {
+      id: 'checklists',
+      name: 'Checklists',
+      icon: <ClipboardCheck className="mr-2 h-5 w-5" />,
+      path: '/sop/checklists',
+    },
+    {
+      id: 'announcements',
+      name: 'Announcements',
+      icon: <Bell className="mr-2 h-5 w-5" />,
+      path: '/sop/announcements',
     },
   ];
 
@@ -52,6 +97,24 @@ const Users: React.FC = () => {
           onTabChange={setActiveTab}
         />
 
+
+
+        <DashboardHeader
+          title="Standard Operating Procedures"
+          subtitle="Monitoring Standard Operating Procedures across all locations"
+          tabs={tabs3}
+          bgColor="bg-green-900"
+          actionButtons={actionButtons}
+        />
+        <DashboardHeader
+          title="Audit DashBoard"
+          subtitle="Monitoring quality standards across all locations"
+          tabs={tabs2}
+          bgColor="bg-blue-600"
+          actionButtons={actionButtons}
+          activeTab={activeTab}        // controlled prop
+          onTabChange={setActiveTab}
+        />
 
 
         {/* Your page content */}

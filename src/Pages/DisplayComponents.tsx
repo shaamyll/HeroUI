@@ -11,7 +11,7 @@ import DynamicForm from "@/components/ModuleWiseComponents/DynamicForm";
 import {CustomCardDropdown} from "@/components/ModuleWiseComponents/CustomCardDropdown";
 import CustomButton from "@/components/common/CustomButton";
 import CustomSelect from "@/components/common/CustomSelect";
-import { UseToast } from "@/components/hooks/UseToast";
+import { UseToast } from "@/hooks/UseToast";
 import { CircleX, BadgeCheck, EyeClosed, Eye, Search, UserRound } from 'lucide-react';
 import type { InputConfig } from "@/types/common";
 

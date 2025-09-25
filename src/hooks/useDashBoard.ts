@@ -5,8 +5,8 @@ import {
   createDebouncedResizeHandler, 
   safeWindow,
   filterButtonsByPermissions 
-} from '../common/dashBoard/utils';
-import type { ActionButton } from '../../types/dashBoardTypes';
+} from '../components/common/dashBoard/utils';
+import type { ActionButton } from '../types/dashBoardTypes';
 
 export const useIsMobile = (mobileBreakpoint: number = 768) => {
   const [isMobile, setIsMobile] = useState(() => checkIsMobile(mobileBreakpoint));

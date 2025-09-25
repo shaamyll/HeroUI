@@ -8,7 +8,7 @@ import {
   MobileActionMenu,
   ActionButtonComponent
 } from './components';
-import { useDashboardState } from '../../hooks/useDashBoard';
+import { useDashboardState } from '../../../hooks/useDashBoard';
 import { filterButtonsByPermissions } from './utils';
 import type { ActionButton, Tab } from '../../../types/dashBoardTypes';
 

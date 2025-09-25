@@ -1,5 +1,5 @@
 "use client";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@heroui/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link } from "@heroui/react";
 
 
 export default function NavbarComponent() {

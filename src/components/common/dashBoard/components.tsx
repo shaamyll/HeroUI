@@ -6,7 +6,7 @@ import Dock from '../../ui/Dock';
 import DotGrid from "../../DotGrid";
 import ErrorBoundary from '../ErrorBoundary';
 import type { Tab, ActionButton, DotGridConfiguration } from'../../../types/dashBoardTypes';
-import { useDashboardState } from '../../hooks/useDashBoard';
+import { useDashboardState } from '../../../hooks/useDashBoard';
 const isSSR = typeof window === 'undefined';
 const safeDocument = typeof document !== 'undefined' ? document : null;
 

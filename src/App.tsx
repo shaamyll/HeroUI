@@ -54,6 +54,7 @@ function App() {
         <Route path='/buttonUsage' element={<ButtonUsageDemo />} />
          <Route path='/statsCardchk' element={<Dashboard/>}/>
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
+         <Route path='/statsDumy' element={<StatsDumy/>}/>
 
       </Routes>
     </>

@@ -1,58 +1,165 @@
 // src/pages/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  DollarSign, 
-  Wrench, 
-  Activity, 
+import { Accordion } from '../components/common/settings/SettingsLeftContainer';
+import { MonitorSmartphone, ShieldCheck, Info, CreditCard } from "lucide-react";
+
+import Projects from './settingsData2';
+import {
+  Box,
+  DollarSign,
+  Wrench,
+  Activity,
   Building,
-  Users,
+
   ShoppingCart,
   Zap,
   TrendingUp
 } from 'lucide-react';
-import StatsContainer  from '../components/StatCard';
+import StatsContainer from '../components/StatCard';
 import type { StatItemData } from '../components/StatCard';
+import DashboardHeader from '@/components/common/dashBoard/dashBoardHeader';
+import {
+  BookOpen,
+  FileText,
+  ClipboardCheck,
+  Bell,
+} from 'lucide-react';
+import type { Tab, ActionButton } from '../types/dashBoardTypes';
+
+const MonitorMobileIcon = (props: React.ComponentProps<typeof MonitorSmartphone>) => (
+  <MonitorSmartphone size={24} {...props} />
+);
+
+const ShieldSecurityIcon = (props: React.ComponentProps<typeof ShieldCheck>) => (
+  <ShieldCheck size={24} {...props} />
+);
+
+const InfoIcon = (props: React.ComponentProps<typeof Info>) => (
+  <Info size={24} {...props} />
+);
+
+const InvalidCardIcon = (props: React.ComponentProps<typeof CreditCard>) => (
+  <CreditCard size={24} {...props} />
+);
 
 // Mock data - replace with your actual data source
+const defaultContent =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+const accordionItems = [
+  {
+    key: "1",
+    title: "Connected devices",
+    subtitle: (
+      <span className="flex text-sm text-gray-600">
+        2 issues to <span className="text-blue-500 ml-1">fix now</span>
+      </span>
+    ),
+    icon: <InvalidCardIcon className="text-red-500" />,
+    content: <Projects />
+  },
+  {
+    key: "2",
+    title: "Apps Permissions",
+    subtitle: <span className="text-sm text-gray-600">3 apps have read permissions</span>,
+    icon: <InfoIcon className="text-orange-500" />,
+    content: <Projects />
+  },
+  {
+    key: "3",
+    title: "Pending tasks",
+    subtitle: <span className="text-sm text-orange-500">Complete your profile</span>,
+    icon: <ShieldSecurityIcon className="text-gray-600" />,
+    content: <Projects />
+  },
+  {
+    key: "4",
+    title: (
+      <span className="flex gap-1 items-center">
+        Card expired
+        <span className="text-gray-400 text-sm">*4812</span>
+      </span>
+    ),
+    subtitle: <span className="text-sm text-red-500">Please, update now</span>,
+    icon: <MonitorMobileIcon className="text-blue-500" />,
+    content: defaultContent
+  }
+];
+const tabs: Tab[] = [
+  {
+    id: 'overview',
+    name: 'Overview',
+    icon: <BookOpen className="mr-2 h-5 w-5" />,
+    path: '/sop',
+  },
+  {
+    id: 'recipes',
+    name: 'Recipes',
+    icon: <FileText className="mr-2 h-5 w-5" />,
+    path: '/sop/recipes',
+  },
+  {
+    id: 'manuals',
+    name: 'Manuals',
+    icon: <BookOpen className="mr-2 h-5 w-5" />,
+    path: '/sop/manuals',
+  },
+  {
+    id: 'checklists',
+    name: 'Checklists',
+    icon: <ClipboardCheck className="mr-2 h-5 w-5" />,
+    path: '/sop/checklists',
+  },
+  {
+    id: 'announcements',
+    name: 'Announcements',
+    icon: <Bell className="mr-2 h-5 w-5" />,
+    path: '/sop/announcements',
+  },
+];
+
+const actionButtons: ActionButton[] = [
+  {
+    id: 'create-user',
+    label: 'Add User',
+    icon: <Bell />,
+    onClick: () => console.log('Creating user...'),
+  },
+];
 const mockStatsData: StatItemData[] = [
   {
     id: 'inventory',
-    title: 'Total Assets',
-    value: 250000,
+    title: 'Active Recipes',
+    value: 11,
     icon: Box,
-    color: 'blue',
+    color: 'green',
     trend: {
       percentage: 200,
       period: 'from last month',
       isPositive: true
     },
-    statusData: {
-      active: 35,
-      inactive: 1,
-      notInUse: 80,
-    },
    
+
   },
-  
- 
+
+
   {
     id: 'active-users',
-    title: 'Active Users',
-    value: 1248,
-    icon: Users,
-    color: 'blue',
+    title: 'Active Manuals',
+    value: 3,
+
+    color: 'green',
     trend: {
-      percentage: 7,
+      percentage: 20,
       period: 'from last week',
       isPositive: true
     },
     badge: 'Growing',
-    description: 'Users active in the last 30 days'
+   
   },
   {
     id: 'orders',
-    title: 'Orders Today',
+    title: 'Active Checklists',
     value: 89,
     icon: ShoppingCart,
     color: 'green',
@@ -61,20 +168,20 @@ const mockStatsData: StatItemData[] = [
       period: 'from yesterday',
       isPositive: true
     },
-    description: 'Orders processed today'
+   
   },
   {
     id: 'energy-usage',
-    title: 'Energy Usage',
-    value: '847 kWh',
+    title: 'Recent Updates',
+    value: '9',
     icon: Zap,
     color: 'orange',
     trend: {
-      percentage: 5,
+      percentage: 90,
       period: 'from last month',
       isPositive: false
     },
-    description: 'Monthly energy consumption'
+   
   }
 ];
 
@@ -106,7 +213,7 @@ const alternativeStatsData: StatItemData[] = [
     id: 'customers',
     title: 'Customers',
     value: 2347,
-    icon: Users,
+
     color: 'purple',
     trend: {
       percentage: 12,
@@ -117,7 +224,8 @@ const alternativeStatsData: StatItemData[] = [
   }
 ];
 
-export default function Dashboard() {
+export default function Dashboard() 
+{
   const [statsData, setStatsData] = useState<StatItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -128,10 +236,10 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
         // Set data based on current selection
         const dataToUse = currentDataSet === 'main' ? mockStatsData : alternativeStatsData;
         setStatsData(dataToUse);
@@ -155,7 +263,7 @@ export default function Dashboard() {
       index,
       timestamp: new Date().toISOString()
     });
-    
+
     // You can add navigation or modal opening logic here
     // For example:
     // navigate(`/details/${item.id}`);
@@ -172,7 +280,7 @@ export default function Dashboard() {
   const refreshData = () => {
     setStatsData([]);
     setLoading(true);
-    
+
     setTimeout(() => {
       const dataToUse = currentDataSet === 'main' ? mockStatsData : alternativeStatsData;
       setStatsData(dataToUse);
@@ -186,6 +294,13 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="py-8">
+        <DashboardHeader
+          title="Standard Operating Procedures"
+          subtitle="Monitoring Standard Operating Procedures across all locations"
+          tabs={tabs}
+          bgColor="bg-green-900"
+          actionButtons={actionButtons}
+        />
         <StatsContainer
           statsData={statsData}
           size="md"
@@ -199,7 +314,9 @@ export default function Dashboard() {
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         />
 
-
+        <div className="p-6 bg-white w-full">
+          <Accordion items={accordionItems} />
+        </div>
       </div>
     </div>
   );

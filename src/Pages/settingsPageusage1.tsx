@@ -125,7 +125,6 @@ export default function SettingsProject() {
         tabs={tabs}
         bgColor="bg-green-900"
         actionButtons={actionButtons}
-        fullWidth={true}
       />
       <div className="p-6 bg-white w-full">
         <Accordion items={accordionItems} />

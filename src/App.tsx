@@ -19,6 +19,7 @@ import Dashboard from './Pages/statscardchk';
 import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
 import AssetForm from './Pages/Asset/AssetForm';
+import StatsDumy from './Pages/StatsDumy';
 
    
 function App() {

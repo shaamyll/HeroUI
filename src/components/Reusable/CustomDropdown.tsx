@@ -5,11 +5,13 @@ import {
   DropdownMenu,
   DropdownItem,
   Button,
-  Input
+  Input,
+  Chip,
+  Tooltip
 } from "@heroui/react";
 import { ChevronDown, Search, X } from "lucide-react";
 
-export interface DropdownOption {
+interface DropdownOption {
   value: string;
   label: string;
   startContent?: React.ReactNode;
@@ -19,21 +21,23 @@ export interface DropdownOption {
 }
 
 interface CustomDropdownProps {
-  selectionMode?:string;
+  selectionMode?: "single" | "multiple";
   options?: DropdownOption[];
   placeholder?: string;
-  value?: DropdownOption | null;
-  onChange?: (option: DropdownOption | null) => void;
+  value?: DropdownOption | DropdownOption[] | null;
+  onChange?: (option: DropdownOption | DropdownOption[] | null) => void;
   buttonClassName?: string;
   searchPlaceholder?: string;
   showSearch?: boolean;
   matchWidth?: boolean;
   disabled?: boolean;
   width?: string | number;
+  maxSelectedDisplay?: number;
+  closeOnSelect?: boolean; 
 }
 
 function CustomDropdown({
-  selectionMode='single',
+  selectionMode = 'single',
   options = [],
   placeholder = "Select an option",
   value,
@@ -41,9 +45,11 @@ function CustomDropdown({
   buttonClassName,
   searchPlaceholder = "Search options...",
   showSearch = false,
-  matchWidth = true,
+  matchWidth,
   disabled = false,
   width,
+  maxSelectedDisplay = 2,
+  closeOnSelect,
 }: CustomDropdownProps) {
 
   const [searchValue, setSearchValue] = useState("");
@@ -52,6 +58,15 @@ function CustomDropdown({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+  // Determine default closeOnSelect behavior
+  const shouldCloseOnSelect = closeOnSelect !== undefined ? closeOnSelect : selectionMode === 'single';
+
+  // Normalize value to always work with arrays internally for consistency
+  const selectedValues = React.useMemo(() => {
+    if (!value) return [];
+    return Array.isArray(value) ? value : [value];
+  }, [value]);
 
   // Filter options
   const filteredOptions = React.useMemo(() => {
@@ -101,53 +116,86 @@ function CustomDropdown({
     }
   }, [isOpen, matchWidth]);
 
-  // Display label
-  const displayValue = value ? value.label : placeholder;
-
-  // Handle selection change → return full option
+  // Handle selection change for both single and multi-selection
   const handleSelectionChange = (keys: "all" | Set<React.Key>) => {
-    if (keys === "all") return; // no selection
-    const selectedKey = Array.from(keys)[0] as string;
-    const selectedOption = options.find(opt => opt.value === selectedKey);
-
-    if (onChange) {
-      onChange(selectedOption || null);
+    if (keys === "all" || !onChange) return;
+    
+    const selectedKeys = Array.from(keys) as string[];
+    
+    if (selectionMode === 'single') {
+      // Single selection mode
+      if (selectedKeys.length === 0) {
+        onChange(null);
+      } else {
+        const selectedOption = options.find(opt => opt.value === selectedKeys[0]);
+        onChange(selectedOption || null);
+      }
+      if (shouldCloseOnSelect) {
+        setIsOpen(false);
+      }
+    } else {
+      // Multi-selection mode
+      const selectedOptions = options.filter(opt => selectedKeys.includes(opt.value));
+      onChange(selectedOptions);
+      if (shouldCloseOnSelect) {
+        setIsOpen(false);
+      }
     }
-    setIsOpen(false);
   };
+
+const handleChipClose = (optionToRemove: DropdownOption) => {
+  if (selectionMode === 'multiple' && onChange) {
+    const updatedValues = selectedValues.filter(v => v.value !== optionToRemove.value);
+    onChange(updatedValues);
+  }
+};
 
   // Update highlighted index on mouse enter
   const handleItemMouseEnter = (index: number) => {
     setHighlightedIndex(index);
   };
 
-const menuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  const scrollToHighlightedItem = (index: number) => {
+    // Use setTimeout to ensure DOM has updated before scrolling
+    setTimeout(() => {
+      const menuContainer = menuRef.current || document.querySelector('[data-slot="listbox"]');
+      if (!menuContainer) return;
 
-const scrollToHighlightedItem = (index: number) => {
-  const menuContainer = menuRef.current || document.querySelector('[data-id="custom-dropdown-list"]');
-  if (!menuContainer) return;
+      const scrollableContainer = menuContainer.querySelector('[role="menu"]') || 
+                                   menuContainer.querySelector('[data-slot="list"]') || 
+                                   menuContainer;
+      
+      if (!scrollableContainer) return;
 
-  const scrollableContainer = menuContainer.querySelector('[role="menu"]') as HTMLElement;
-  if (!scrollableContainer) return;
+      //  the highlighted item
+      const highlightedItem = scrollableContainer.querySelector(`[data-key="${filteredOptions[index]?.value}"]`) as HTMLElement;
+      
+      if (highlightedItem) {
+        // Use scrollIntoView for more reliable scrolling
+        highlightedItem.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      } else {
+        // Fallback to manual calculation if item not found
+        const itemHeight = 48;
+        const containerHeight = (scrollableContainer as HTMLElement).clientHeight;
+        const scrollTop = (scrollableContainer as HTMLElement).scrollTop;
 
-  requestAnimationFrame(() => {
-    const itemHeight = 48;
-    const containerHeight = scrollableContainer.clientHeight;
-    const scrollTop = scrollableContainer.scrollTop;
+        const itemTop = index * itemHeight;
+        const itemBottom = itemTop + itemHeight;
 
-    const itemTop = index * itemHeight;
-    const itemBottom = itemTop + itemHeight;
-
-    if (itemTop < scrollTop) {
-      scrollableContainer.scrollTop = itemTop;
-    } else if (itemBottom > scrollTop + containerHeight) {
-      scrollableContainer.scrollTop = itemBottom - containerHeight;
-    }
-    
-  });
-};
-
+        if (itemTop < scrollTop) {
+          (scrollableContainer as HTMLElement).scrollTop = itemTop;
+        } else if (itemBottom > scrollTop + containerHeight) {
+          (scrollableContainer as HTMLElement).scrollTop = itemBottom - containerHeight;
+        }
+      }
+    }, 0);
+  };
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -155,55 +203,68 @@ const scrollToHighlightedItem = (index: number) => {
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      const newIndex = (highlightedIndex + 1) % filteredOptions.length;
+      // Stop at last item instead of looping
+      const newIndex = Math.min(highlightedIndex + 1, filteredOptions.length - 1);
       setHighlightedIndex(newIndex);
       scrollToHighlightedItem(newIndex);
     }
-
     else if (e.key === "ArrowUp") {
       e.preventDefault();
-      const newIndex = (highlightedIndex - 1 + filteredOptions.length) % filteredOptions.length;
+      // Stop at first item instead of looping
+      const newIndex = Math.max(highlightedIndex - 1, 0);
       setHighlightedIndex(newIndex);
       scrollToHighlightedItem(newIndex);
     }
-
     else if (e.key === "Enter") {
       e.preventDefault();
       const selected = filteredOptions[highlightedIndex];
       if (selected && onChange) {
-        onChange(selected);
-        setIsOpen(false);
+        if (selectionMode === 'single') {
+          onChange(selected);
+        } else {
+          // Toggle selection in multi-mode
+          const isSelected = selectedValues.some(v => v.value === selected.value);
+          if (isSelected) {
+            const updatedValues = selectedValues.filter(v => v.value !== selected.value);
+            onChange(updatedValues);
+          } else {
+            onChange([...selectedValues, selected]);
+          }
+        }
+        if (shouldCloseOnSelect) {
+          setIsOpen(false);
+        }
       }
     }
-
     else if (e.key === "Escape" || e.key === "Tab") {
-      // Close dropdown on Escape or Tab
       setIsOpen(false);
     }
   };
 
-  // When dropdown opens, highlight the currently selected option if it exists in filtered list
-useEffect(() => {
-  if (isOpen && value) {
-    const index = filteredOptions.findIndex(option => option.value === value.value);
-    if (index !== -1) {
-      setHighlightedIndex(index);
-      setTimeout(() => scrollToHighlightedItem(index), 0);
+  // Highlight logic for filtered options
+  useEffect(() => {
+    if (isOpen && selectedValues.length > 0) {
+      const index = filteredOptions.findIndex(option => 
+        selectedValues.some(selected => selected.value === option.value)
+      );
+      if (index !== -1) {
+        setHighlightedIndex(index);
+        setTimeout(() => scrollToHighlightedItem(index), 0);
+      }
     }
-  }
-}, [isOpen, value, filteredOptions]);
+  }, [isOpen, selectedValues, filteredOptions]);
 
-useEffect(() => {
-  if (isOpen && showSearch) {
-    setTimeout(() => {
-      searchInputRef.current?.focus();
-    }, 50);
-  }
-  if (!isOpen) {
-    setSearchValue('');
-    setHighlightedIndex(0); 
-  }
-}, [isOpen, showSearch]);
+  useEffect(() => {
+    if (isOpen && showSearch) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+    }
+    if (!isOpen) {
+      setSearchValue('');
+      setHighlightedIndex(0);
+    }
+  }, [isOpen, showSearch]);
 
   // Clear search when value changes
   useEffect(() => {
@@ -217,36 +278,121 @@ useEffect(() => {
       ? typeof width === 'number' ? `${width}px` : width
       : 'auto';
 
+  // Generate selected keys for the dropdown menu
+  const selectedKeys = React.useMemo(() => {
+    return new Set(selectedValues.map(v => v.value));
+  }, [selectedValues]);
+
+  // Button content with chips for multi-selection
+const buttonContent = React.useMemo(() => {
+  if (selectedValues.length === 0) {
+    return <div className="text-gray-700 font-medium">{placeholder}</div>;
+  }
+
+  if (selectionMode === 'single') {
+    return (
+      <div className="text-gray-900 truncate" title={selectedValues[0]?.label}>
+        {selectedValues[0]?.label}
+      </div>
+    );
+  }
+
+  // Multi-selection: show up to 5 chips, then "+N more"
+  const visibleChips = selectedValues.slice(0, 5);
+  const extraCount = selectedValues.length - 5;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 max-w-full">
+      {visibleChips.map((selectedValue) => (
+        <Tooltip
+          color="default"
+          key={selectedValue.value}
+          content={selectedValue.label}
+          placement="top"
+          delay={0}
+          classNames={{
+            content: " text-black max-w-xs"
+          }}
+        >
+          <Chip
+            size="sm"
+            variant="flat"
+            color="warning"
+            onClose={() => handleChipClose(selectedValue)}
+            classNames={{
+              base: "max-w-full",
+              content: "truncate text-xs px-2 max-w-[120px] font-semibold"
+            }}
+          >
+            {selectedValue.label}
+          </Chip>
+        </Tooltip>
+      ))}
+
+      {extraCount > 0 && (
+        <Tooltip
+          content={
+            <div className="flex flex-col gap-1 p-2 max-w-xs">
+              {selectedValues.slice(5).map((item, idx) => (
+                <div key={idx} className="text-xs text-black truncate" title={item.label}>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+          }
+          placement="top"
+          delay={0}
+          classNames={{
+            content: "bg-white rounded-md shadow-lg border"
+          }}
+        >
+          <Chip
+            size="sm"
+            variant="solid"
+            color="default"
+            classNames={{
+              base: "cursor-default",
+              content: "text-xs px-2"
+            }}
+          >
+            +{extraCount} more
+          </Chip>
+        </Tooltip>
+      )}
+    </div>
+  );
+}, [selectedValues, selectionMode, placeholder, handleChipClose]);
+
   return (
     <Dropdown
       isOpen={isOpen}
       onOpenChange={(open) => setIsOpen(open)}
       classNames={{
-        content: ` rounded-lg bg-white shadow-lg p-0 overflow-hidden`,
+        content: "rounded-lg bg-white shadow-lg p-0 overflow-hidden",
       }}
     >
       <DropdownTrigger>
         <Button
           ref={triggerRef}
-          className={`${buttonClassName} flex items-center justify-between text-left ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
+          className={`${buttonClassName} rounded-md flex items-start justify-between text-left min-h-[40px] h-auto py-1 px-3 ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
           variant="faded"
           style={{
             width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined
           }}
-          endContent={<ChevronDown size={16} className="text-gray-800 font-medium" />}
+          endContent={<ChevronDown size={16} className="text-gray-800 font-medium flex-shrink-0 ml-2 mt-1" />}
           disabled={disabled}
         >
-          <div className={value ? 'text-gray-900' : 'text-gray-700 font-medium'}>
-            {displayValue}
+          <div className="flex-1 overflow-hidden">
+            {buttonContent}
           </div>
         </Button>
       </DropdownTrigger>
 
       <DropdownMenu
-      ref={menuRef}
+        ref={menuRef}
         disallowEmptySelection={false}
-        selectionMode="single"
-        selectedKeys={value ? new Set([value.value]) : new Set()}
+        selectionMode={selectionMode === 'multiple' ? 'multiple' : 'single'}
+        selectedKeys={selectedKeys}
         onSelectionChange={handleSelectionChange}
         variant="flat"
         classNames={{
@@ -255,7 +401,8 @@ useEffect(() => {
         style={{
           width: dropdownContentWidth,
           minWidth: dropdownContentWidth,
-          maxWidth: dropdownContentWidth
+          maxWidth: dropdownContentWidth,
+          boxSizing: 'border-box'
         }}
         topContent={
           showSearch ? (
@@ -298,16 +445,16 @@ useEffect(() => {
               startContent={option.startContent}
               endContent={option.endContent}
               className={`
-              ${option.className || ''}
-              ${showSearch && index === 0 ? 'mt-0' : ''}
-              ${index === highlightedIndex ? 'bg-gray-100' : ''}
-              focus:bg-gray-100 hover:bg-gray-100
-              outline-none ring-0 transition-none
-             `}
+                ${option.className || ''}
+                ${showSearch && index === 0 ? 'mt-0' : ''}
+                ${index === highlightedIndex ? 'bg-gray-100' : ''}
+                focus:bg-gray-100 hover:bg-gray-100
+                outline-none ring-0 transition-none
+              `}
               color={option.color}
               textValue={option.label}
               onMouseEnter={() => handleItemMouseEnter(index)}
-                   onFocus={(e) => {
+              onFocus={(e) => {
                 if (showSearch && searchInputRef.current) {
                   e.preventDefault();
                   searchInputRef.current.focus();
@@ -318,7 +465,6 @@ useEffect(() => {
                 <span className="truncate text-sm">{option.label}</span>
               </div>
             </DropdownItem>
-
           ))
         ) : (
           <DropdownItem

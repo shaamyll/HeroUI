@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { Providers } from "./providers";
 import { BrowserRouter } from "react-router-dom";
-import { HeroUIProvider } from "@heroui/react"; // ⬅️ import HeroUI provider
+import { HeroUIProvider } from "@heroui/react"; 
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")!).render(
       <Providers>
         {/* Wrap HeroUIProvider around your app */}
         <HeroUIProvider>
-          <main className="text-foreground bg-background">
+          <main className="text-foreground bg-gray-200">
             <App />
           </main>
         </HeroUIProvider>

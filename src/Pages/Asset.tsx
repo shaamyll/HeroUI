@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import TableComponent from "../components/Reusable/TableComponent";
+import TableComponent from "../components/Reusable/DynamicTable";
 import { Chip, Tooltip } from "@heroui/react";
 import { motion } from "framer-motion";
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ImageCard from "../components/Reusable/ImageCard";
 import { assetResponse } from "@/components/lib/AssetData";
+import DynamicTable from "../components/Reusable/DynamicTable";
 
 function Asset() {
     const [assets, setAssets] = useState<any[]>([]);
@@ -39,7 +40,9 @@ function Asset() {
             case "not_in_use": color = "default"; break;
         }
         return (
-            <Chip color={color} size="sm" variant="flat" className="capitalize">
+            <Chip color={color} size="sm" variant="flat" classNames={{
+                content: "font-semibold capitalize",
+            }}>
                 {item.status.replace(/_/g, " ")}
             </Chip>
         );
@@ -105,19 +108,19 @@ function Asset() {
             render: () => (
                 <div className="flex items-center gap-3">
                     <Tooltip content="Details">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-700 hover:bg-gray-200 active:opacity-70">
                             <Eye className="w-4 h-4" />
                         </button>
                     </Tooltip>
 
                     <Tooltip content="Edit Asset">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 text-gray-700 hover:bg-gray-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-700 hover:bg-gray-200 active:opacity-70">
                             <SquarePen className="w-4 h-4" />
                         </button>
                     </Tooltip>
 
                     <Tooltip color="danger" content="Delete Asset">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg text-red-600 hover:bg-red-200 active:opacity-70">
                             <Trash2 className="w-4 h-4" />
                         </button>
                     </Tooltip>
@@ -143,7 +146,7 @@ function Asset() {
 
     const filterContent = [
         { name: "Category", uid: "category", content: categoryOptions, showSearch: true },
-        { name: "Status", uid: "status", content: statusOptions, showSearch: false },
+        { name: "Status", uid: "status", content: statusOptions, showSearch: false, dependsOn: 'category' },
     ];
 
     const navigate = useNavigate();
@@ -177,7 +180,7 @@ function Asset() {
                         Asset Table
                     </motion.h3>
                 </div>
-                <TableComponent
+                <DynamicTable
                     type="Asset"
                     TableContent={assets}
                     TableStructure={TableStructure}
@@ -206,7 +209,7 @@ function Asset() {
                         setRowsPerPage(newRowsPerPage);
                         setPage(1); // Reset to first page
                     }}
-                    page={page}    
+                    page={page}
                     rowsPerPage={rowsPerPage}
                     totalItems={totalItems}
                     totalPages={totalPages}

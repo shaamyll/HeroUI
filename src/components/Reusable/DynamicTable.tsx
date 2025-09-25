@@ -17,8 +17,8 @@ import {
 } from "@heroui/react";
 import { FolderOpen, Grid3X3, List, RotateCcw, Search } from "lucide-react";
 import { motion } from "framer-motion";
-import CustomDropdown from "./CustomDropdown";
 import type { Selection, SortDescriptor } from "@heroui/react";
+import SearchableSelect from "./SearchableSelect";
 
 export interface TableColumnProps {
   name: string;
@@ -46,7 +46,7 @@ interface TableComponentProps {
   searchPlaceholder: string;
   CardComponent?: React.ComponentType<CardComponent>;
   statusOptions?: Array<{ name: string; uid: string }>;
-  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>, showSearch?: boolean }>;
+  filters?: Array<{ name: string; uid: string; content: Array<{ name: string; uid: string }>, showSearch?: boolean, dependsOn?: string }>;
   onFiltersChange?: (filters: { uid: string; values: { value: string; label: string }[] }[]) => void;
   onSearchValueChange?: (value: string) => void;
   onSortChange?: (sortDescriptor: SortDescriptor) => void;
@@ -66,7 +66,7 @@ interface TableComponentProps {
   rowsPerPage: number;
 }
 
-export default function TableComponent({
+export default function DynamicTable({
   TableContent,
   TableStructure = [],
   searchPlaceholder,
@@ -91,7 +91,7 @@ export default function TableComponent({
   // headerData for columns Headers
   const columns = React.useMemo<TableColumnProps[]>((): any => {
     return TableStructure.map(col => ({
-      name: col.name, 
+      name: col.name,
       headerId: col.headerId,
       render: col.render,
       sortable: col.sortable || false,
@@ -256,7 +256,7 @@ export default function TableComponent({
           <div className="flex-shrink-0">
             {onAdd && (
               <Button
-                className="bg-gradient-to-r rounded-lg from-[#37125d] to-[#5a2d8a] text-white font-semibold"
+                className="bg-gradient-to-r rounded-xl from-[#37125d] to-[#5a2d8a] text-white font-semibold"
                 size="md"
                 onPress={() => onAdd(type)}
                 isDisabled={isLoading}
@@ -270,27 +270,38 @@ export default function TableComponent({
         {/* Filters Row */}
         <div className="flex flex-wrap gap-2 w-full rounded-lg">
           {filters.length > 0 &&
-            filters.map((filter) => (
-              <CustomDropdown
-                key={filter.uid}
-                options={filter.content.map((option) => ({
-                  value: option.uid,
-                  label: option.name,
-                }))}
-                value={
-                  activeFilters[filter.uid] &&
-                    activeFilters[filter.uid].size > 0
-                    ? Array.from(activeFilters[filter.uid])[0]
-                    : null
-                }
-                placeholder={`Select ${filter.name}`}
-                searchPlaceholder={`Search ${filter.name}..`}
-                onChange={(val) => handleFilterChange(filter.uid, val)}
-                buttonClassName="min-w-[180px] max-w-[250px] flex-auto bg-gray-50 justify-between text-small"
-                showSearch={filter.showSearch || false}
-                disabled={isLoading}
-              />
-            ))}
+            filters.map((filter) => {
+              const dependsOn = filter.dependsOn;
+              const hasDependency = !!dependsOn;
+
+              const dependencySatisfied = !hasDependency ||
+                (dependsOn !== undefined &&
+                  activeFilters[dependsOn]?.size > 0);
+
+              const isDisabled = isLoading || (hasDependency && !dependencySatisfied);
+
+              return (
+                <SearchableSelect
+                  key={filter.uid}
+                  options={filter.content.map((option) => ({
+                    value: option.uid,
+                    label: option.name,
+                  }))}
+                  value={
+                    activeFilters[filter.uid] && activeFilters[filter.uid].size > 0
+                      ? Array.from(activeFilters[filter.uid])[0]
+                      : null
+                  }
+                  placeholder={`Select ${filter.name}`}
+                  searchPlaceholder={`Search ${filter.name}..`}
+                  onChange={(val:any) => handleFilterChange(filter.uid, val)}
+                  buttonClassName="min-w-[180px] max-w-[250px] flex-auto  justify-between text-small"
+                  showSearch={filter.showSearch || false}
+                  disabled={isDisabled}
+                  // matchWidth={true}
+                />
+              );
+            })}
 
           {hasActiveFilters && (
             <Button

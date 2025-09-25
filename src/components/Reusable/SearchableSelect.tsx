@@ -30,6 +30,7 @@ interface SearchableSelectProps {
     width?: string | number;
     maxSelectedDisplay?: number;
     closeOnSelect?: boolean;
+    label?: string;
 }
 
 function SearchableSelect({
@@ -45,46 +46,14 @@ function SearchableSelect({
     width,
     maxSelectedDisplay = 8,
     closeOnSelect,
+    label,
 }: SearchableSelectProps) {
 
     const [searchValue, setSearchValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
-
+    const focusTimeoutsRef = React.useRef<number[]>([]);
     const [highlightedIndex, setHighlightedIndex] = useState(0);
-
-const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  if (!filteredOptions.length) return;
-
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    setHighlightedIndex(prev => (prev + 1) % filteredOptions.length);
-  }
-  else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    setHighlightedIndex(prev => (prev - 1 + filteredOptions.length) % filteredOptions.length);
-  }
-  else if (e.key === "Enter") {
-    e.preventDefault();
-    const selected = filteredOptions[highlightedIndex];
-    if (selected && onChange) {
-      if (selectionMode === 'single') {
-        onChange(selected);
-      } else {
-        const isSelected = selectedValues.some(v => v.value === selected.value);
-        if (isSelected) {
-          const updatedValues = selectedValues.filter(v => v.value !== selected.value);
-          onChange(updatedValues);
-        } else {
-          onChange([...selectedValues, selected]);
-        }
-      }
-    }
-  }
-  else if (e.key === "Escape") {
-    setIsOpen(false);
-  }
-};
 
     // Determine default closeOnSelect behavior
     const shouldCloseOnSelect = closeOnSelect !== undefined ? closeOnSelect : selectionMode === 'single';
@@ -139,17 +108,30 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         return new Set(selectedValues.map(v => v.value));
     }, [selectedValues]);
 
-    // Focus search input when dropdown opens
+    // Auto-focus search input when dropdown opens
     useEffect(() => {
-        if (isOpen && showSearch) {
-            setTimeout(() => {
-                searchInputRef.current?.focus();
-            }, 50);
+        if (showSearch && searchInputRef.current) {
+            // Use multiple timeouts with increasing delays to handle different scenarios
+            const timeouts = [50, 100, 200].map(delay => 
+                window.setTimeout(() => {
+                    if (searchInputRef.current) {
+                        searchInputRef.current.focus();
+                        // Move cursor to end
+                        const input = searchInputRef.current;
+                        const len = input.value.length;
+                        input.setSelectionRange(len, len);
+                    }
+                }, delay)
+            );
+
+            focusTimeoutsRef.current = timeouts;
+
+            return () => {
+                timeouts.forEach(timeout => clearTimeout(timeout));
+                focusTimeoutsRef.current = [];
+            };
         }
-        if (!isOpen) {
-            setSearchValue('');
-        }
-    }, [isOpen, showSearch]);
+    }, [showSearch, isOpen]);
 
     // Clear search when value changes
     useEffect(() => {
@@ -158,20 +140,20 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 
     const listboxRef = useRef<HTMLDivElement>(null);
 
-useEffect(() => {
-  if (!listboxRef.current || highlightedIndex < 0) return;
+    useEffect(() => {
+        if (!listboxRef.current || highlightedIndex < 0) return;
 
-  const optionElements = listboxRef.current.querySelectorAll('[role="option"]');
-  if (optionElements.length === 0 || highlightedIndex >= optionElements.length) return;
+        const optionElements = listboxRef.current.querySelectorAll('[role="option"]');
+        if (optionElements.length === 0 || highlightedIndex >= optionElements.length) return;
 
-  const highlightedElement = optionElements[highlightedIndex] as HTMLElement;
-  if (!highlightedElement) return;
+        const highlightedElement = optionElements[highlightedIndex] as HTMLElement;
+        if (!highlightedElement) return;
 
-  highlightedElement.scrollIntoView({
-    block: 'nearest',
-    behavior: 'auto'
-  });
-}, [highlightedIndex]);
+        highlightedElement.scrollIntoView({
+            block: 'nearest',
+            behavior: 'auto'
+        });
+    }, [highlightedIndex]);
 
     // Custom render function for multi-selection with chips
     const renderValue = (items: any) => {
@@ -205,6 +187,7 @@ useEffect(() => {
                         <Chip
                             size="sm"
                             variant="flat"
+                            color="warning"
                             onClose={() => handleChipClose(selectedValue)}
                             classNames={{
                                 base: "max-w-full",
@@ -221,7 +204,7 @@ useEffect(() => {
                         content={
                             <div className="flex flex-col gap-1 p-2 max-w-xs">
                                 {selectedValues.slice(5).map((item, idx) => (
-                                    <div key={idx} className="text-xs text-white truncate" title={item.label}>
+                                    <div key={idx} className="text-xs text-black truncate" title={item.label}>
                                         {item.label}
                                     </div>
                                 ))}
@@ -230,13 +213,13 @@ useEffect(() => {
                         placement="top"
                         delay={0}
                         classNames={{
-                            content: "bg-gray-800 rounded-md shadow-lg"
+                            content: "bg-white rounded-md shadow-lg"
                         }}
                     >
                         <Chip
                             size="sm"
-                            variant="flat"
-                            color="primary"
+                            variant="solid"
+                            color="default"
                             classNames={{
                                 base: "cursor-default",
                                 content: "text-xs px-2"
@@ -252,9 +235,12 @@ useEffect(() => {
 
     return (
         <Select
+            label={label}
+            labelPlacement="outside"
+            aria-label={!label ? placeholder || "Select an option" : undefined}
             classNames={{
                 base: buttonClassName,
-                trigger: `min-h-[40px] py-2 ${disabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`,
+                trigger: `min-h-[40px] py-2 bg-white`,
                 value: "text-left",
                 popoverContent: "p-0 overflow-hidden"
             }}
@@ -270,6 +256,15 @@ useEffect(() => {
                 width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined
             }}
             renderValue={renderValue}
+            // Handle open/close state changes
+            onOpenChange={(open) => {
+                setIsOpen(open);
+                if (!open) {
+                    // Clear any pending focus timeouts when closing
+                    focusTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+                    focusTimeoutsRef.current = [];
+                }
+            }}
             popoverProps={{
                 classNames: {
                     content: "px-1 overflow-hidden"
@@ -285,15 +280,12 @@ useEffect(() => {
                     <div className="sticky top-0 z-10 border-b border-gray-200 pb-2 p-1 bg-white">
                         <div className="relative">
                             <Input
-                            onKeyDown={handleKeyDown}
                                 ref={searchInputRef}
                                 placeholder={searchPlaceholder}
                                 value={searchValue}
                                 onValueChange={setSearchValue}
                                 variant="faded"
                                 size="sm"
-                                autoFocus={isOpen && showSearch}
-                                // 🚫 REMOVED onKeyDown — let HeroUI handle it
                                 classNames={{
                                     input: "text-sm focus:outline-none [&:focus]:outline-none !outline-none",
                                     inputWrapper: "rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-0 focus:border-gray-400 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&:focus-within]:border-gray-400 !outline-none"
@@ -318,23 +310,20 @@ useEffect(() => {
                     key={option.value}
                     startContent={option.startContent}
                     endContent={option.endContent}
-                    onFocus={(e) => {
-                        if (showSearch && searchInputRef.current) {
-                            e.preventDefault();
-                            searchInputRef.current.focus();
-                        }
-                    }}
                     className={`
                         ${option.className || ''}
-                        py-2 px-3 hover:bg-gray-100 focus:bg-gray-100 cursor-pointer
-                        outline-none ring-0 transition-colors
+                        py-2 px-2
                     `}
+                    classNames={{
+                        base: "data-[selected=true]:bg-blue-50",
+                        wrapper: "w-full flex items-center justify-between pr-8",
+                        title: "truncate text-sm flex-1 mr-4",
+                        selectedIcon: "flex-shrink-0"
+                    }}
                     color={option.color}
                     textValue={option.label}
                 >
-                    <div className="flex flex-col">
-                        <span className="truncate text-sm">{option.label}</span>
-                    </div>
+                    {option.label}
                 </SelectItem>
             )}
         </Select>

@@ -13,18 +13,21 @@ import {
 import { useState } from "react";
 import ThemeToggle from "../Theme";
 export function NavbarComponent() {
-  
+
   const navItems = [
     { name: "Home", link: "/" },
     { name: "Users", link: "/users" },
     { name: "Projects", link: "/projects" },
+    { name: "Dashboard", link: "/dashBoardDumy" },
+    { name: "statCard", link: "/statCardUsage" },
+    { name: "Settings", link: "/settingsProject" },
+    { name: "Button", link: "/buttonusage" },
     { name: "Asset", link: "/asset" },
     { name: "Test", link: "/test" },
-    { name: "Button", link: "/buttonusage" },
     // { name: "Dashboard", link: "/dashboard" },
     // { name: "Login", link: "/login" },
     // { name: "Footer", link: "/Footer" },
-    { name: "cardview", link: "/cardView" },
+    // { name: "cardview", link: "/cardView" },
     { name: "Components", link: "/displaycomponents" },
     { name: "Create User", link: "/displayusersform" },
     { name: "statCard", link: "/statCardUsage" },
@@ -35,22 +38,23 @@ export function NavbarComponent() {
 
   return (
     <div className="relative w-full sticky top-0 z-50 ">
-      
+
       <Navbar
         className="
     bg-white backdrop-blur-lg
     text-white 
   "
-  
+
       >
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
           <NavItems
-          
+
             items={navItems}
             className="hidden md:flex gap-8 text-neutral-300 hover:text-white transition-colors"
           />
+
           {/* <div className="hidden md:flex items-center gap-4">
             <NavbarButton color="primary" variant="secondary" href="/auth">
               Login
@@ -59,7 +63,7 @@ export function NavbarComponent() {
               SignUp
             </NavbarButton>
           </div> */}
-          
+
         </NavBody>
 
         {/* Mobile Navigation */}
@@ -103,3 +107,4 @@ export function NavbarComponent() {
     </div>
   );
 }
+export default NavbarComponent;

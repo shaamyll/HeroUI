@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import TableComponent from "../components/Reusable/DynamicTable";
+import DynamicTable from "../components/Reusable/DynamicTable";
 import { Chip, Tooltip } from "@heroui/react";
-import { motion } from "framer-motion";
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ImageCard from "../components/Reusable/ImageCard";
-import DynamicTable from "../components/Reusable/DynamicTable";
 
 function Projects() {
   const [products, setProducts] = useState<any[]>([]);
@@ -129,7 +127,7 @@ function Projects() {
     />
   );
 
-  // callback from TableComponent
+  // callback from DynamicTable
   const handleFiltersChange = (
     filters: { uid: string; values: { value: string; label: string }[] }[]
   ) => {
@@ -139,7 +137,7 @@ function Projects() {
   return (
     <div className="min-h-screen mx-2">
       <div className="max-w-[1400px] mx-auto mt-10">
-        <div className="w-full bg-purple-950 rounded-2xl p-6 ">
+        {/* <div className="w-full bg-purple-950 rounded-2xl p-6 ">
           <motion.h3
             className="text-2xl font-bold text-white pb-8"
             initial={{ opacity: 0, x: -50 }}
@@ -148,7 +146,7 @@ function Projects() {
           >
             Projects Table :
           </motion.h3>
-        </div>
+        </div> */}
         <DynamicTable
           type="Project"
           TableContent={products}

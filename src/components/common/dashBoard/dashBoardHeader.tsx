@@ -43,7 +43,7 @@ const DEFAULTS = {
   dockProps: {
     distance: 250,
     panelHeight: 90,
-    baseItemSize: 50,
+    baseItemSize: 40,
     magnification: 80,
     spring: { mass: 0.1, stiffness: 150, damping: 12 },
     offsetTop: -96,
@@ -60,7 +60,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   // Internal state management
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
-
+  
   // Use dashboard state hook with defaults
   const {
     isMobile,

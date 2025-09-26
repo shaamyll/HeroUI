@@ -5,6 +5,8 @@ import LocalAssignment_Section from "@/components/Asset/AssetForm/LocalAssignmen
 import PurchaseWarrantyInformation from "@/components/Asset/AssetForm/PurchaseWarrantyInformation"
 import TechnicalSpecificationsSection from "@/components/Asset/AssetForm/TechnicalSpecificationsSection"
 import MaintenanceServiceSection from "@/components/Asset/AssetForm/MaintenanceServiceSection"
+import FinancialInformationSection from "@/components/Asset/AssetForm/FinancialInformationSection"
+import ComplianceSafetySection from "@/components/Asset/AssetForm/ComplianceSafetySection"
 
 function AssetForm() {
   return (
@@ -31,6 +33,8 @@ function AssetForm() {
             <PurchaseWarrantyInformation/>
             <TechnicalSpecificationsSection/>
             <MaintenanceServiceSection/>
+            <FinancialInformationSection/>
+            <ComplianceSafetySection/>
           </div>
         </div>
 

@@ -47,7 +47,7 @@ function SearchableSelect({
     showSearch = false,
     disabled = false,
     width,
-    maxSelectedDisplay = 3,
+    maxSelectedDisplay = 2,
     closeOnSelect,
     label,
     labelClassname,
@@ -58,7 +58,7 @@ function SearchableSelect({
     const [isOpen, setIsOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const focusTimeoutsRef = React.useRef<number[]>([]);
-    const [highlightedIndex] = useState(0);
+    const [highlightedIndex, setHighlightedIndex] = useState(0);
 
     // Determine default closeOnSelect behavior
     const shouldCloseOnSelect = closeOnSelect !== undefined ? closeOnSelect : selectionMode === 'single';
@@ -219,7 +219,7 @@ function SearchableSelect({
                                     variant="flat"
                                     onClose={() => handleChipClose(selectedValue)}
                                     classNames={{
-                                        base: "max-w-full rounded-md bg-secondary text-secondary-foreground border-0 hover:bg-secondary/80 transition-all duration-200",
+                                        base: "max-w-full  bg-secondary text-secondary-foreground border-0 hover:bg-secondary/80 transition-all duration-200 border",
                                         content: "truncate text-xs px-2 max-w-[120px] font-medium",
                                         closeButton:
                                             "text-secondary-foreground/60 hover:text-secondary-foreground hover:bg-secondary-foreground/10 rounded-full transition-all duration-200 hover:scale-110",
@@ -268,7 +268,7 @@ function SearchableSelect({
                                 variant="flat"
                                 color="default"
                                 classNames={{
-                                    base: "cursor-default bg-muted text-muted-foreground border-0 transition-all duration-200",
+                                    base: "cursor-default bg-muted text-muted-foreground border-0 transition-all duration-200 border",
                                     content: "text-xs px-2 font-medium",
                                 }}
                             >

@@ -20,6 +20,7 @@ interface DynamicDatePickerProps {
     isDisabled?: boolean;
     isRequired?: boolean;
     placeholder?: string;
+    showDescription?:boolean
 }
 
 function DynamicDatePicker({
@@ -35,15 +36,16 @@ function DynamicDatePicker({
     isDisabled = false,
     isRequired = false,
     placeholder,
+    showDescription=false
 }: DynamicDatePickerProps) {
     const commonClassNames = {
         base: `w-full ${className || ''}`,
         label: "font-semibold text-xs text-black",
-        inputWrapper: "border-default-300 hover:border-primary",
+        inputWrapper: "border-default-300 ",
         input: "text-xs font-semibold",
         description: "font-medium text-xs text-foreground-400",
         calendar: "shadow-md",
-        calendarContent: "p-1",
+        calendarContent: "p-1 bg-white text-black",
         selectorButton: "text-foreground-500 hover:text-primary",
     };
 
@@ -57,7 +59,7 @@ function DynamicDatePicker({
                 classNames={commonClassNames}
                 selectorIcon={selectorIcon}
                 label={label}
-                description={description}
+                description={showDescription && description}
                 value={rangeValue}
                 onChange={onRangeChange}
                 calendarWidth={calendarWidth}
@@ -75,7 +77,7 @@ function DynamicDatePicker({
             classNames={commonClassNames}
             selectorIcon={selectorIcon}
             label={label}
-            description={description}
+            description={showDescription && description}
             value={singleValue}
             onChange={onSingleChange}
             calendarWidth={calendarWidth}

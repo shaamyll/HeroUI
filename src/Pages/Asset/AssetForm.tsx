@@ -1,10 +1,12 @@
 import { ArrowLeft, ChevronDown } from "lucide-react"
 import BasicInfo_Section from "@/components/Asset/AssetForm/BasicInfo_Section"
 import AssetPreview from "@/components/Asset/AssetForm/AssetPreview"
+import LocalAssignment_Section from "@/components/Asset/AssetForm/LocalAssignment_Section"
+import PurchaseWarrantyInformation from "@/components/Asset/AssetForm/PurchaseWarrantyInformation"
 
 function AssetForm() {
   return (
-    <div className="max-w-[1400px] mx-auto mt-8 min-h-screen">
+    <div className="max-w-[1400px] mx-auto mt-8 min-h-screen px-2 pb-20">
       {/* Header section with purple background matching the design */}
       <div className="bg-purple-950 text-white px-6 py-4 rounded-lg mb-4">
         <div className="flex items-center justify-between">
@@ -20,13 +22,21 @@ function AssetForm() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left column - Basic Information form */}
-        <div className="lg:col-span-2">
-          <BasicInfo_Section />
+           <div className="lg:col-span-2">
+          <div className="space-y-5">
+            <BasicInfo_Section />
+            <LocalAssignment_Section />
+            <PurchaseWarrantyInformation/>
+          </div>
         </div>
 
         {/* Right column - Asset Preview and Guidelines (placeholder) */}
         <AssetPreview/>
+
+       
       </div>
+
+      
     </div>
   )
 }

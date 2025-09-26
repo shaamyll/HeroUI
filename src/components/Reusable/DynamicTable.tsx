@@ -208,7 +208,7 @@ export default function DynamicTable({
                 isClearable
                 classNames={{
                   base: "w-full",
-                  inputWrapper: "font-extrabold bg-white py-5",
+                  inputWrapper: "font-extrabold bg-white py-5 ",
                   input:
                     "placeholder:text-gray-500 placeholder:font-medium",
                 }}

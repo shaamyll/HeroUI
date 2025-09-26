@@ -32,6 +32,7 @@ interface SearchableSelectProps {
     maxSelectedDisplay?: number;
     closeOnSelect?: boolean;
     label?: string;
+    labelClassname?:string;
 }
 
 function SearchableSelect({
@@ -48,6 +49,7 @@ function SearchableSelect({
     maxSelectedDisplay = 3,
     closeOnSelect,
     label,
+    labelClassname
 }: SearchableSelectProps) {
 
     const [searchValue, setSearchValue] = useState("");
@@ -286,7 +288,8 @@ function SearchableSelect({
                 base: buttonClassName,
                 trigger: `min-h-[40px] py-2 bg-white`,
                 value: "text-left font-semibold",
-                popoverContent: "p-0 overflow-hidden"
+                popoverContent: "p-0 overflow-hidden",
+                label:labelClassname
             }}
             isMultiline={selectionMode === 'multiple'}
             items={filteredOptions}

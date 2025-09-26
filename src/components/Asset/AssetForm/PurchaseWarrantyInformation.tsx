@@ -31,6 +31,13 @@ function PurchaseWarrantyInformation() {
         department: null,
     })
 
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null] | null>(null);
+
+    const handleDateRangeChange = (value: [Date | null, Date | null] | null) => {
+        console.log('Selected date range:', value);
+        setDateRange(value); // if you want to keep it in state
+    };
+
     const handleChange = (field: string, value: any) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
@@ -50,13 +57,12 @@ function PurchaseWarrantyInformation() {
             <div className="space-y-6">
                 {/* Purchase Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CustomInput
-                        placeholder="Pick a date"
-                        startContent={<Calendar className="w-4 h-4 text-gray-400" />}
-                        variant="bordered"
-                        labelPlacement="outside"
+
+                    <DynamicDatePicker
                         label="Purchase Date"
-                        classNames={{ label: "text-xs font-semibold" }}
+                        onChange={handleDateRangeChange}
+                        value={dateRange}
+                        description="Pick a date"
                     />
 
                     <CustomInput
@@ -92,7 +98,7 @@ function PurchaseWarrantyInformation() {
                 <Divider />
 
                 {/* Warranty Details */}
-                <div className="space-y-6 text-md py-2">
+                <div className="space-y-6 text-md py-1">
                     <h3 className="text-sm font-medium text-gray-700">Warranty Details</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -117,7 +123,11 @@ function PurchaseWarrantyInformation() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <DynamicDatePicker
+                            mode="range"
                             label="Warranty Range"
+                            onChange={handleDateRangeChange}
+                            value={dateRange}
+                            description="Pick a Date Range"
                         />
                     </div>
 
@@ -144,7 +154,7 @@ function PurchaseWarrantyInformation() {
 
                     {/* Extended Warranty */}
                     <div className="flex items-center gap-2">
-                        <Checkbox radius="md" size="md"><span className="text-sm">Extended Warranty Available</span></Checkbox>
+                        <Checkbox radius="md" size="md"><span className="text-sm" color="primary">Extended Warranty Available</span></Checkbox>
                     </div>
                 </div>
             </div>

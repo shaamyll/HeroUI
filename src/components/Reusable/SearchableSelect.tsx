@@ -32,7 +32,8 @@ interface SearchableSelectProps {
     maxSelectedDisplay?: number;
     closeOnSelect?: boolean;
     label?: string;
-    labelClassname?:string;
+    labelClassname?: string;
+    isRequired?: boolean
 }
 
 function SearchableSelect({
@@ -49,14 +50,15 @@ function SearchableSelect({
     maxSelectedDisplay = 3,
     closeOnSelect,
     label,
-    labelClassname
+    labelClassname,
+    isRequired = false
 }: SearchableSelectProps) {
 
     const [searchValue, setSearchValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const focusTimeoutsRef = React.useRef<number[]>([]);
-    const [highlightedIndex, setHighlightedIndex] = useState(0);
+    const [highlightedIndex] = useState(0);
 
     // Determine default closeOnSelect behavior
     const shouldCloseOnSelect = closeOnSelect !== undefined ? closeOnSelect : selectionMode === 'single';
@@ -177,6 +179,7 @@ function SearchableSelect({
             const selectedOption = selectedValues[0]
             return (
                 <motion.div
+                    key={selectedOption?.value}
                     className="text-foreground truncate"
                     title={selectedOption?.label}
                     initial={{ opacity: 0, x: -10 }}
@@ -210,7 +213,7 @@ function SearchableSelect({
                             whileTap={{ scale: 0.95 }}
                             layout
                         >
-                            <Tooltip color="default" content={selectedValue.label} placement="top" delay={1000}>
+                            <Tooltip color="default" content={selectedValue.label} placement="top" delay={1000} className="font-semibold">
                                 <Chip
                                     size="sm"
                                     variant="flat"
@@ -243,7 +246,7 @@ function SearchableSelect({
                                     {selectedValues.slice(maxSelectedDisplay).map((item, idx) => (
                                         <motion.div
                                             key={idx}
-                                            className="text-xs text-foreground truncate"
+                                            className="text-xs text-foreground truncate font-semibold"
                                             title={item.label}
                                             initial={{ opacity: 0, x: -5 }}
                                             animate={{ opacity: 1, x: 0 }}
@@ -281,6 +284,7 @@ function SearchableSelect({
 
     return (
         <Select
+            isRequired={isRequired}
             label={label}
             labelPlacement="outside"
             aria-label={!label ? placeholder || "Select an option" : undefined}
@@ -289,7 +293,7 @@ function SearchableSelect({
                 trigger: `min-h-[40px] py-2 bg-white`,
                 value: "text-left font-semibold",
                 popoverContent: "p-0 overflow-hidden",
-                label:labelClassname
+                label: labelClassname
             }}
             isMultiline={selectionMode === 'multiple'}
             items={filteredOptions}

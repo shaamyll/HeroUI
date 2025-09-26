@@ -131,6 +131,7 @@ function BasicInfo_Section() {
         {/* Third row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SearchableSelect
+            isRequired={true}
             selectionMode="single"
             label="Department"
             placeholder="Select Department"
@@ -140,6 +141,7 @@ function BasicInfo_Section() {
             labelClassname="text-xs font-semibold"
           />
           <SearchableSelect
+            isRequired={true}
             label="Category"
             placeholder="Select a category"
             options={categoryOptions}
@@ -154,6 +156,7 @@ function BasicInfo_Section() {
         {/* Fourth row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SearchableSelect
+            isRequired={true}
             selectionMode="single"
             label="Subcategory"
             placeholder="Select a category first"

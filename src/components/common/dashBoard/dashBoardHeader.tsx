@@ -60,7 +60,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   // Internal state management
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
-
+  
   // Use dashboard state hook with defaults
   const {
     isMobile,

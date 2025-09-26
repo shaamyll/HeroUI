@@ -13,18 +13,18 @@ const Users: React.FC = () => {
   const [activeTab, setActiveTab] = useState('users');
 
   const tabs: Tab[] = [
-    //    {
-    //   id: 'overview',
-    //   name: 'Overview',
-    //   icon: <Home className="mr-2 h-5 w-5" />,
-    //   path: '/projects',
-    // },
-    // {
-    //   id: 'projectTracking',
-    //   name: 'Project Tracking',
-    //   icon: <Layers className="mr-2 h-5 w-5" />,
-    //   path: '/projects/projectTracking',
-    // },
+       {
+      id: 'overview',
+      name: 'Overview',
+      icon: <Home className="mr-2 h-5 w-5" />,
+      path: '/projects',
+    },
+    {
+      id: 'projectTracking',
+      name: 'Project Tracking',
+      icon: <Layers className="mr-2 h-5 w-5" />,
+      path: '/projects/projectTracking',
+    },
     { id: 'analytics', name: 'Analytics', icon: <ChartNoAxesColumn className="mr-2 h-5 w-5" />, path: '#', },
     { id: 'finance', name: 'Finance', icon: <Landmark className="mr-2 h-5 w-5" />, path: '/projects/finance', },
     { id: 'advanceFinance', name: 'Advance', icon: <DollarSign className="mr-2 h-5 w-5" />, path: '/projects/advanceFinance', },

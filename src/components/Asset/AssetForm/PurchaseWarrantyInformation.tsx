@@ -3,7 +3,6 @@ import { useState } from "react"
 import CustomInput from "@/components/common/CustomInput"
 import SearchableSelect from "@/components/Reusable/SearchableSelect"
 import { Checkbox, Divider } from "@heroui/react"
-import DateInput from "@/components/Reusable/DynamicDatePicker"
 import DynamicDatePicker from "@/components/Reusable/DynamicDatePicker"
 
 function PurchaseWarrantyInformation() {
@@ -116,11 +115,12 @@ function PurchaseWarrantyInformation() {
                         />
                     </div>
 
-                    <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                            <DynamicDatePicker
-                                label="Stay Duration"                            
-                            />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DynamicDatePicker
+                            label="Warranty Range"
+                        />
                     </div>
+
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <SearchableSelect

@@ -7,7 +7,6 @@ interface DynamicDatePickerProps {
     label?: string;
     description?: string;
     className?: string;
-    firstDayOfWeek?: 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
     value?: RangeValue<Date>;
     onChange?: (value: RangeValue<Date>) => void;
 }
@@ -15,8 +14,6 @@ interface DynamicDatePickerProps {
 function DynamicDatePicker({
     label = 'Stay duration',
     description = 'Please select Date Range',
-    className = 'max-w-xs',
-    firstDayOfWeek = 'mon',
     onChange,
     value,
 }: DynamicDatePickerProps) {
@@ -30,8 +27,6 @@ function DynamicDatePicker({
             selectorIcon={<CalendarRange/>}
             label={label}
             description={description}
-            className={className}
-            firstDayOfWeek={firstDayOfWeek}
             onChange={onChange}
             value={value}
         />

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import TableComponent from "../components/Reusable/DynamicTable";
+import TableComponent from "../../components/Reusable/DynamicTable";
 import { Chip, Tooltip } from "@heroui/react";
 import { motion } from "framer-motion";
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ImageCard from "../components/Reusable/ImageCard";
+import ImageCard from "../../components/Reusable/ImageCard";
 import { assetResponse } from "@/components/lib/AssetData";
-import DynamicTable from "../components/Reusable/DynamicTable";
+import DynamicTable from "../../components/Reusable/DynamicTable";
 
 function Asset() {
     const [assets, setAssets] = useState<any[]>([]);

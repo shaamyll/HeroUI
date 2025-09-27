@@ -20,7 +20,7 @@ import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
 import AssetForm from './Pages/Asset/AssetForm';
 import StatsDumy from './Pages/StatsDumy';
-
+import ProjectBasicInformation from './Pages/Project/ProjectForm/ProjectBasicInformation';
    
 function App() {
    
@@ -56,6 +56,7 @@ function App() {
          <Route path='/statsCardchk' element={<Dashboard/>}/>
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
          <Route path='/statsDumy' element={<StatsDumy/>}/>
+         <Route path='/projectForm' element={<ProjectBasicInformation/>}/>
 
       </Routes>
     </>

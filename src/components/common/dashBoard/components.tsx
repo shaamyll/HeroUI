@@ -107,37 +107,85 @@ export const DockComponent: React.FC<{
   isMobile: boolean;
 }> = ({ tabs, activeTab, onTabChange, dockProps, isMobile }) => {
   const dockItems = useMemo(() =>
-    tabs.map(tab => ({
-      icon: (
-        <div className="flex items-center">
-          {tab.icon || <HomeIcon size={20} />}
-          <span className="ml-2 text-sm font-black">{tab.name}</span>
-        </div>
-      ),
-      label: tab.name,
-      onClick: () => onTabChange(tab.id),
-      className: activeTab === tab.id ? 'bg-white/20 ring-2 ring-white/50' : 'hover:bg-white/15'
-    })), [tabs, activeTab, onTabChange]
+    tabs.map(tab => {
+      const iconSize = tab.icon?.props?.size || 20;
+      const textSize = Math.min(14, Math.max(10, 14 - (tab.name.length / 10))); // Dynamic font size based on text length
+      
+      return {
+        icon: (
+          <div className="flex items-center px-3 py-2">
+            <div className="flex-shrink-0" style={{ width: `${iconSize}px`, height: `${iconSize}px` }}>
+              {tab.icon || <HomeIcon size={iconSize} />}
+            </div>
+            <span 
+              className="ml-2 font-medium whitespace-nowrap transition-all duration-200"
+              style={{ fontSize: `${textSize}px` }}
+            >
+              {tab.name}
+            </span>
+          </div>
+        ),
+        label: tab.name,
+        onClick: () => onTabChange(tab.id),
+        className: clsx(
+          'transition-all duration-200 rounded-lg',
+          activeTab === tab.id 
+            ? 'bg-white/20 ring-2 ring-white/50' 
+            : 'hover:bg-white/15 hover:scale-105'
+        ),
+        style: {
+          minWidth: 'fit-content',
+          padding: '0.5rem 0.75rem',
+        }
+      };
+    }), 
+    [tabs, activeTab, onTabChange]
   );
 
   if (isMobile || !dockItems.length) return null;
 
   return (
-    <nav className="relative w-full px-3 sm:px-4 z-20">
-      <div className="flex justify-center" style={{ height: `${(dockProps.panelHeight || 80) + (dockProps.magnification || 80)}px`, paddingBottom: '4px' }}>
-        <div className="relative w-full px-3 sm:px-4 z-20" style={{ marginTop: `${dockProps.offsetTop || -96}px` }}>
-          <ErrorBoundary fallback={<SimpleFallback tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />}>
+    <nav className="relative w-full z-20">
+      <div 
+        className="flex justify-center overflow-x-auto no-scrollbar"
+        style={{ 
+          height: `${(dockProps.panelHeight || 80) + (dockProps.magnification || 80)}px`,
+          padding: '0 1rem 4px'
+        }}
+      >
+        <div 
+          className="relative z-20 w-full max-w-4xl mx-auto"
+          style={{ marginTop: `${dockProps.offsetTop || -96}px` }}
+        >
+          <ErrorBoundary fallback={
+            <SimpleFallback tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />
+          }>
             <Dock
               items={dockItems}
-              distance={dockProps.distance || 250}
+              distance={dockProps.distance || 300}
               panelHeight={dockProps.panelHeight || 80}
-              baseItemSize={dockProps.baseItemSize || 48}
+              baseItemSize={dockProps.baseItemSize || 'auto'}
               magnification={dockProps.magnification || 80}
-              spring={dockProps.spring || { mass: 0.1, stiffness: 150, damping: 12 }}
+              spring={dockProps.spring || { 
+                mass: 0.1, 
+                stiffness: 150, 
+                damping: 12,
+                restDelta: 0.001
+              }}
+              className="px-2 py-1"
             />
           </ErrorBoundary>
         </div>
       </div>
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </nav>
   );
 };

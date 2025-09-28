@@ -71,16 +71,14 @@ export const SimpleMobileNav: React.FC<{
 export const HeaderBackground: React.FC<{
   dotGridConfig: DotGridConfiguration;
   isLowPowerDevice: boolean;
-}> = ({ dotGridConfig, isLowPowerDevice }) => {
+}> = ({ dotGridConfig }) => {
+  // Use the provided configuration directly without power limitations
   const optimizedConfig = useMemo(() => ({
     ...dotGridConfig,
     enabled: dotGridConfig.enabled !== false, // Ensure enabled by default
-    dotSize: isLowPowerDevice ? 1.5 : dotGridConfig.dotSize,
-    gap: isLowPowerDevice ? 12 : dotGridConfig.gap,
-    shockStrength: isLowPowerDevice ? 1 : dotGridConfig.shockStrength,
-    proximity: isLowPowerDevice ? 60 : dotGridConfig.proximity,
-    opacity: isLowPowerDevice ? 0.1 : (dotGridConfig.opacity || 0.3)
-  }), [dotGridConfig, isLowPowerDevice]);
+    // Remove all low-power device limitations
+    opacity: dotGridConfig.opacity || 0.6, // Use configured opacity or default to 0.6
+  }), [dotGridConfig]);
 
   if (!optimizedConfig.enabled) return null;
   

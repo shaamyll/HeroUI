@@ -67,24 +67,39 @@ export const SimpleMobileNav: React.FC<{
   </div>
 );
 
-// Header Background - Simplified
+// Header Background with optimized DotGrid
 export const HeaderBackground: React.FC<{
   dotGridConfig: DotGridConfiguration;
   isLowPowerDevice: boolean;
 }> = ({ dotGridConfig, isLowPowerDevice }) => {
-  if (!dotGridConfig.enabled || isLowPowerDevice) return null;
+  const optimizedConfig = useMemo(() => ({
+    ...dotGridConfig,
+    enabled: dotGridConfig.enabled !== false, // Ensure enabled by default
+    dotSize: isLowPowerDevice ? 1.5 : dotGridConfig.dotSize,
+    gap: isLowPowerDevice ? 12 : dotGridConfig.gap,
+    shockStrength: isLowPowerDevice ? 1 : dotGridConfig.shockStrength,
+    proximity: isLowPowerDevice ? 60 : dotGridConfig.proximity,
+    opacity: isLowPowerDevice ? 0.1 : (dotGridConfig.opacity || 0.3)
+  }), [dotGridConfig, isLowPowerDevice]);
+
+  if (!optimizedConfig.enabled) return null;
   
   return (
-    <div className="absolute inset-0 pointer-events-none -m-4" style={{ opacity: dotGridConfig.opacity }}>
-      <ErrorBoundary fallback={<div className="absolute inset-0 bg-gradient-to-br from-violet-100 to-violet-200 opacity-20" />}>
-        <DotGrid {...dotGridConfig} className="absolute inset-0" />
+    <div className="absolute inset-0 pointer-events-none -m-4" style={{ opacity: optimizedConfig.opacity }}>
+      <ErrorBoundary 
+        fallback={
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-100 to-violet-200 opacity-20" />
+        }
+        onError={(error) => console.error('DotGrid Error:', error)}
+      >
+        <DotGrid {...optimizedConfig} className="absolute inset-0" />
       </ErrorBoundary>
     </div>
   );
 };
 
-// Desktop Dock Navigation - Simplified
-export const DesktopDockNavigation: React.FC<{
+// Dock Component
+export const DockComponent: React.FC<{
   tabs: Tab[];
   activeTab: string;
   onTabChange: (tabId: string) => void;

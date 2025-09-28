@@ -1,5 +1,9 @@
-import Stepper, { Step } from '../../components/common/Project/CreateProject/Stepper';
-  
+import { useState } from 'react';
+import Stepper, { Step } from '../../../components/common/Project/CreateProject/Stepper';
+import ProjectBasicInformation from './ProjectBasicInformation';
+function CreateProjectForm() {
+  const [name, setName] = useState("");
+  return(
 <Stepper
   initialStep={1}
   onStepChange={(step) => {
@@ -10,13 +14,12 @@ import Stepper, { Step } from '../../components/common/Project/CreateProject/Ste
   nextButtonText="Next"
 >
   <Step>
-    <h2>Welcome to the React Bits stepper!</h2>
-    <p>Check out the next step!</p>
+    <ProjectBasicInformation/>
   </Step>
   <Step>
     <h2>Step 2</h2>
     <img style={{ height: '100px', width: '100%', objectFit: 'cover', objectPosition: 'center -70px', borderRadius: '15px', marginTop: '1em' }} src="https://www.purrfectcatgifts.co.uk/cdn/shop/collections/Funny_Cat_Cards_640x640.png?v=1663150894" />
-    <p>Custom step content!</p>
+    <p><ProjectBasicInformation/></p>
   </Step>
   <Step>
     <h2>How about an input?</h2>
@@ -27,3 +30,6 @@ import Stepper, { Step } from '../../components/common/Project/CreateProject/Ste
     <p>You made it!</p>
   </Step>
 </Stepper>
+  );
+}
+export default CreateProjectForm;

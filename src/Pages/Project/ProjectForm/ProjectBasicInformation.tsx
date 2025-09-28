@@ -131,44 +131,57 @@ function ProjectBasicInformation() {
 
                 </div>
                 {/* Third row */}
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <CustomInput
+                        label="Description"
+                        placeholder="Eg: Laptop"
+                        isRequired={true}
+                        variant="bordered"
+                        labelPlacement="outside"
+                        onChange={(val) => handleChange("prefix", val)}
+                        classNames={{ label: "text-xs font-semibold" }}
+                    />
+
+                   
+                </div>
                 {/* Fourth row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                     <DynamicDatePicker
-                        label="Purchase Date"
+                        label="Start Date"
                         onChange={handleDateRangeChange}
                         value={dateRange}
-                        description="Pick a date"
+
                     />  <DynamicDatePicker
-                        label="Purchase Date"
+                        label="End Date"
                         onChange={handleDateRangeChange}
                         value={dateRange}
-                        description="Pick a date"
+                        description="Pick a end date"
                     />
                 </div>
 
                 {/* Fourth row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <DynamicDatePicker
-                    label="Purchase Date"
-                    onChange={handleDateRangeChange}
-                    value={dateRange}
-                    description="Pick a date"
-                />  <DynamicDatePicker
-                    label="Purchase Date"
-                    onChange={handleDateRangeChange}
-                    value={dateRange}
-                    description="Pick a date"
-                />
-                  
+                    <DynamicDatePicker
+                        label="Launching Date"
+                        onChange={handleDateRangeChange}
+                        value={dateRange}
+                        description="Pick a date"
+                    />  <DynamicDatePicker
+                        label="Handover Date"
+                        onChange={handleDateRangeChange}
+                        value={dateRange}
+                        description="Pick a date"
+                    />
+
                 </div>
 
                 {/* Fifth row */}
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
-                <SearchableSelect
+                    <SearchableSelect
                         isRequired={true}
                         selectionMode="single"
-                        label="Subcategory"
+                        label="Priority level"
                         placeholder="Select a category first"
                         options={subcategoryOptions}
                         value={formData.subcategory}
@@ -177,7 +190,7 @@ function ProjectBasicInformation() {
                     />
                     <SearchableSelect
                         selectionMode="single"
-                        label="Model Number"
+                        label="Project Type"
                         placeholder="Select Model Number"
                         options={modelNumberOptions}
                         value={formData.modelNumber}

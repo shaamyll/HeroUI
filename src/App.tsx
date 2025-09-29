@@ -21,6 +21,7 @@ import Dummy from './Pages/DashBoardUsage2';
 import AssetForm from './Pages/Asset/AssetForm';
 import StatsDumy from './Pages/StatsDumy';
 
+import CreateProjectForm from './Pages/Project/ProjectForm/CreateProject';
    
 function App() {
    
@@ -56,6 +57,8 @@ function App() {
          <Route path='/statsCardchk' element={<Dashboard/>}/>
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
          <Route path='/statsDumy' element={<StatsDumy/>}/>
+         <Route path='/CreateProjectForm' element={<CreateProjectForm/>}/>
+
 
       </Routes>
     </>

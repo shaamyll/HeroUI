@@ -40,15 +40,9 @@ export const filterButtonsByPermissions = (
  */
 export const checkDeviceCapabilities = (): boolean => {
   if (!safeWindow || !safeNavigator) return false;
- 
-  // Only disable for truly low-power devices
-  const hasReducedMotion = safeWindow.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isVeryLowEndDevice = (safeNavigator.hardwareConcurrency || 0) <= 1; // Fixed: handle undefined case
-  const hasSlowConnection = 'connection' in safeNavigator && 
-    (safeNavigator as any).connection?.effectiveType === 'slow-2g';
   
-  // Only return true if user specifically prefers reduced motion OR device is extremely limited
-  return hasReducedMotion || (isVeryLowEndDevice && hasSlowConnection);
+  // Only check for reduced motion preference
+  return safeWindow.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 /**
  * Debounces a function call

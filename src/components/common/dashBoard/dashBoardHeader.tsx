@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { clsx } from 'clsx';
 import {
   HeaderBackground,
-  DesktopDockNavigation,
+  DockComponent as DesktopDockNavigation,
   SimpleMobileNav,
   MobileActionMenu,
   ActionButtonComponent
@@ -15,7 +15,7 @@ import type { ActionButton, Tab } from '../../../types/dashBoardTypes';
 // Simple props interface - ONLY essential props
 export interface DashboardHeaderProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   tabs: Tab[];
   actionButtons?: ActionButton[];
   bgColor?: string;
@@ -23,7 +23,7 @@ export interface DashboardHeaderProps {
   onTabChange?: (tabId: string) => void;
 }
 
-// Default configurations for dashboard header no need to modify it
+// Default configurations for dashboard header
 const DEFAULTS = {
   userPermissions: [] as string[],
   mobileBreakpoint: 768,
@@ -31,21 +31,21 @@ const DEFAULTS = {
     dotSize: 2,
     gap: 9,
     baseColor: '#FAF5F7',
-    activeColor: '#FAF5F7',
+    activeColor: '#FFFFFF',
     proximity: 100,
     shockRadius: 250,
-    shockStrength: 5,
-    resistance: 750,
-    returnDuration: 1.5,
-    opacity: 0.2,
-    enabled: true
+    shockStrength: 3,
+    resistance: 1000,
+    returnDuration: 1.2,
+    opacity: 0.3,
+    enabled: true,
+    speedTrigger: 0.1,
+    maxSpeed: 0.5
   },
   dockProps: {
     distance: 250,
     panelHeight: 90,
     baseItemSize: 40,
-    magnification: 80,
-    spring: { mass: 0.1, stiffness: 150, damping: 12 },
     offsetTop: -96,
      
   }
@@ -76,7 +76,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   );
 
   // Filter action buttons by permissions (using default empty permissions)
-  const filteredActionButtons = filterButtonsByPermissions(actionButtons, DEFAULTS.userPermissions);
+  const filteredActionButtons = React.useMemo(
+    () => filterButtonsByPermissions(actionButtons || [], DEFAULTS.userPermissions),
+    [actionButtons]
+  );
 
   return (
     <div className="mb-8 pt-8">
@@ -107,16 +110,18 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               {title}
             </h1>
 
-            <p
-              className="mt-0 font-normal"
-              style={{
-                fontFamily: "Helvetica, sans-serif",
-                fontSize: "16px",
-                color: "#FFFFFF",
-              }}
-            >
-              {subtitle}
-            </p>
+            {subtitle && (
+              <p
+                className="mt-0 font-normal"
+                style={{
+                  fontFamily: "Helvetica, sans-serif",
+                  fontSize: "16px",
+                  color: "#FFFFFF",
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
           </div>
 
           {/* Desktop Action Buttons */}

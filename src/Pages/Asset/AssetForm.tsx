@@ -1,16 +1,130 @@
-import { ArrowLeft, ChevronDown } from "lucide-react"
-import BasicInfo_Section from "@/components/Asset/AssetForm/BasicInfo_Section"
-import AssetPreview from "@/components/Asset/AssetForm/AssetPreview"
-import LocalAssignment_Section from "@/components/Asset/AssetForm/LocalAssignment_Section"
-import PurchaseWarrantyInformation from "@/components/Asset/AssetForm/PurchaseWarrantyInformation"
-import TechnicalSpecificationsSection from "@/components/Asset/AssetForm/TechnicalSpecificationsSection"
-import MaintenanceServiceSection from "@/components/Asset/AssetForm/MaintenanceServiceSection"
-import FinancialInformationSection from "@/components/Asset/AssetForm/FinancialInformationSection"
-import ComplianceSafetySection from "@/components/Asset/AssetForm/ComplianceSafetySection"
+import { ArrowLeft } from "lucide-react"
+import BasicInformationSection, { type BasicInformationData } from "@/components/Asset/AssetForm/BasicInformationSection"
+import LocalAssignment_Section, { type LocalAssignmentData } from "@/components/Asset/AssetForm/LocalAssignment_Section"
+import PurchaseWarrantyInformation, { type PurchaseWarrantyData } from "@/components/Asset/AssetForm/PurchaseWarrantyInformation"
+import TechnicalSpecificationsSection, { type TechnicalSpecificationsData } from "@/components/Asset/AssetForm/TechnicalSpecificationsSection"
+import MaintenanceServiceSection, { type MaintenanceServiceData } from "@/components/Asset/AssetForm/MaintenanceServiceSection"
+import FinancialInformationSection, { type FinancialInformationData } from "@/components/Asset/AssetForm/FinancialInformationSection"
+import ComplianceSafetySection, { type ComplianceSafetyData } from "@/components/Asset/AssetForm/ComplianceSafetySection"
+import AssetTagsSection from "@/components/Asset/AssetForm/AssetTags"
+import AssetPreviewSection from "@/components/Asset/AssetForm/AssetPreviewSection"
+import CustomButton from "@/components/common/CustomButton"
+import { useState } from "react"
+
+interface AssetFormData {
+  basicInformation: BasicInformationData;
+  localAssignment: LocalAssignmentData;
+  purchaseWarranty: PurchaseWarrantyData;
+  technicalSpecifications: TechnicalSpecificationsData;
+  maintenanceService: MaintenanceServiceData;
+  complianceSafety: ComplianceSafetyData;
+  financialInformation: FinancialInformationData;
+}
 
 function AssetForm() {
+
+  const [formData, setFormData] = useState<AssetFormData>({
+    basicInformation: {
+      prefix: "141",
+      suffix: "",
+      assetName: "",
+      customCode: "",
+      department: null,
+      category: null,
+      subcategory: null,
+      modelNumber: null,
+      serialNumber: "",
+    },
+    localAssignment: {
+      assignmentType: null,
+      assignee: null,
+      store: null,
+    },
+    purchaseWarranty: {
+      purchaseDate: undefined,
+      purchasePrice: "",
+      vendor: null,
+      warrantyType: null,
+      warrantyDuration: "",
+      warrantyStartDate: undefined,
+      warrantyEndDate: undefined,
+      coverageType: null,
+      warrantyNumber: "",
+      hasExtendedWarranty: false,
+      extendedWarrantyCost: "",
+    },
+    technicalSpecifications: {
+      dimensions: "",
+      weight: "",
+      power: "",
+      capacity: "",
+      operatingSystem: "",
+      customFields: "",
+    },
+    maintenanceService: {
+      maintenanceFrequency: "",
+      serviceProvider: "",
+      serviceContract: "",
+      criticalityLevel: "",
+      maintenanceStartDate: undefined,
+      maintenanceEndDate: undefined,
+    },
+    financialInformation: {
+      depreciationMethod: "",
+      usefulLife: "",
+      salvageValue: "",
+      currentValue: "",
+      costCenter: "",
+      budgetCode: "",
+    },
+    complianceSafety: {
+      certification: "",
+      safetyRequirements: "",
+      complianceStatus: "",
+      lastInspectionDate: undefined,
+      nextInspectionDate: undefined,
+    },
+  });
+
+  const handleBasicInfoChange = (data: BasicInformationData) => {
+    setFormData((prev) => ({
+      ...prev,
+      basicInformation: data,
+    }));
+  };
+
+  // New handler for Local Assignment
+  const handleLocalAssignmentChange = (data: LocalAssignmentData) => {
+    setFormData((prev) => ({ ...prev, localAssignment: data }));
+  };
+
+  const handlePurchaseWarrantyChange = (data: PurchaseWarrantyData) => {
+    setFormData((prev) => ({ ...prev, purchaseWarranty: data }));
+  };
+
+  const handleTechnicalSpecsChange = (data: TechnicalSpecificationsData) => {
+    setFormData((prev) => ({ ...prev, technicalSpecifications: data }));
+  };
+
+  const handleMaintenanceServiceChange = (data: MaintenanceServiceData) => {
+    setFormData(prev => ({ ...prev, maintenanceService: data }));
+  };
+
+  const handleComplianceSafetyChange = (data: ComplianceSafetyData) => {
+    setFormData(prev => ({ ...prev, complianceSafety: data }));
+  };
+
+  const handleFinancialInformationChange = (data: FinancialInformationData) => {
+    setFormData(prev => ({ ...prev, financialInformation: data }));
+  };
+
+  const handleSubmit = () => {
+    console.log("Full Form Data:", formData);
+    // TODO: API call
+  };
+
   return (
-    <div className="max-w-[1400px] mx-auto mt-8 min-h-screen px-2 pb-36">
+    <div className="max-w-[1400px] mx-auto mt-8 min-h-screen px-2 pb-20">
       {/* Header section with purple background matching the design */}
       <div className="bg-purple-950 text-white px-6 py-4 rounded-lg mb-4">
         <div className="flex items-center justify-between">
@@ -25,26 +139,79 @@ function AssetForm() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left column - Basic Information form */}
-           <div className="lg:col-span-2">
-          <div className="space-y-5">
-            <BasicInfo_Section />
-            <LocalAssignment_Section />
-            <PurchaseWarrantyInformation/>
-            <TechnicalSpecificationsSection/>
-            <MaintenanceServiceSection/>
-            <FinancialInformationSection/>
-            <ComplianceSafetySection/>
-          </div>
+        {/* AssetPreview */}
+        <div className="order-1 lg:order-2">
+          <AssetPreviewSection />
         </div>
 
-        {/* Right column - Asset Preview and Guidelines (placeholder) */}
-        <AssetPreview/>
+        {/* Left column - Basic Information form */}
+        <div className="order-2 lg:order-1 lg:col-span-2">
+          <div className="space-y-5">
 
-       
+            <BasicInformationSection
+              value={formData.basicInformation}
+              onChange={handleBasicInfoChange}
+            />
+
+            <LocalAssignment_Section
+              value={formData.localAssignment}
+              onChange={handleLocalAssignmentChange}
+            />
+
+            <PurchaseWarrantyInformation
+              value={formData.purchaseWarranty}
+              onChange={handlePurchaseWarrantyChange}
+            />
+
+            <TechnicalSpecificationsSection
+              value={formData.technicalSpecifications}
+              onChange={handleTechnicalSpecsChange}
+            />
+
+            <MaintenanceServiceSection
+              value={formData.maintenanceService}
+              onChange={handleMaintenanceServiceChange}
+            />
+
+            <FinancialInformationSection
+              value={formData.financialInformation}
+              onChange={handleFinancialInformationChange}
+            />
+
+            <ComplianceSafetySection
+              value={formData.complianceSafety}
+              onChange={handleComplianceSafetyChange}
+            />            <AssetTagsSection />
+          </div>
+
+          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+            <CustomButton
+              label="Cancel"
+              variant="bordered"
+              color="default"
+              radius="md"
+              size="md"
+              className=" text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium"
+              onClick={() => {
+                // handle cancel
+              }}
+            />
+            <CustomButton
+              label="Add Asset"
+              type="submit"
+              variant="solid"
+              onPress={handleSubmit}
+              size="md"
+              radius="md"
+              className=" text-white bg-purple-900 hover:bg-purple-800 font-medium"
+            />
+          </div>
+
+
+
+        </div>
       </div>
 
-      
     </div>
   )
 }

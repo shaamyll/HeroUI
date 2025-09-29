@@ -1,64 +1,63 @@
-"use client"
+// ComplianceSafetySection.tsx
+"use client";
 
-import { Shield } from "lucide-react"
-import { useState } from "react"
-import CustomInput from "@/components/common/CustomInput"
-import SearchableSelect from "@/components/Reusable/SearchableSelect"
-import DynamicDatePicker from "@/components/Reusable/DynamicDatePicker" // ✅ Adjust path if needed
+import { Shield } from "lucide-react";
+import CustomInput from "@/components/common/CustomInput";
+import SearchableSelect from "@/components/Reusable/SearchableSelect";
+import DynamicDatePicker, { type DateRange } from "@/components/Reusable/DynamicDatePicker";
 
-// Define option type
 interface DropdownOption {
   value: string;
   label: string;
 }
 
-// Date range type
-interface DateRange {
-  from: Date | undefined;
-  to: Date | undefined;
+export interface ComplianceSafetyData {
+  certification: string;
+  safetyRequirements: string;
+  complianceStatus: string;
+  lastInspectionDate: string | undefined;
+  nextInspectionDate: string | undefined;
 }
 
-function ComplianceSafetySection() {
-  const [formData, setFormData] = useState({
-    certification: "",
-    safetyRequirements: "",
-    complianceStatus: "",
-    // inspection dates will be managed via date range
-  });
+interface ComplianceSafetySectionProps {
+  value: ComplianceSafetyData;
+  onChange: (data: ComplianceSafetyData) => void;
+}
 
-  // State for inspection date range
-  const [inspectionRange, setInspectionRange] = useState<DateRange>({ from: undefined, to: undefined });
+const complianceStatusOptions: DropdownOption[] = [
+  { value: "compliant", label: "Compliant" },
+  { value: "non-compliant", label: "Non-Compliant" },
+  { value: "pending", label: "Pending Review" },
+  { value: "expired", label: "Expired" },
+];
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+function ComplianceSafetySection({
+  value,
+  onChange,
+}: ComplianceSafetySectionProps) {
+  const handleChange = (
+    key: keyof ComplianceSafetyData,
+    newValue: string | undefined
+  ) => {
+    onChange({ ...value, [key]: newValue });
   };
 
-  const handleDateRangeChange = (range: DateRange) => {
-    setInspectionRange(range);
-    // Optional: sync to formData if needed later (e.g., on submit)
-    // const formatDate = (d: Date | undefined) => d ? d.toISOString().split('T')[0] : '';
-    // setFormData(prev => ({
-    //   ...prev,
-    //   lastInspectionDate: formatDate(range.from),
-    //   nextInspectionDate: formatDate(range.to),
-    // }));
+  // Handle inspection date range (DateRange = { startDate, endDate })
+  const handleInspectionRangeChange = (range: DateRange | null) => {
+    if (range) {
+      handleChange("lastInspectionDate", range.startDate);
+      handleChange("nextInspectionDate", range.endDate);
+    } else {
+      handleChange("lastInspectionDate", undefined);
+      handleChange("nextInspectionDate", undefined);
+    }
   };
 
-  // Compliance status options
-  const complianceStatusOptions: DropdownOption[] = [
-    { value: "compliant", label: "Compliant" },
-    { value: "non-compliant", label: "Non-Compliant" },
-    { value: "pending", label: "Pending Review" },
-    { value: "expired", label: "Expired" },
-  ];
-
-  const stringToOption = (value: string, options: DropdownOption[]): DropdownOption | null => {
-    return options.find(opt => opt.value === value) || null;
-  };
-
-  const optionToString = (option: DropdownOption | null): string => {
-    return option?.value || "";
-  };
+  // Build DateRange object for DynamicDatePicker
+  const inspectionRangeValue: DateRange | null =
+    value.lastInspectionDate && value.nextInspectionDate
+      ? { startDate: value.lastInspectionDate, endDate: value.nextInspectionDate }
+      : null;
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
@@ -69,7 +68,6 @@ function ComplianceSafetySection() {
         <h2 className="text-sm font-semibold text-red-600">Compliance & Safety</h2>
       </div>
 
-      {/* ✅ Single 2-column grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
         {/* Row 1 */}
         <CustomInput
@@ -77,8 +75,8 @@ function ComplianceSafetySection() {
           label="Certification"
           variant="bordered"
           placeholder="Eg: ISO 9001:2015"
-          value={formData.certification}
-          onChange={(value) => handleChange("certification", value)}
+          value={value.certification}
+          onChange={(e) => handleChange("certification", e)}
           classNames={{ label: "text-xs font-semibold" }}
         />
 
@@ -87,20 +85,27 @@ function ComplianceSafetySection() {
           label="Safety Requirements"
           variant="bordered"
           placeholder="Eg: Fire retardant"
-          value={formData.safetyRequirements}
-          onChange={(value) => handleChange("safetyRequirements", value)}
+          value={value.safetyRequirements}
+          onChange={(e) => handleChange("safetyRequirements", e)}
           classNames={{ label: "text-xs font-semibold" }}
         />
 
         {/* Row 2 */}
         <SearchableSelect
-        showSearch={true}
+          showSearch={true}
           label="Compliance Status"
           placeholder="Select an option"
           options={complianceStatusOptions}
-          value={stringToOption(formData.complianceStatus, complianceStatusOptions)}
+          value={
+            complianceStatusOptions.find(
+              (opt) => opt.value === value.complianceStatus
+            ) || null
+          }
           selectionMode="single"
-          onChange={(option) => handleChange("complianceStatus", optionToString(option))}
+          onChange={(option) => {
+            const selected = Array.isArray(option) ? option[0] : option;
+            handleChange("complianceStatus", selected?.value || "");
+          }}
           labelClassname="text-xs font-semibold"
         />
 
@@ -109,11 +114,9 @@ function ComplianceSafetySection() {
           mode="range"
           label="Inspection Date Range"
           description="Pick last and next inspection dates"
-          value={inspectionRange}
-          onChange={handleDateRangeChange}
+          rangeValue={inspectionRangeValue}
+          onRangeChange={handleInspectionRangeChange}
         />
-
-        {/* No more individual date fields — replaced by range picker */}
       </div>
     </div>
   );

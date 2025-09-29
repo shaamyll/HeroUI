@@ -25,6 +25,7 @@
     "@heroui/theme": "^2.4.22",
     "@heroui/toast": "^2.0.15",
     "@heroui/user": "^2.2.21",
+    "@internationalized/date": "^3.9.0",
     "@radix-ui/react-label": "^2.1.7",
     "@tabler/icons-react": "^3.34.1",
     "@tailwindcss/vite": "^4.1.12",

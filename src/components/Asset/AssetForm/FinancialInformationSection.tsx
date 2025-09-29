@@ -1,47 +1,43 @@
-"use client"
+import { BarChart3 } from "lucide-react";
+import CustomInput from "@/components/common/CustomInput";
+import SearchableSelect from "@/components/Reusable/SearchableSelect";
 
-import { BarChart3 } from "lucide-react"
-import { useState } from "react"
-import CustomInput from "@/components/common/CustomInput"
-import SearchableSelect from "@/components/Reusable/SearchableSelect" // ✅ Adjust path if needed
-
-// Define option type
 interface DropdownOption {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
-function FinancialInformationSection() {
-  const [formData, setFormData] = useState({
-    depreciationMethod: "",
-    usefulLife: "",
-    salvageValue: "",
-    currentValue: "",
-    costCenter: "",
-    budgetCode: "",
-  })
+export interface FinancialInformationData {
+  depreciationMethod: string;
+  usefulLife: string;
+  salvageValue: string;
+  currentValue: string;
+  costCenter: string;
+  budgetCode: string;
+}
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+interface FinancialInformationSectionProps {
+  value: FinancialInformationData;
+  onChange: (data: FinancialInformationData) => void;
+}
 
-  // Depreciation method options
-  const depreciationMethodOptions: DropdownOption[] = [
-    { value: "straight-line", label: "Straight Line" },
-    { value: "declining-balance", label: "Declining Balance" },
-    { value: "sum-of-years", label: "Sum of Years" },
-    { value: "units-of-production", label: "Units of Production" },
-  ]
+const depreciationMethodOptions: DropdownOption[] = [
+  { value: "straight-line", label: "Straight Line" },
+  { value: "declining-balance", label: "Declining Balance" },
+  { value: "sum-of-years", label: "Sum of Years" },
+  { value: "units-of-production", label: "Units of Production" },
+];
 
-  // Helper: string → DropdownOption | null
-  const stringToOption = (value: string, options: DropdownOption[]): DropdownOption | null => {
-    return options.find(opt => opt.value === value) || null
-  }
-
-  // Helper: DropdownOption | null → string
-  const optionToString = (option: DropdownOption | null): string => {
-    return option?.value || ""
-  }
+function FinancialInformationSection({
+  value,
+  onChange,
+}: FinancialInformationSectionProps) {
+  const handleChange = (
+    key: keyof FinancialInformationData,
+    newValue: string
+  ) => {
+    onChange({ ...value, [key]: newValue });
+  };
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
@@ -52,16 +48,22 @@ function FinancialInformationSection() {
         <h2 className="text-sm font-semibold text-green-600">Financial Information</h2>
       </div>
 
-      {/* ✅ Single consistent 2-column grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
         {/* Depreciation Method */}
         <SearchableSelect
           label="Depreciation Method"
           placeholder="Select an option"
           options={depreciationMethodOptions}
-          value={stringToOption(formData.depreciationMethod, depreciationMethodOptions)}
+          value={
+            depreciationMethodOptions.find(
+              (opt) => opt.value === value.depreciationMethod
+            ) || null
+          }
           selectionMode="single"
-          onChange={(option) => handleChange("depreciationMethod", optionToString(option))}
+          onChange={(option) => {
+            const selected = Array.isArray(option) ? option[0] : option;
+            handleChange("depreciationMethod", selected?.value || "");
+          }}
           labelClassname="text-xs font-semibold"
         />
 
@@ -71,8 +73,8 @@ function FinancialInformationSection() {
           label="Useful Life"
           variant="bordered"
           placeholder="Eg: 5 years"
-          value={formData.usefulLife}
-          onChange={(value) => handleChange("usefulLife", value)}
+          value={value.usefulLife}
+          onChange={(e) => handleChange("usefulLife", e)}
           classNames={{ label: "text-xs font-semibold" }}
         />
 
@@ -82,8 +84,8 @@ function FinancialInformationSection() {
           label="Salvage Value"
           variant="bordered"
           placeholder="Eg: 5000"
-          value={formData.salvageValue}
-          onChange={(value) => handleChange("salvageValue", value)}
+          value={value.salvageValue}
+          onChange={(e) => handleChange("salvageValue", e)}
           classNames={{ label: "text-xs font-semibold" }}
           startContent={
             <div className="pointer-events-none flex items-center">
@@ -98,8 +100,8 @@ function FinancialInformationSection() {
           label="Current Value"
           variant="bordered"
           placeholder="Eg: 25000.00"
-          value={formData.currentValue}
-          onChange={(value) => handleChange("currentValue", value)}
+          value={value.currentValue}
+          onChange={(e) => handleChange("currentValue", e)}
           classNames={{ label: "text-xs font-semibold" }}
           startContent={
             <div className="pointer-events-none flex items-center">
@@ -114,8 +116,8 @@ function FinancialInformationSection() {
           label="Cost Center"
           variant="bordered"
           placeholder="Eg: IT-001"
-          value={formData.costCenter}
-          onChange={(value) => handleChange("costCenter", value)}
+          value={value.costCenter}
+          onChange={(e) => handleChange("costCenter", e)}
           classNames={{ label: "text-xs font-semibold" }}
         />
 
@@ -125,13 +127,13 @@ function FinancialInformationSection() {
           label="Budget Code"
           variant="bordered"
           placeholder="Eg: CAPEX-2024-001"
-          value={formData.budgetCode}
-          onChange={(value) => handleChange("budgetCode", value)}
+          value={value.budgetCode}
+          onChange={(e) => handleChange("budgetCode", e)}
           classNames={{ label: "text-xs font-semibold" }}
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default FinancialInformationSection
+export default FinancialInformationSection;

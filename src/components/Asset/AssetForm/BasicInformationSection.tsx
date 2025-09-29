@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Tag } from "lucide-react";
+  import { Tag } from "lucide-react";
 import CustomInput from "../../common/CustomInput";
 import SearchableSelect from "../../Reusable/SearchableSelect";
 
@@ -33,45 +32,34 @@ interface DropdownOption {
   label: string
 }
 
-interface FormData {
+export interface BasicInformationData {
   prefix: string;
   suffix: string;
   assetName: string;
   customCode: string;
   department: DropdownOption | null;
-  category: DropdownOption[];
+  category: DropdownOption | null;
   subcategory: DropdownOption | null;
   modelNumber: DropdownOption | null;
   serialNumber: string;
 }
 
+interface BasicInformationSectionProps {
+  value: BasicInformationData;
+  onChange: (data: BasicInformationData) => void;
+}
 
-function BasicInfo_Section() {
-  const [formData, setFormData] = useState<FormData>({
-    prefix: "141",
-    suffix: "",
-    assetName: "",
-    customCode: "",
-    department: null,
-    category: [],
-    subcategory: null,
-    modelNumber: null,
-    serialNumber: "",
-  });
 
-  // generic update handler
+function BasicInformationSection({ value, onChange }: BasicInformationSectionProps) {
+
   const handleChange = (
-    key: keyof FormData,
-    value: DropdownOption | DropdownOption[] | null | string
+    key: keyof BasicInformationData,
+    newValue: any
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const handleSubmit = () => {
-    console.log("Form Data:", formData);
+    onChange({
+      ...value,
+      [key]: newValue,
+    });
   };
 
   return (
@@ -90,7 +78,7 @@ function BasicInfo_Section() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CustomInput
             label="Prefix"
-            defaultValue={formData.prefix}
+            defaultValue={value.prefix}
             isRequired={true}
             variant="bordered"
             labelPlacement="outside"
@@ -99,6 +87,7 @@ function BasicInfo_Section() {
           />
           <CustomInput
             label="Suffix (Optional)"
+            defaultValue={value.suffix}
             placeholder="Eg: HQ"
             variant="bordered"
             labelPlacement="outside"
@@ -111,6 +100,7 @@ function BasicInfo_Section() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CustomInput
             label="Asset Name"
+            defaultValue={value.assetName}
             placeholder="Eg: Laptop"
             isRequired={true}
             variant="bordered"
@@ -120,6 +110,7 @@ function BasicInfo_Section() {
           />
           <CustomInput
             label="Custom Code"
+            defaultValue={value.customCode}
             placeholder="Enter custom code"
             variant="bordered"
             labelPlacement="outside"
@@ -136,7 +127,7 @@ function BasicInfo_Section() {
             label="Department"
             placeholder="Select Department"
             options={departmentOptions}
-            value={formData.department}
+            value={value.department}
             onChange={(val) => handleChange("department", val)}
             labelClassname="text-xs font-semibold"
           />
@@ -145,8 +136,8 @@ function BasicInfo_Section() {
             label="Category"
             placeholder="Select a category"
             options={categoryOptions}
-            value={formData.category}
-            selectionMode="multiple"
+            value={value.category}
+            selectionMode="single"
             onChange={(val) => handleChange("category", val)}
             labelClassname="text-xs font-semibold"
             showSearch={true}
@@ -161,7 +152,7 @@ function BasicInfo_Section() {
             label="Subcategory"
             placeholder="Select a category first"
             options={subcategoryOptions}
-            value={formData.subcategory}
+            value={value.subcategory}
             onChange={(val) => handleChange("subcategory", val)}
             labelClassname="text-xs font-semibold"
           />
@@ -170,7 +161,7 @@ function BasicInfo_Section() {
             label="Model Number"
             placeholder="Select Model Number"
             options={modelNumberOptions}
-            value={formData.modelNumber}
+            value={value.modelNumber}
             onChange={(val) => handleChange("modelNumber", val)}
             labelClassname="text-xs font-semibold"
           />
@@ -180,6 +171,7 @@ function BasicInfo_Section() {
         <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
           <CustomInput
             label="Serial Number"
+            defaultValue={value.serialNumber}
             placeholder="Eg: SN123456789"
             variant="bordered"
             labelPlacement="outside"
@@ -194,4 +186,4 @@ function BasicInfo_Section() {
   );
 }
 
-export default BasicInfo_Section;
+export default BasicInformationSection;

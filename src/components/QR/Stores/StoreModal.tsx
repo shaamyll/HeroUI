@@ -20,13 +20,13 @@ interface QRStoreCardProps {
   onToggleStatus?: (storeData: StoreData) => void;
 }
 
-function QRStoreCard({ 
+const QRStoreCard: React.FC<QRStoreCardProps> = ({ 
   storeData,
   onQrCode,
   onView,
   onEdit,
   onToggleStatus
-}: QRStoreCardProps) {
+}) => {
   const [isBlocked, setIsBlocked] = React.useState(storeData?.isBlocked || false);
 
   const handleQrCode = () => {
@@ -48,85 +48,90 @@ function QRStoreCard({
   };
 
   const handleToggleStatus = () => {
-    setIsBlocked(!isBlocked);
+    const newStatus = !isBlocked;
+    setIsBlocked(newStatus);
     if (onToggleStatus) {
       onToggleStatus(storeData);
     }
   };
 
   return (
-    <Card className="max-w-[380px] shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <CardHeader className="justify-between pb-2">
-        <div className="flex gap-4 flex-1">
+    <Card className="w-full shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100">
+      <CardHeader className="justify-between p-3 pb-1">
+        <div className="flex gap-3 flex-1">
           <div className="relative flex-shrink-0">
             <Avatar
               isBordered
               radius="lg"
-              size="md"
+              size="sm"
               src={storeData.avatarUrl}
-              className="flex-shrink-0"
+              className="flex-shrink-0 w-10 h-10"
             />
-            <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isBlocked ? 'bg-red-500' : 'bg-green-500'} ${!isBlocked && 'animate-pulse'}`}></div>
+            <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${isBlocked ? 'bg-red-500' : 'bg-green-500'} ${!isBlocked && 'animate-pulse'}`}></div>
           </div>
-          <div className="flex flex-col gap-1 items-start justify-center flex-1 min-w-0">
-            <h4 className="text-small font-semibold leading-tight text-default-700 truncate">
+          <div className="flex flex-col gap-0.5 items-start justify-center flex-1 min-w-0">
+            <h4 className="text-sm font-medium leading-tight text-default-700 truncate w-full">
               {storeData.name}
             </h4>
-            <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="flex items-center gap-1 w-full">
               <Tag size={12} className="text-orange-500 flex-shrink-0" />
-              <span className="text-xs text-default-500 truncate">
+              <span className="text-xs text-gray-500 truncate">
                 {storeData.address}
               </span>
             </div>
           </div>
+          <button
+            onClick={handleQrCode}
+            className="ml-1 flex-shrink-0 p-1.5 rounded-md hover:bg-orange-50 transition-colors z-10 self-start"
+          >
+            <QrCode size={16} className="text-orange-500" />
+          </button>
         </div>
-        <button
-          onClick={handleQrCode}
-          className="ml-2 flex-shrink-0 p-2 rounded-md hover:bg-orange-50 transition-colors z-10"
-        >
-          <QrCode size={16} className="text-orange-500" />
-        </button>
       </CardHeader>
 
-      <CardBody className="px-4 py-3 text-small gap-2">
-        <div className="flex items-center gap-2 text-default-500">
-          <Tag size={16} className="text-orange-500 flex-shrink-0" />
-          <span className="text-tiny">Store Code: <span className="font-medium text-default-700">{storeData.slug}</span></span>
+      <CardBody className="p-3 pt-1 pb-2 text-small">
+        <div className="flex items-center gap-2 text-gray-500 mb-1">
+          <Tag size={14} className="text-orange-500 flex-shrink-0" />
+          <span className="text-xs">
+            <span className="font-medium text-gray-700">{storeData.slug}</span>
+          </span>
         </div>
-        <div className="flex items-center gap-2 text-default-500">
-          <Calendar size={16} className="text-orange-500 flex-shrink-0" />
-          <span className="text-tiny">Created: <span className="font-medium text-default-700">{storeData.createdAt}</span></span>
+        <div className="flex items-center gap-2 text-gray-500">
+          <Calendar size={14} className="text-orange-500 flex-shrink-0" />
+          <span className="text-xs">
+            <span className="font-medium text-gray-700">{storeData.createdAt}</span>
+          </span>
         </div>
       </CardBody>
 
-      <CardFooter className="gap-2 pt-2 flex-wrap justify-end">
+      <CardFooter className="gap-1.5 p-3 pt-0 flex-wrap justify-end">
         <Button
           isIconOnly
           size="sm"
           variant="flat"
           color="default"
           onPress={handleView}
-          className="min-w-unit-8 w-8 h-8 bg-gray-100 hover:bg-gray-200"
+          className="min-w-7 w-7 h-7 bg-gray-100 hover:bg-gray-200"
         >
-          <Eye size={16} />
+          <Eye size={14} />
         </Button>
 
         <button
           onClick={handleEdit}
-          className="min-w-[32px] w-8 h-8 rounded-md bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-colors"
+          className="min-w-[28px] w-7 h-7 rounded-md bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-colors"
         >
-          <Pencil size={16} />
+          <Pencil size={14} />
         </button>
 
         <button
           onClick={handleToggleStatus}
-          className={`min-w-[32px] w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+          className={`min-w-[28px] w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
             isBlocked 
               ? 'bg-green-500 hover:bg-green-600 text-white' 
               : 'bg-red-500 hover:bg-red-600 text-white'
           }`}
         >
-          {isBlocked ? <Shield size={16} /> : <ShieldOff size={16} />}
+          {isBlocked ? <Shield size={14} /> : <ShieldOff size={14} />}
         </button>
       </CardFooter>
     </Card>
@@ -207,4 +212,4 @@ function QRStoreCard({
 //   );
 // }
 
-// export { QRStoreCard };
+ export { QRStoreCard };

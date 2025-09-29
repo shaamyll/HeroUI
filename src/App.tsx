@@ -20,7 +20,7 @@ import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
 import AssetForm from './Pages/Asset/AssetForm';
 import StatsDumy from './Pages/StatsDumy';
-import QRStoresModal from './components/QR/Stores/StoreModal';
+import StoreManagement from './components/QR/Stores/Store';
 import CreateProjectForm from './Pages/Project/ProjectForm/CreateProject';
    
 function App() {
@@ -58,7 +58,9 @@ function App() {
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
          <Route path='/statsDumy' element={<StatsDumy/>}/>
          <Route path='/CreateProjectForm' element={<CreateProjectForm/>}/>
-         <Route path='/QRStoresModal' element={<QRStoresModal/>}/>
+         <Route path='/StoreManagement' element={<StoreManagement/>}/>
+        
+         
 
 
       </Routes>

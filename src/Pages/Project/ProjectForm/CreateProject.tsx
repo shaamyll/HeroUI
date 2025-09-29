@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Stepper, { Step } from '../../../components/common/Project/CreateProject/Stepper';
 import ProjectBasicInformation from './ProjectBasicInformation';
 import CreateProjectFormStep2 from './CreateformStep2';
+import CreateProjectFormStep4 from './CreateProjectFomrStep4';
 
 function CreateProjectForm() {
   const [name, setName] = useState("");
@@ -31,12 +32,11 @@ function CreateProjectForm() {
           <p><CreateProjectFormStep2/></p>
         </Step>
         <Step>
-          <h2>How about an input?</h2>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name?" />
+        <CreateProjectFormStep4/>
         </Step>
         <Step>
           <h2>Final Step</h2>
-          <p>You made it!</p>
+          <p> <CreateProjectFormStep4/></p>
         </Step>
       </Stepper>
     </div>

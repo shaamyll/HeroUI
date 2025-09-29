@@ -208,7 +208,7 @@ export default function DynamicTable({
                 isClearable
                 classNames={{
                   base: "w-full",
-                  inputWrapper: "font-extrabold bg-white py-5",
+                  inputWrapper: "font-extrabold bg-white py-5 ",
                   input:
                     "placeholder:text-gray-500 placeholder:font-medium",
                 }}
@@ -260,7 +260,7 @@ export default function DynamicTable({
                 size="md"
                 onPress={() => onAdd(type)}
                 isDisabled={isLoading}
-                startContent={<Plus className="h-4 w-4"/>}
+                startContent={<Plus className="h-4 w-4" />}
               >
                 Create {type}
               </Button>
@@ -295,11 +295,11 @@ export default function DynamicTable({
                   }
                   placeholder={`Select ${filter.name}`}
                   searchPlaceholder={`Search ${filter.name}..`}
-                  onChange={(val:any) => handleFilterChange(filter.uid, val)}
+                  onChange={(val: any) => handleFilterChange(filter.uid, val)}
                   buttonClassName="min-w-[100px] max-w-[220px] flex-auto  justify-between"
                   showSearch={filter.showSearch || false}
                   disabled={isDisabled}
-                  // matchWidth={true}
+                // matchWidth={true}
                 />
               );
             })}
@@ -344,7 +344,7 @@ export default function DynamicTable({
       <div className="pb-10 px-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 w-full">
         {/* Rows per page */}
         <div className="flex justify-between items-center w-full sm:w-auto text-sm text-gray-600">
-          {isLoading ? (  
+          {isLoading ? (
             <Skeleton className="h-8 w-32" />
           ) : (
             <>
@@ -647,11 +647,12 @@ export default function DynamicTable({
                           transition={{
                             duration: 0.5,
                             delay: index * 0.08,
-                            ease: [0.25, 0.46, 0.45, 0.94]
+                            ease: [0.25, 0.46, 0.45, 0.94],
                           }}
                           whileHover={{
-                            scale: 1.01,
-                            transition: { duration: 0.2 }
+                            scale: 1.03,
+                            y: -2,
+                            transition: { duration: 0.2, ease: "easeOut" },
                           }}
                         >
                           {col?.render

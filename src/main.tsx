@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")!).render(
       <Providers>
         {/* Wrap HeroUIProvider around your app */}
         <HeroUIProvider>
-          <main className="text-foreground bg-gray-200">
+          <main className="text-foreground bg-gray-100">
             <App />
           </main>
         </HeroUIProvider>

@@ -32,6 +32,8 @@ interface SearchableSelectProps {
     maxSelectedDisplay?: number;
     closeOnSelect?: boolean;
     label?: string;
+    labelClassname?: string;
+    isRequired?: boolean
 }
 
 function SearchableSelect({
@@ -45,9 +47,11 @@ function SearchableSelect({
     showSearch = false,
     disabled = false,
     width,
-    maxSelectedDisplay = 3,
+    maxSelectedDisplay = 2,
     closeOnSelect,
     label,
+    labelClassname,
+    isRequired = false
 }: SearchableSelectProps) {
 
     const [searchValue, setSearchValue] = useState("");
@@ -175,6 +179,7 @@ function SearchableSelect({
             const selectedOption = selectedValues[0]
             return (
                 <motion.div
+                    key={selectedOption?.value}
                     className="text-foreground truncate"
                     title={selectedOption?.label}
                     initial={{ opacity: 0, x: -10 }}
@@ -208,13 +213,13 @@ function SearchableSelect({
                             whileTap={{ scale: 0.95 }}
                             layout
                         >
-                            <Tooltip color="default" content={selectedValue.label} placement="top" delay={1000}>
+                            <Tooltip color="default" content={selectedValue.label} placement="top" delay={1000} className="font-semibold">
                                 <Chip
                                     size="sm"
                                     variant="flat"
                                     onClose={() => handleChipClose(selectedValue)}
                                     classNames={{
-                                        base: "max-w-full rounded-md bg-secondary text-secondary-foreground border-0 hover:bg-secondary/80 transition-all duration-200",
+                                        base: "max-w-full  bg-secondary text-secondary-foreground border-0 hover:bg-secondary/80 transition-all duration-200 border",
                                         content: "truncate text-xs px-2 max-w-[120px] font-medium",
                                         closeButton:
                                             "text-secondary-foreground/60 hover:text-secondary-foreground hover:bg-secondary-foreground/10 rounded-full transition-all duration-200 hover:scale-110",
@@ -241,7 +246,7 @@ function SearchableSelect({
                                     {selectedValues.slice(maxSelectedDisplay).map((item, idx) => (
                                         <motion.div
                                             key={idx}
-                                            className="text-xs text-foreground truncate"
+                                            className="text-xs text-foreground truncate font-semibold"
                                             title={item.label}
                                             initial={{ opacity: 0, x: -5 }}
                                             animate={{ opacity: 1, x: 0 }}
@@ -263,7 +268,7 @@ function SearchableSelect({
                                 variant="flat"
                                 color="default"
                                 classNames={{
-                                    base: "cursor-default bg-muted text-muted-foreground border-0 transition-all duration-200",
+                                    base: "cursor-default bg-muted text-muted-foreground border-0 transition-all duration-200 border",
                                     content: "text-xs px-2 font-medium",
                                 }}
                             >
@@ -279,6 +284,7 @@ function SearchableSelect({
 
     return (
         <Select
+            isRequired={isRequired}
             label={label}
             labelPlacement="outside"
             aria-label={!label ? placeholder || "Select an option" : undefined}
@@ -286,7 +292,8 @@ function SearchableSelect({
                 base: buttonClassName,
                 trigger: `min-h-[40px] py-2 bg-white`,
                 value: "text-left font-semibold",
-                popoverContent: "p-0 overflow-hidden"
+                popoverContent: "p-0 overflow-hidden",
+                label: labelClassname
             }}
             isMultiline={selectionMode === 'multiple'}
             items={filteredOptions}

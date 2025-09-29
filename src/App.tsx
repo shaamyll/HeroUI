@@ -11,14 +11,17 @@ import HomePage from './Pages/HomePage';
 import DisplayComponents from './Pages/DisplayComponents';
 import DisplayUsersForm from './Pages/DispalyUsersForm';
 import StatCardUsage from './Pages/StatCardUsage';
-import Asset from './Pages/Asset';
+import Asset from './Pages/Asset/Asset';
 import Test from './Pages/Test';
 import DashBoardDumy from './Pages/DashBoardDumy';
 import ButtonUsageDemo from './Pages/ButtonUsage';
 import Dashboard from './Pages/statscardchk';
 import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
+import AssetForm from './Pages/Asset/AssetForm';
+import StatsDumy from './Pages/StatsDumy';
 
+import CreateProjectForm from './Pages/Project/ProjectForm/CreateProject';
    
 function App() {
    
@@ -39,6 +42,7 @@ function App() {
         <Route path='/SettingsProject' element={<SettingsProject />} />
         <Route path='/test' element={<Test/>}/>
         <Route path='/asset' element={<Asset/>}/>
+        <Route path='/create-asset' element={<AssetForm/>}/>
         {/* <Route path='/dashboard' element={<DashBoardPage />} /> */}
         <Route path='/login' element={<Login />} />
         <Route path='/Footer' element={<footer />} />
@@ -52,6 +56,9 @@ function App() {
         <Route path='/buttonUsage' element={<ButtonUsageDemo />} />
          <Route path='/statsCardchk' element={<Dashboard/>}/>
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
+         <Route path='/statsDumy' element={<StatsDumy/>}/>
+         <Route path='/CreateProjectForm' element={<CreateProjectForm/>}/>
+
 
       </Routes>
     </>

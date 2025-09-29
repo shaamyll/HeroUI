@@ -1,14 +1,17 @@
 "use client";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@heroui/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link } from "@heroui/react";
 
 
 export default function NavbarComponent() {
   const navItems = [
+    { name: "Home", link: "/" },
     { name: "Users", link: "/users" },
     { name: "Projects", link: "/projects" },
-    { name: "Dashboard", link: "/dashBoardDumy" },
-    { name: "Settings", link: "/settingsProject" },
     { name: "Asset", link: "/asset" },
+    { name: "Test", link: "/test" },
+    { name: "Dashboard", link: "/dashBoardDumy" },
+    { name: "statCard", link: "/statCardUsage" },
+    { name: "Settings", link: "/settingsProject" },
     { name: "Components", link: "/displaycomponents" },
     { name: "UsersForm", link: "/displayusersform" },
   ];

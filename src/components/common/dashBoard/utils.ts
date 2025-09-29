@@ -41,13 +41,9 @@ export const filterButtonsByPermissions = (
 export const checkDeviceCapabilities = (): boolean => {
   if (!safeWindow || !safeNavigator) return false;
   
-  return (
-    safeWindow.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-    (safeNavigator.hardwareConcurrency && safeNavigator.hardwareConcurrency <= 2) ||
-    ('connection' in safeNavigator && (safeNavigator as any).connection?.effectiveType === 'slow-2g')
-  );
+  // Only check for reduced motion preference
+  return safeWindow.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
-
 /**
  * Debounces a function call
  */

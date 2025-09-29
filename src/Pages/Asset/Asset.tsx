@@ -1,28 +1,25 @@
 import { useEffect, useState } from "react";
-import TableComponent from "../components/Reusable/DynamicTable";
+import TableComponent from "../../components/Reusable/DynamicTable";
 import { Chip, Tooltip } from "@heroui/react";
 import { motion } from "framer-motion";
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ImageCard from "../components/Reusable/ImageCard";
+import ImageCard from "../../components/Reusable/ImageCard";
 import { assetResponse } from "@/components/lib/AssetData";
-import DynamicTable from "../components/Reusable/DynamicTable";
+import DynamicTable from "../../components/Reusable/DynamicTable";
 
 function Asset() {
     const [assets, setAssets] = useState<any[]>([]);
     const [page, setPage] = useState(3);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const [totalPages, setTotalPages] = useState(3);
     const [isLoading, setIsLoading] = useState(true);
 
     // server-side state
-    const [searchValue, setSearchValue] = useState("");
     const [sortDescriptor, setSortDescriptor] = useState<any>(null);
-    const [activeFilters, setActiveFilters] = useState<any[]>([]);
 
 
-    // ✅ Load mock data (replace with API later if needed)
     useEffect(() => {
         setIsLoading(true);
         const allAssets = assetResponse.data.data;
@@ -122,7 +119,6 @@ function Asset() {
     ];
 
 
-    // ✅ Filters (Category & Status)
     const categoryOptions = [
         ...new Set(assets.map((a) => a.category?.name).filter(Boolean))
     ].map((cat) => ({ name: cat, uid: cat }));
@@ -146,7 +142,6 @@ function Asset() {
         navigate("/create-asset");
     };
 
-    // ✅ Card view (Grid mode)
     const AssetCard = ({ item }: any) => (
         <ImageCard
             imageAlt={item.name}
@@ -161,7 +156,7 @@ function Asset() {
 
     return (
         <div className="min-h-screen mx-2">
-            <div className="max-w-[1400px] mx-auto mt-10">
+            <div className="max-w-[1400px] mx-auto mt-5">
                 <div className="w-full bg-purple-950 rounded-2xl p-6">
                     <motion.h3
                         className="text-2xl font-bold text-white pb-8"

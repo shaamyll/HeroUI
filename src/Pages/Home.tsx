@@ -1,10 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import TextType from '../components/ui/TextType';
 
 function Home() {
   return (
-    <div className='min-h-screen bg-gray-200'>
+    <div className='min-h-screen'>
       <div className='mx-auto w-4/5 mt-20'>
         <div className='flex flex-col lg:flex-row items-center justify-between gap-12'>
           {/* Left Column - Text Content */}
@@ -15,17 +13,6 @@ function Home() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="text-center lg:text-left"
             >
-              <TextType
-                text={["Welcome to Lyncs V2", "AI-Powered ERP Solution", "Transform Your Business"]}
-                className="text-5xl md:text-5xl font-bold pt-15 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-700"
-                typingSpeed={100}
-                pauseDuration={1500}
-                showCursor={true}
-                cursorCharacter="_"
-                cursorClassName="text-black font-bold"
-                textColors={["#333", "#333", "#333"]}
-                loop={true}
-              />
               
               <motion.div
                 initial={{ opacity: 0, y: 30 }}

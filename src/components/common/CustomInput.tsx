@@ -48,7 +48,7 @@ export interface InputProps {
 
 export default function CustomInput({
   children,
-  variant = "flat",
+  variant = "bordered",
   color = "default",
   size = "md",
   radius,
@@ -66,7 +66,7 @@ export default function CustomInput({
   type = "text",
   startContent,
   endContent,
-  labelPlacement = "inside",
+  labelPlacement = "outside",
   fullWidth = true,
   isClearable = false,
   isRequired = false,
@@ -118,7 +118,9 @@ export default function CustomInput({
       isInvalid={isInvalid}
       // ref={baseRef} // Uncomment if needed for your use case
       disableAnimation={disableAnimation}
-      classNames={classNames}
+      classNames={{
+        label: "font-medium text-xs",
+      }}
       onValueChange={handleChange}
       onClear={onClear}
       onFocus={onFocus}

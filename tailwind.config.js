@@ -7,6 +7,9 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
+  // Make Tailwind utilities !important by default. You can also set this to
+  // a selector string (for example: '#app') if you prefer scoping instead.
+  important: true,
   darkMode: "class",
   plugins: [ 
     require("tailwindcss-animate"),

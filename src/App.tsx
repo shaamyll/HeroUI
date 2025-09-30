@@ -20,7 +20,7 @@ import SettingsProject from './Pages/settingsPageusage1';
 import Dummy from './Pages/DashBoardUsage2';
 import AssetForm from './Pages/Asset/AssetForm';
 import StatsDumy from './Pages/StatsDumy';
-import StoreManagement from './Pages/QR/Store';
+import StoreManagement from './Pages/QR/QRStoresPage/Store';
 import CreateProjectForm from './Pages/Project/ProjectForm/CreateProject';
 import QRSettings from './Pages/QR/QRSettings';  
 import EditAsset from './Pages/Asset/EditAsset';

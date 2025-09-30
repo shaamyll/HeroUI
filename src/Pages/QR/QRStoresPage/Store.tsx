@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { QRStoreCard } from "../../components/QR/Stores/StoreModal";
+import { QRStoreCard } from "../../../components/QR/Stores/StoreModal";
 import SearchableSelect from "@/components/Reusable/SearchableSelect";
 import { Pagination } from "@heroui/pagination";
 import { type PaginationItemRenderProps, PaginationItemType } from "@heroui/react";
 import { cn } from "@heroui/react";
 import CustomInput from "@/components/common/CustomInput";
 import { Search, Plus, MapPinned } from "lucide-react";
-import type { StoreData } from "../../components/QR/Stores/StoreModal";
+import type { StoreData } from "../../../components/QR/Stores/StoreModal";
 
 
 // Chevron Icon for Pagination

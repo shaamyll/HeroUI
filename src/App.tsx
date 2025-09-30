@@ -31,7 +31,8 @@ function App() {
 
   const hideNavbarPaths = [
     '/create-asset',     
-    '/edit-asset/:id',   
+    '/edit-asset/:id',
+    '/dashBoardDumy',   
   ];
 
   const hideNavbar = hideNavbarPaths.some(path => {

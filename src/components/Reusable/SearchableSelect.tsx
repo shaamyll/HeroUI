@@ -182,7 +182,7 @@ function SearchableSelect({
                     key={selectedOption?.value}
                     className="text-foreground truncate"
                     title={selectedOption?.label}
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
                 >

@@ -40,6 +40,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.542.0",
     "motion": "^12.23.22",
+    "qr-code-styling": "^1.9.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-element-to-jsx-string": "^17.0.1",

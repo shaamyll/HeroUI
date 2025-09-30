@@ -6,12 +6,14 @@ import TechnicalSpecificationsSection, { type TechnicalSpecificationsData } from
 import MaintenanceServiceSection, { type MaintenanceServiceData } from "@/components/Asset/AssetForm/MaintenanceServiceSection"
 import FinancialInformationSection, { type FinancialInformationData } from "@/components/Asset/AssetForm/FinancialInformationSection"
 import ComplianceSafetySection, { type ComplianceSafetyData } from "@/components/Asset/AssetForm/ComplianceSafetySection"
-import AssetTagsSection from "@/components/Asset/AssetForm/AssetTags"
+import AssetTagsSection, { type AssetTagsData } from "@/components/Asset/AssetForm/AssetTags"
 import AssetPreviewSection from "@/components/Asset/AssetForm/AssetPreviewSection"
 import CustomButton from "@/components/common/CustomButton"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import ImagesDocumentsSection from "@/components/Asset/AssetForm/ImagesDocumentsSection"
 
-interface AssetFormData {
+export interface AssetFormData {
   basicInformation: BasicInformationData;
   localAssignment: LocalAssignmentData;
   purchaseWarranty: PurchaseWarrantyData;
@@ -19,14 +21,18 @@ interface AssetFormData {
   maintenanceService: MaintenanceServiceData;
   complianceSafety: ComplianceSafetyData;
   financialInformation: FinancialInformationData;
+  assetTags: AssetTagsData;
+  media: ImagesDocumentsData;
 }
 
 function AssetForm() {
 
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState<AssetFormData>({
     basicInformation: {
       prefix: "141",
-      suffix: "",
+      suffix: "ADRS",
       assetName: "",
       customCode: "",
       department: null,
@@ -84,6 +90,13 @@ function AssetForm() {
       lastInspectionDate: undefined,
       nextInspectionDate: undefined,
     },
+    assetTags: {
+      tags: [],
+    },
+    media: {
+      images: [],
+      documents: [],
+    },
   });
 
   const handleBasicInfoChange = (data: BasicInformationData) => {
@@ -118,6 +131,14 @@ function AssetForm() {
     setFormData(prev => ({ ...prev, financialInformation: data }));
   };
 
+  const handleAssetTagsChange = (data: AssetTagsData) => {
+    setFormData(prev => ({ ...prev, assetTags: data }));
+  };
+
+  const handleMediaChange = (data: ImagesDocumentsData) => {
+    setFormData(prev => ({ ...prev, media: data }));
+  };
+
   const handleSubmit = () => {
     console.log("Full Form Data:", formData);
     // TODO: API call
@@ -128,11 +149,13 @@ function AssetForm() {
       {/* Header section with purple background matching the design */}
       <div className="bg-purple-950 text-white px-6 py-4 rounded-lg mb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4"
+            onClick={() => navigate(-1)}
+          >
             <ArrowLeft className="w-5 h-5 cursor-pointer hover:opacity-80" />
             <div>
               <h1 className="text-lg font-semibold">Add New Asset</h1>
-              <p className="text-purple-200 text-xs">Create and configure a new asset in the system</p>
+              <p className=" text-xs">Create and configure a new asset in the system</p>
             </div>
           </div>
         </div>
@@ -141,7 +164,7 @@ function AssetForm() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* AssetPreview */}
         <div className="order-1 lg:order-2">
-          <AssetPreviewSection />
+          <AssetPreviewSection data={formData} />
         </div>
 
         {/* Left column - Basic Information form */}
@@ -181,10 +204,21 @@ function AssetForm() {
             <ComplianceSafetySection
               value={formData.complianceSafety}
               onChange={handleComplianceSafetyChange}
-            />            <AssetTagsSection />
+            />
+
+            <AssetTagsSection
+              value={formData.assetTags}
+              onChange={handleAssetTagsChange}
+            />
+
+            <ImagesDocumentsSection
+              value={formData.media}
+              onChange={handleMediaChange}
+            />
+
           </div>
 
-          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+          <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-gray-300">
             <CustomButton
               label="Cancel"
               variant="bordered"
@@ -193,7 +227,7 @@ function AssetForm() {
               size="md"
               className=" text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium"
               onClick={() => {
-                // handle cancel
+                navigate(-1)
               }}
             />
             <CustomButton
@@ -206,8 +240,6 @@ function AssetForm() {
               className=" text-white bg-purple-900 hover:bg-purple-800 font-medium"
             />
           </div>
-
-
 
         </div>
       </div>

@@ -23,6 +23,8 @@ import StatsDumy from './Pages/StatsDumy';
 import StoreManagement from './Pages/QR/Store';
 import CreateProjectForm from './Pages/Project/ProjectForm/CreateProject';
 import QRSettings from './Pages/QR/QRSettings';  
+import EditAsset from './Pages/Asset/EditAsset';
+   
 function App() {
    
   const hideNavbar = location.pathname === '/HomePage';
@@ -33,8 +35,7 @@ function App() {
       
       
         
-      <Routes>
-        
+      <Routes> 
         <Route path='/' element={<Home />} />
         <Route path='/auth' element={<Auth />} />
         <Route path='/users' element={<Users />} />
@@ -43,6 +44,7 @@ function App() {
         <Route path='/test' element={<Test/>}/>
         <Route path='/asset' element={<Asset/>}/>
         <Route path='/create-asset' element={<AssetForm/>}/>
+        <Route path='/edit-asset/:id' element={<EditAsset/>}/>
         {/* <Route path='/dashboard' element={<DashBoardPage />} /> */}
         <Route path='/login' element={<Login />} />
         <Route path='/Footer' element={<footer />} />
@@ -62,7 +64,6 @@ function App() {
          <Route path='/QRSettings' element={<QRSettings/>}/>
         
          
-
 
       </Routes>
     </>

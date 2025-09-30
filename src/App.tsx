@@ -22,6 +22,7 @@ import AssetForm from './Pages/Asset/AssetForm';
 import StatsDumy from './Pages/StatsDumy';
 
 import CreateProjectForm from './Pages/Project/ProjectForm/CreateProject';
+import EditAsset from './Pages/Asset/EditAsset';
    
 function App() {
    
@@ -33,8 +34,7 @@ function App() {
       
       
         
-      <Routes>
-        
+      <Routes> 
         <Route path='/' element={<Home />} />
         <Route path='/auth' element={<Auth />} />
         <Route path='/users' element={<Users />} />
@@ -43,6 +43,7 @@ function App() {
         <Route path='/test' element={<Test/>}/>
         <Route path='/asset' element={<Asset/>}/>
         <Route path='/create-asset' element={<AssetForm/>}/>
+        <Route path='/edit-asset/:id' element={<EditAsset/>}/>
         {/* <Route path='/dashboard' element={<DashBoardPage />} /> */}
         <Route path='/login' element={<Login />} />
         <Route path='/Footer' element={<footer />} />
@@ -58,7 +59,6 @@ function App() {
          {/* <Route path='/settingsLeft' element={<SettingsLeftContainer/>}/> */}
          <Route path='/statsDumy' element={<StatsDumy/>}/>
          <Route path='/CreateProjectForm' element={<CreateProjectForm/>}/>
-
 
       </Routes>
     </>

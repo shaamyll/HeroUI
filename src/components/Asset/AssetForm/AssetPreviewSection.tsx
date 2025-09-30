@@ -1,25 +1,41 @@
+import type { AssetFormData } from "@/Pages/Asset/AssetForm";
 import { Info, AlertTriangle } from "lucide-react"
+import QR_with_logo from "./QR_with_logo";
+import logo from '@/assets/logo.png'
 
-function AssetPreviewSection() {
+interface AssetPreviewSectionProps {
+  data: AssetFormData;
+}
+
+function AssetPreviewSection({ data }: AssetPreviewSectionProps) {
+
+  const prefix = data.basicInformation.prefix || "";
+  const suffix = data.basicInformation.suffix || "";
+
+  const assetId = `${prefix}-18-0292${suffix ? `-${suffix}` : ''}`;
+
+  const qrData = assetId;
+
   return (
     <div className="space-y-4">
       {/* Asset Preview Section */}
       <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Asset Preview</h3>
 
-        {/* QR Code and Asset ID */}
-        <div className="flex flex-col items-center space-y-3 py-6 border rounded-lg">
-          <div className="w-32 h-32 bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center">
-            <div className="grid grid-cols-8 gap-1 w-24 h-24">
-              {Array.from({ length: 64 }, (_, i) => (
-                <div key={i} className={`w-2 h-2 ${Math.random() > 0.5 ? "bg-black" : "bg-white"}`} />
-              ))}
-            </div>
+         {/* QR Code and Asset ID */}
+        <div className="flex flex-col items-center space-y-3 py-6 border-2 rounded-lg">
+          {/* QR component */}
+          <div className="w-32 h-32 flex items-center justify-center border-2  rounded-md">
+            <QR_with_logo
+              url={qrData}
+              size={130}
+              logo={logo}
+            />
           </div>
 
           {/* Asset ID */}
           <div className="text-center">
-            <p className="text-sm font-semibold text-gray-900">141-18-0292</p>
+            <p className="text-sm font-semibold text-gray-900">{assetId}</p>
           </div>
         </div>
       </div>

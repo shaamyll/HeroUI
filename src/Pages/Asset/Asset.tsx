@@ -94,7 +94,7 @@ function Asset() {
             name: "Actions",
             headerId: "actions",
             sortable: false,
-            render: () => (
+            render: (item:any) => (
                 <div className="flex items-center gap-3">
                     <Tooltip content="Details">
                         <button className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-700 hover:bg-gray-200 active:opacity-70">
@@ -103,7 +103,8 @@ function Asset() {
                     </Tooltip>
 
                     <Tooltip content="Edit Asset">
-                        <button className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-700 hover:bg-gray-200 active:opacity-70">
+                        <button className="flex items-center justify-center w-7 h-7 rounded-lg text-gray-700 hover:bg-gray-200 active:opacity-70"
+                         onClick={()=>handleEditAsset(item.id)}>
                             <SquarePen className="w-4 h-4" />
                         </button>
                     </Tooltip>
@@ -141,6 +142,10 @@ function Asset() {
     const handleAddClick = () => {
         navigate("/create-asset");
     };
+
+    const handleEditAsset = (assetId: string) => {
+  navigate(`/edit-asset/${assetId}`); 
+};
 
     const AssetCard = ({ item }: any) => (
         <ImageCard

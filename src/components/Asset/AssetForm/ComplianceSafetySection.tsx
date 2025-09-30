@@ -1,6 +1,3 @@
-// ComplianceSafetySection.tsx
-"use client";
-
 import { Shield } from "lucide-react";
 import CustomInput from "@/components/common/CustomInput";
 import SearchableSelect from "@/components/Reusable/SearchableSelect";
@@ -44,16 +41,25 @@ function ComplianceSafetySection({
 
   // Handle inspection date range (DateRange = { startDate, endDate })
   const handleInspectionRangeChange = (range: DateRange | null) => {
-    if (range) {
-      handleChange("lastInspectionDate", range.startDate);
-      handleChange("nextInspectionDate", range.endDate);
-    } else {
-      handleChange("lastInspectionDate", undefined);
-      handleChange("nextInspectionDate", undefined);
+    console.log("inspection range", range);
+
+    if (!range) {
+      onChange({
+        ...value,
+        lastInspectionDate: undefined,
+        nextInspectionDate: undefined
+      });
+      return;
     }
+
+    const { startDate, endDate } = range;
+    onChange({
+      ...value,
+      lastInspectionDate: startDate,
+      nextInspectionDate: endDate
+    });
   };
 
-  // Build DateRange object for DynamicDatePicker
   const inspectionRangeValue: DateRange | null =
     value.lastInspectionDate && value.nextInspectionDate
       ? { startDate: value.lastInspectionDate, endDate: value.nextInspectionDate }

@@ -91,7 +91,7 @@ function BasicInformationSection({ value, onChange }: BasicInformationSectionPro
             placeholder="Eg: HQ"
             variant="bordered"
             labelPlacement="outside"
-            onChange={(val) => handleChange("prefix", val)}
+            onChange={(val) => handleChange("suffix", val)}
             classNames={{ label: "text-xs font-semibold" }}
           />
         </div>
@@ -105,7 +105,7 @@ function BasicInformationSection({ value, onChange }: BasicInformationSectionPro
             isRequired={true}
             variant="bordered"
             labelPlacement="outside"
-            onChange={(val) => handleChange("prefix", val)}
+            onChange={(val) => handleChange("assetName", val)}
             classNames={{ label: "text-xs font-semibold" }}
           />
           <CustomInput
@@ -114,7 +114,7 @@ function BasicInformationSection({ value, onChange }: BasicInformationSectionPro
             placeholder="Enter custom code"
             variant="bordered"
             labelPlacement="outside"
-            onChange={(val) => handleChange("prefix", val)}
+            onChange={(val) => handleChange("customCode", val)}
             classNames={{ label: "text-xs font-semibold" }}
           />
         </div>
@@ -175,9 +175,8 @@ function BasicInformationSection({ value, onChange }: BasicInformationSectionPro
             placeholder="Eg: SN123456789"
             variant="bordered"
             labelPlacement="outside"
-            onChange={(val) => handleChange("prefix", val)}
+            onChange={(val) => handleChange("serialNumber", val)}
             classNames={{ label: "text-xs font-semibold" }}
-
           />
         </div>
 

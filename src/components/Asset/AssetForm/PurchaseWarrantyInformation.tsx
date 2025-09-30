@@ -235,7 +235,8 @@ function PurchaseWarrantyInformation({
           </div>
 
           {value.hasExtendedWarranty && (
-            <CustomInput
+           <div className="pt-0.5">
+             <CustomInput
               value={value.extendedWarrantyCost}
               onChange={(val) => handleChange("extendedWarrantyCost", val)}
               placeholder="Eg: 500"
@@ -245,6 +246,7 @@ function PurchaseWarrantyInformation({
               label="Extended Warranty Cost"
               classNames={{ label: "text-xs font-semibold" }}
             />
+           </div>
           )}
         </div>
       </div>

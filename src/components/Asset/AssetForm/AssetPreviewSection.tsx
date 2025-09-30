@@ -23,12 +23,12 @@ function AssetPreviewSection({ data }: AssetPreviewSectionProps) {
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Asset Preview</h3>
 
          {/* QR Code and Asset ID */}
-        <div className="flex flex-col items-center space-y-3 py-6 border-2 rounded-lg">
+        <div className="flex flex-col items-center space-y-3 py-7 border-2 rounded-lg">
           {/* QR component */}
           <div className="w-32 h-32 flex items-center justify-center border-2  rounded-md">
             <QR_with_logo
               url={qrData}
-              size={130}
+              size={120}
               logo={logo}
             />
           </div>

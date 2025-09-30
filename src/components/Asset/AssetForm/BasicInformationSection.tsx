@@ -65,7 +65,7 @@ function BasicInformationSection({ value, onChange }: BasicInformationSectionPro
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
       <div className="flex items-center gap-3 mb-5">
-        <div className="p-1 bg-blue-50 rounded-lg">
+        <div className="p-2 bg-blue-50 rounded-lg">
           <Tag className="w-4 h-4 text-blue-600" />
         </div>
         <h2 className="text-small font-semibold text-blue-600">

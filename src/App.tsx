@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Home from './Pages/Home';
 import  NavbarComponent  from './components/Reusable/NavbarComponent';
 import Users from './Pages/Users';
@@ -26,15 +26,27 @@ import QRSettings from './Pages/QR/QRSettings';
 import EditAsset from './Pages/Asset/EditAsset';
    
 function App() {
+
+    const location = useLocation();
+
+  const hideNavbarPaths = [
+    '/create-asset',     
+    '/edit-asset/:id',   
+  ];
+
+  const hideNavbar = hideNavbarPaths.some(path => {
+    if (path.includes(':')) {
+      const basePath = path.split('/:')[0];
+      return location.pathname.startsWith(basePath);
+    }
+    return location.pathname === path;
+  });
    
-  const hideNavbar = location.pathname === '/HomePage';
   
   return (
     <>
       {!hideNavbar && <NavbarComponent />}
       
-      
-        
       <Routes> 
         <Route path='/' element={<Home />} />
         <Route path='/auth' element={<Auth />} />
@@ -62,8 +74,6 @@ function App() {
          <Route path='/CreateProjectForm' element={<CreateProjectForm/>}/>
          <Route path='/StoreManagement' element={<StoreManagement/>}/>
          <Route path='/QRSettings' element={<QRSettings/>}/>
-        
-         
 
       </Routes>
     </>

@@ -587,7 +587,6 @@ const CommonComponents: React.FC<CommonComponentsProps> = ({
 }) => {
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8 ">HeroUI Component Showcase</h1>
 
       {rotatingTextProps && (
         <div className="mb-8 flex flex-row flex-wrap gap-2">

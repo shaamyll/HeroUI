@@ -1,15 +1,6 @@
 import React, { useState, type Key } from "react";
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarMenuToggle,
-  NavbarMenuItem,
-  NavbarMenu,
-  NavbarContent,
-  NavbarItem,
-  Link,
-  Button,
-} from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { Button } from "@heroui/react";
 import CommonComponents, { AutocompleteData } from "../components/common/CommonComponents";
 import CustomInput from "../components/common/CustomInput";
 import SopCardView, { type SopCardViewProps } from "../components/ModuleWiseComponents/SopCardView";
@@ -26,7 +17,127 @@ import { UseToast } from "@/hooks/UseToast";
 import { CircleX, BadgeCheck, EyeClosed, Eye, Search, UserRound } from 'lucide-react';
 import type { InputConfig } from "@/types/common";
 
-// ✅ Acme Logo component from navbar
+// ✅ Resizable Sidebar Component
+interface ResizableSidebarProps {
+  children: React.ReactNode;
+  defaultWidth?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  defaultCollapsed?: boolean;
+}
+
+export const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
+  children,
+  defaultWidth = 280,
+  minWidth = 60,
+  maxWidth = 400,
+  defaultCollapsed = false,
+}) => {
+  const [width, setWidth] = React.useState(defaultWidth);
+  const [isResizing, setIsResizing] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+  const [isHovered, setIsHovered] = React.useState(false);
+  
+  const previousWidth = React.useRef(width);
+  const sidebarRef = React.useRef<HTMLDivElement>(null);
+  
+  // Handle resize start
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    document.addEventListener("mousemove", handleResize);
+    document.addEventListener("mouseup", handleResizeEnd);
+  };
+  
+  // Handle resize
+  const handleResize = React.useCallback((e: MouseEvent) => {
+    if (!sidebarRef.current) return;
+    
+    const newWidth = e.clientX - sidebarRef.current.getBoundingClientRect().left;
+    
+    if (newWidth >= minWidth && newWidth <= maxWidth) {
+      setWidth(newWidth);
+      previousWidth.current = newWidth;
+    }
+  }, [minWidth, maxWidth]);
+  
+  // Handle resize end
+  const handleResizeEnd = React.useCallback(() => {
+    setIsResizing(false);
+    document.removeEventListener("mousemove", handleResize);
+    document.removeEventListener("mouseup", handleResizeEnd);
+  }, [handleResize]);
+  
+  // Clean up event listeners
+  React.useEffect(() => {
+    return () => {
+      document.removeEventListener("mousemove", handleResize);
+      document.removeEventListener("mouseup", handleResizeEnd);
+    };
+  }, [handleResize, handleResizeEnd]);
+  
+  // Toggle sidebar collapse
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+  
+  // Calculate current width based on collapsed state
+  const currentWidth = isCollapsed ? minWidth : width;
+  
+  return (
+    <>
+      {/* Overlay when resizing */}
+      {isResizing && (
+        <div className="fixed inset-0 z-40 cursor-ew-resize" />
+      )}
+      
+      {/* Sidebar - update styling to match navbar */}
+      <div
+        ref={sidebarRef}
+        className={`
+          relative h-screen bg-content1 border-r border-default-200 z-30 
+          transition-all duration-300 ease-out-expo
+          ${isResizing ? "select-none" : ""}
+        `}
+        style={{ width: `${currentWidth}px` }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Sidebar content */}
+        <div className={`h-full overflow-y-auto overflow-x-hidden ${isCollapsed ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}>
+          {children}
+        </div>
+        
+        {/* Resize handle - make more subtle */}
+        <div
+          className={`
+            absolute top-0 right-0 w-1 h-full cursor-ew-resize hover:bg-primary/30
+            ${isResizing ? "bg-primary/50" : isHovered ? "bg-primary/20" : ""}
+            transition-colors duration-200
+          `}
+          onMouseDown={handleResizeStart}
+        />
+        
+        {/* Collapse toggle button - improve styling */}
+        <Button
+          isIconOnly
+          variant="light"
+          size="sm"
+          className={`
+            absolute -right-3 top-4 z-50 shadow-xs bg-content1 border border-default-200
+            transition-transform duration-300 ease-out-expo
+            ${isCollapsed ? "rotate-180" : ""}
+          `}
+          onPress={toggleCollapse}
+        >
+          <Icon icon="lucide:chevron-left" className="text-default-500" />
+        </Button>
+      </div>
+    </>
+  );
+};
+
+// ✅ Acme Logo component
 export const AcmeLogo = () => {
   return (
     <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
@@ -40,49 +151,117 @@ export const AcmeLogo = () => {
   );
 };
 
+// ✅ Enhanced Sidebar Menu Component
+const SidebarMenu: React.FC<{ 
+  onMenuItemClick: (item: string) => void; 
+  selectedItem: string | null 
+}> = ({ onMenuItemClick, selectedItem }) => {
+  
+  const menuItems = [
+    { name: "Button", icon: "lucide:square", color: "text-blue-500" },
+    { name: "Toast", icon: "lucide:bell", color: "text-green-500" },
+    { name: "Input Elements", icon: "lucide:edit", color: "text-purple-500" },
+    { name: "Select (Dropdown)", icon: "lucide:chevron-down", color: "text-orange-500" },
+    { name: "SOP card view", icon: "lucide:layout", color: "text-pink-500" },
+    { name: "Finance Header Section", icon: "lucide:bar-chart", color: "text-cyan-500" },
+    { name: "Chip", icon: "lucide:tag", color: "text-yellow-500" },
+  ];
+
+  return (
+    <div className="p-4">
+      {/* Enhanced header with gradient background */}
+      <div className="mb-6 flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100">
+        <AcmeLogo />
+        <div>
+          <p className="font-bold text-inherit">HERO UI</p>
+          <p className="text-xs text-default-500">Component Library</p>
+        </div>
+      </div>
+      
+      <nav className="space-y-1">
+        {menuItems.map((item) => (
+          <button
+            key={item.name}
+            className={`w-full flex items-center gap-3 px-3 py-3 text-left rounded-lg transition-all duration-200 group ${
+              selectedItem === item.name 
+                ? "bg-blue-50 border border-blue-200 shadow-xs" 
+                : "hover:bg-default-100 border border-transparent"
+            }`}
+            onClick={() => onMenuItemClick(item.name)}
+          >
+            <Icon 
+              icon={item.icon} 
+              className={`text-sm transition-colors ${
+                selectedItem === item.name ? "text-blue-600" : item.color
+              } group-hover:scale-110`} 
+            />
+            <span className={`font-sm ${
+              selectedItem === item.name ? "text-blue-700" : "text-default-700"
+            }`}>
+              {item.name}
+            </span>
+            {selectedItem === item.name && (
+              <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            )}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+};
+
+// ✅ Improved Main Content Header
+const SectionHeader: React.FC<{ title: string; description?: string }> = ({ title, description }) => (
+  <div className="border-b border-default-200 bg-gradient-to-r from-white to-gray-50/50">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex items-center gap-2 text-sm text-default-500 mb-2">
+        <span className="flex items-center gap-1">
+          <Icon icon="lucide:component" className="w-4 h-4" />
+          Components
+        </span>
+        <span>›</span>
+        <span className="text-default-700 font-medium">{title}</span>
+      </div>
+      <h1 className="text-2xl sm:text-3xl font-bold text-default-900 mb-2">{title}</h1>
+      {description && (
+        <p className="text-default-600 max-w-2xl text-sm sm:text-base">{description}</p>
+      )}
+    </div>
+  </div>
+);
+
 // Component to display buttons
 const ButtonsSection = () => (
-  <div className="flex flex-wrap gap-4 p-4">
-    {/* Basic usage */}
-    <CustomButton label="Default Button" />
-    
-    {/* Size variations */}
-    <CustomButton label="Small" size="sm" />
-    <CustomButton label="Medium" size="md" />
-    <CustomButton label="Large" size="lg" />
-    
-    {/* Radius variations */}
-    <CustomButton label="Full Radius" radius="full" />
-    <CustomButton label="Large Radius" radius="lg" />
-    <CustomButton label="Medium Radius" radius="md" />
-    <CustomButton label="Small Radius" radius="sm" />
-    <CustomButton label="No Radius" radius="none" />
-    
-    {/* Color variations */}
-    <CustomButton label="Default" color="default" />
-    <CustomButton label="Primary" color="primary" />
-    <CustomButton label="Secondary" color="secondary" />
-    <CustomButton label="Success" color="success" />
-    <CustomButton label="Warning" color="warning" />
-    <CustomButton label="Danger" color="danger" />
-    
-    {/* Variant variations */}
-    <CustomButton label="Solid" color="primary" variant="solid" />
-    <CustomButton label="Faded" color="primary" variant="faded" />
-    <CustomButton label="Bordered" color="primary" variant="bordered" />
-    <CustomButton label="Light" color="primary" variant="light" />
-    <CustomButton label="Flat" color="primary" variant="flat" />
-    <CustomButton label="Ghost" color="primary" variant="ghost" />
-    <CustomButton label="Shadow" color="primary" variant="shadow" />
-    
-    {/* Disabled state */}
-    <CustomButton label="Disabled Button" isDisabled={true} />
-    
-    {/* Custom className */}
-    <CustomButton 
-      label="Custom Styled" 
-      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white" 
+  <div>
+    <SectionHeader 
+      title="Button Components" 
+      description="Explore different button styles, sizes, and variants for your application."
     />
+    <div className="max-w-7xl mx-auto p-4 sm:p-6">
+      <div className="flex flex-wrap gap-4">
+        <CustomButton label="Default Button" />
+        <CustomButton label="Small" size="sm" />
+        <CustomButton label="Medium" size="md" />
+        <CustomButton label="Large" size="lg" />
+        <CustomButton label="Full Radius" radius="full" />
+        <CustomButton label="Primary" color="primary" />
+        <CustomButton label="Success" color="success" />
+        <CustomButton label="Warning" color="warning" />
+        <CustomButton label="Danger" color="danger" />
+        <CustomButton label="Solid" color="primary" variant="solid" />
+        <CustomButton label="Faded" color="primary" variant="faded" />
+        <CustomButton label="Bordered" color="primary" variant="bordered" />
+        <CustomButton label="Light" color="primary" variant="light" />
+        <CustomButton label="Flat" color="primary" variant="flat" />
+        <CustomButton label="Ghost" color="primary" variant="ghost" />
+        <CustomButton label="Shadow" color="primary" variant="shadow" />
+        <CustomButton label="Disabled Button" isDisabled={true} />
+        <CustomButton 
+          label="Custom Styled" 
+          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white" 
+        />
+      </div>
+    </div>
   </div>
 );
 
@@ -91,154 +270,65 @@ const ToastSection = () => {
   const { showToast } = UseToast();
 
   return (
-    <div className="flex flex-wrap gap-4 p-4">
-      {/* Basic Toast */}
-      <CustomButton
-        label="Show Basic Toast"
-        color="primary"
-        onPress={() => {
-          showToast({
-            title: "Success!",
-            description: "Your action was completed successfully.",
-            color: "success",
-          });
-        }}
+    <div>
+      <SectionHeader 
+        title="Toast Components" 
+        description="Interactive toast notifications with different styles and behaviors."
       />
-
-      {/* With Promise */}
-      <CustomButton
-        label="Show Promise Toast"
-        color="secondary"
-        onPress={() => {
-          showToast({
-            title: "Processing...",
-            description: "Please wait while we process your request.",
-            promise: new Promise((resolve) => setTimeout(resolve, 3000)),
-            shouldShowTimeoutProgress: true,
-            color: "primary",
-          });
-        }}
-      />
-
-      {/* With Icons */}
-      <CustomButton
-        label="Success with Icon"
-        color="success"
-        onPress={() => {
-          showToast({
-            title: "Success!",
-            description: "Operation completed successfully",
-            icon: <CircleX />,
-            color: "success",
-            variant: "solid",
-          });
-        }}
-      />
-
-      <CustomButton
-        label="Error Toast"
-        color="danger"
-        onPress={() => {
-          showToast({
-            title: "Error!",
-            description: "Something went wrong. Please try again.",
-            icon: <BadgeCheck />,
-            color: "danger",
-            variant: "solid",
-          });
-        }}
-      />
-
-      {/* Custom Content */}
-      <CustomButton
-        label="Custom Content Toast"
-        color="warning"
-        onPress={() => {
-          showToast({
-            title: "Custom Notification",
-            description: "This has custom end content",
-            endContent: (
-              <button 
-                className="ml-2 text-sm text-blue-500 hover:text-blue-700"
-                onClick={() => console.log("Custom action clicked")}
-              >
-                Action
-              </button>
-            ),
-            color: "warning",
-          });
-        }}
-      />
-
-      {/* Different Variants */}
-      <CustomButton
-        label="Faded Variant"
-        color="default"
-        onPress={() => {
-          showToast({
-            title: "Faded Toast",
-            description: "This is a faded variant toast",
-            variant: "faded",
-            color: "primary",
-          });
-        }}
-      />
-
-      <CustomButton
-        label="Bordered Variant"
-        color="default"
-        onPress={() => {
-          showToast({
-            title: "Bordered Toast",
-            description: "This is a bordered variant toast",
-            variant: "bordered",
-            color: "secondary",
-          });
-        }}
-      />
-
-      {/* Different Radius */}
-      <CustomButton
-        label="Full Radius Toast"
-        color="primary"
-        onPress={() => {
-          showToast({
-            title: "Rounded Toast",
-            description: "This toast has full radius",
-            radius: "full",
-            color: "primary",
-          });
-        }}
-      />
-
-      {/* Long timeout */}
-      <CustomButton
-        label="Long Timeout Toast"
-        color="success"
-        onPress={() => {
-          showToast({
-            title: "Long Notification",
-            description: "This toast will stay for 10 seconds",
-            timeout: 10000,
-            shouldShowTimeoutProgress: true,
-            color: "success",
-          });
-        }}
-      />
-
-      {/* Without Icon */}
-      <CustomButton
-        label="No Icon Toast"
-        color="default"
-        onPress={() => {
-          showToast({
-            title: "No Icon",
-            description: "This toast doesn't have an icon",
-            hideIcon: true,
-            color: "default",
-          });
-        }}
-      />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-wrap gap-4">
+          <CustomButton
+            label="Show Basic Toast"
+            color="primary"
+            onPress={() => {
+              showToast({
+                title: "Success!",
+                description: "Your action was completed successfully.",
+                color: "success",
+              });
+            }}
+          />
+          <CustomButton
+            label="Show Promise Toast"
+            color="secondary"
+            onPress={() => {
+              showToast({
+                title: "Processing...",
+                description: "Please wait while we process your request.",
+                promise: new Promise((resolve) => setTimeout(resolve, 3000)),
+                shouldShowTimeoutProgress: true,
+                color: "primary",
+              });
+            }}
+          />
+          <CustomButton
+            label="Success with Icon"
+            color="success"
+            onPress={() => {
+              showToast({
+                title: "Success!",
+                description: "Operation completed successfully",
+                icon: <CircleX />,
+                color: "success",
+                variant: "solid",
+              });
+            }}
+          />
+          <CustomButton
+            label="Error Toast"
+            color="danger"
+            onPress={() => {
+              showToast({
+                title: "Error!",
+                description: "Something went wrong. Please try again.",
+                icon: <BadgeCheck />,
+                color: "danger",
+                variant: "solid",
+              });
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -253,184 +343,41 @@ const InputElementsSection = () => {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  // Validation function
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!value) return "Email is required";
-    if (!emailRegex.test(value)) return "Please enter a valid email address";
-    return true;
-  };
-
-  const validatePassword = (value: string) => {
-    if (!value) return "Password is required";
-    if (value.length < 8) return "Password must be at least 8 characters";
-    return true;
-  };
-
   return (
-    <div className="flex flex-col gap-8 p-4 max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CustomInput
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={setEmail}
-        />
-        
-        <CustomInput
-          label="Password"
-          type={isVisible ? "text" : "password"}
-          placeholder="Enter your password"
-          value={password}
-          onChange={setPassword}
-          endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility}
-            >
-              {isVisible ? <EyeClosed /> : <Eye />}
-            </button>
-          }
-        />
-      </div>
-
-      {/* With Icons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CustomInput
-          label="Search"
-          type="search"
-          placeholder="Search..."
-          value={search}
-          onChange={setSearch}
-          startContent={<Search />}
-          isClearable
-        />
-        
-        <CustomInput
-          label="Full Name"
-          placeholder="Enter your full name"
-          value={name}
-          onChange={setName}
-          startContent={<UserRound />}
-        />
-      </div>
-
-      {/* Different Variants */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CustomInput
-          label="Bordered Input"
-          variant="bordered"
-          placeholder="Bordered style"
-          color="primary"
-        />
-        
-        <CustomInput
-          label="Underlined Input"
-          variant="underlined"
-          placeholder="Underlined style"
-          color="secondary"
-        />
-      </div>
-
-      {/* Different Sizes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <CustomInput
-          label="Small"
-          size="sm"
-          placeholder="Small input"
-        />
-        
-        <CustomInput
-          label="Medium"
-          size="md"
-          placeholder="Medium input"
-        />
-        
-        <CustomInput
-          label="Large"
-          size="lg"
-          placeholder="Large input"
-        />
-      </div>
-
-      {/* Different Colors */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <CustomInput
-          label="Success"
-          color="success"
-          placeholder="Success color"
-        />
-        
-        <CustomInput
-          label="Warning"
-          color="warning"
-          placeholder="Warning color"
-        />
-        
-        <CustomInput
-          label="Danger"
-          color="danger"
-          placeholder="Danger color"
-        />
-      </div>
-
-      {/* Validation Examples */}
-      <div className="grid grid-cols-1 gap-4">
-        <CustomInput
-          label="Email with Validation"
-          type="email"
-          placeholder="Enter valid email"
-          isRequired
-          errorMessage="Please enter a valid email address"
-          isInvalid={!!email && !validateEmail(email)}
-        />
-        
-        <CustomInput
-          label="Password with Validation"
-          type="password"
-          placeholder="Minimum 8 characters"
-          isRequired
-          errorMessage="Password must be at least 8 characters"
-          isInvalid={!!password && !validatePassword(password)}
-        />
-      </div>
-
-      {/* Advanced Features */}
-      <div className="grid grid-cols-1 gap-4">
-        <CustomInput
-          label="With Description"
-          placeholder="This input has a description"
-          description="This is a helpful description for the input field"
-        />
-        
-        <CustomInput
-          label="Read Only"
-          defaultValue="This value cannot be changed"
-          isReadOnly
-        />
-        
-        <CustomInput
-          label="Disabled"
-          placeholder="This input is disabled"
-          isDisabled
-        />
-      </div>
-
-      {/* Custom Radius */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CustomInput
-          label="Full Radius"
-          radius="full"
-          placeholder="Fully rounded"
-        />
-        
-        <CustomInput
-          label="Large Radius"
-          radius="lg"
-          placeholder="Large radius"
-        />
+    <div>
+      <SectionHeader 
+        title="Input Elements" 
+        description="Various input field types with validation, icons, and different styles."
+      />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-col gap-8 max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CustomInput
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={setEmail}
+            />
+            <CustomInput
+              label="Password"
+              type={isVisible ? "text" : "password"}
+              placeholder="Enter your password"
+              value={password}
+              onChange={setPassword}
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility}
+                >
+                  {isVisible ? <EyeClosed /> : <Eye />}
+                </button>
+              }
+            />
+          </div>
+          {/* Add more input variations as needed */}
+        </div>
       </div>
     </div>
   );
@@ -442,40 +389,9 @@ const SelectSection = () => {
     { key: "cat", label: "Cat", value: "cat" },
     { key: "dog", label: "Dog", value: "dog" },
     { key: "elephant", label: "Elephant", value: "elephant" },
-    { key: "lion", label: "Lion", value: "lion" },
-    { key: "tiger", label: "Tiger", value: "tiger" },
-    { key: "giraffe", label: "Giraffe", value: "giraffe" },
-    { key: "dolphin", label: "Dolphin", value: "dolphin" },
-    { key: "penguin", label: "Penguin", value: "penguin" },
-    { key: "zebra", label: "Zebra", value: "zebra" },
-    { key: "shark", label: "Shark", value: "shark" },
-    { key: "whale", label: "Whale", value: "whale" },
-    { key: "otter", label: "Otter", value: "otter" },
-    { key: "crocodile", label: "Crocodile", value: "crocodile", disabled: true },
   ];
 
-  const countries = [
-    { key: "us", label: "United States", value: "us" },
-    { key: "ca", label: "Canada", value: "ca" },
-    { key: "uk", label: "United Kingdom", value: "uk" },
-    { key: "au", label: "Australia", value: "au" },
-    { key: "de", label: "Germany", value: "de" },
-    { key: "fr", label: "France", value: "fr" },
-    { key: "jp", label: "Japan", value: "jp" },
-  ];
-
-  const fruits = [
-    { key: "apple", label: "Apple", value: "apple" },
-    { key: "banana", label: "Banana", value: "banana" },
-    { key: "orange", label: "Orange", value: "orange" },
-    { key: "grape", label: "Grape", value: "grape" },
-    { key: "strawberry", label: "Strawberry", value: "strawberry" },
-  ];
-
-  // Select state variables for CustomSelect components
   const [selectedAnimal, setSelectedAnimal] = useState<string>("");
-  const [selectedCountries, setSelectedCountries] = useState<Set<string>>(new Set());
-  const [selectedFruit, setSelectedFruit] = useState<string>("");
 
   const handleAnimalSelectionChange = (keys: any) => {
     if (keys instanceof Set && keys.size > 0) {
@@ -485,185 +401,30 @@ const SelectSection = () => {
     }
   };
 
-  const handleCountriesSelectionChange = (keys: any) => {
-    setSelectedCountries(keys as Set<string>);
-  };
-
-  const handleFruitSelectionChange = (keys: any) => {
-    if (keys instanceof Set && keys.size > 0) {
-      setSelectedFruit(Array.from(keys)[0] as string);
-    } else {
-      setSelectedFruit("");
-    }
-  };
-
   return (
-    <div className="flex flex-col gap-8 p-4 max-w-4xl mx-auto">
-      {/* Basic Selects */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CustomSelect
-          label="Select an animal"
-          items={animals}
-          className="max-w-xs"
-          onSelectionChange={handleAnimalSelectionChange}
-        />
-        
-        <CustomSelect
-          label="Favorite Animal"
-          placeholder="Choose your favorite"
-          items={animals}
-          className="max-w-xs"
-          onSelectionChange={handleAnimalSelectionChange}
-        />
-      </div>
-
-      {/* Different Variants */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CustomSelect
-          label="Bordered Select"
-          variant="bordered"
-          items={countries}
-          color="primary"
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="Underlined Select"
-          variant="underlined"
-          items={countries}
-          color="secondary"
-          className="max-w-xs"
-        />
-      </div>
-
-      {/* Different Sizes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <CustomSelect
-          label="Small Select"
-          size="sm"
-          items={fruits}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="Medium Select"
-          size="md"
-          items={fruits}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="Large Select"
-          size="lg"
-          items={fruits}
-          className="max-w-xs"
-        />
-      </div>
-
-      {/* Different Colors */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <CustomSelect
-          label="Success Color"
-          color="success"
-          items={fruits}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="Warning Color"
-          color="warning"
-          items={fruits}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="Danger Color"
-          color="danger"
-          items={fruits}
-          className="max-w-xs"
-        />
-      </div>
-
-      {/* Multiple Selection */}
-      <div className="grid grid-cols-1 gap-6">
-        <CustomSelect
-          label="Select Countries (Multiple)"
-          selectionMode="multiple"
-          items={countries}
-          placeholder="Choose countries"
-          isClearable
-          onSelectionChange={handleCountriesSelectionChange}
-          className="max-w-md"
-        />
-        <p className="text-sm text-gray-600">
-          Selected: {Array.from(selectedCountries).join(", ") || "None"}
-        </p>
-      </div>
-
-      {/* With Validation */}
-      <div className="grid grid-cols-1 gap-6">
-        <CustomSelect
-          label="Required Field"
-          items={animals}
-          isRequired
-          errorMessage="Please select an animal"
-          isInvalid={!selectedAnimal}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="With Description"
-          items={countries}
-          description="Please select your country of residence"
-          className="max-w-xs"
-        />
-      </div>
-
-      {/* Advanced Features */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CustomSelect
-          label="Disabled Select"
-          items={animals}
-          isDisabled
-          defaultSelectedKeys={new Set(["cat"])}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="With Default Value"
-          items={animals}
-          defaultSelectedKeys={new Set(["dog"])}
-          className="max-w-xs"
-        />
-      </div>
-
-      {/* Custom Radius */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CustomSelect
-          label="Full Radius"
-          radius="full"
-          items={fruits}
-          className="max-w-xs"
-        />
-        
-        <CustomSelect
-          label="Large Radius"
-          radius="lg"
-          items={fruits}
-          className="max-w-xs"
-        />
-      </div>
-
-      {/* With Icons */}
-      <div className="grid grid-cols-1 gap-6">
-        <CustomSelect
-          label="Select with Custom Icon"
-          items={animals}
-          selectorIcon={
-            <span className="text-lg">🔍</span>
-          }
-          className="max-w-xs"
-        />
+    <div>
+      <SectionHeader 
+        title="Select (Dropdown) Components" 
+        description="Custom dropdown select elements with various configurations and styles."
+      />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-col gap-8 max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CustomSelect
+              label="Select an animal"
+              items={animals}
+              className="max-w-xs"
+              onSelectionChange={handleAnimalSelectionChange}
+            />
+            <CustomSelect
+              label="Favorite Animal"
+              placeholder="Choose your favorite"
+              items={animals}
+              className="max-w-xs"
+              onSelectionChange={handleAnimalSelectionChange}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -671,7 +432,6 @@ const SelectSection = () => {
 
 // Component to display SOP card view
 const SopCardSection = () => {
-  // Card 1: Header, Body, and Footer
   const cardWithBodyConfig: SopCardViewProps = {
     header: {
       icon: <MdInfo />,
@@ -693,7 +453,6 @@ const SopCardSection = () => {
     },
   };
 
-  // Card 2: Header, Progress Bar, and Footer
   const cardWithProgressConfig: SopCardViewProps = {
     header: {
       icon: <MdBuild />,
@@ -711,26 +470,17 @@ const SopCardSection = () => {
     },
   };
 
-  // Card 3: Header and Footer only
-  const cardHeaderFooterOnlyConfig: SopCardViewProps = {
-    header: {
-      icon: <MdStar />, 
-      title: "Archived Initiative",
-      description: "This project has been completed and is now archived.",
-    },
-    footer: {
-      timestamp: "Completed on 08/15/2024",
-      actions: ["view", "edit", "delete"] as Array<"view" | "edit" | "delete">,
-    },
-  };
-
   return (
-    <div className="p-8">
-      <h2 className="text-2xl font-semibold mb-4">SOP Card Views</h2>
-      <div className="flex flex-wrap gap-6 justify-center">
-        <SopCardView {...cardWithBodyConfig} />
-        <SopCardView {...cardWithProgressConfig} />
-        <SopCardView {...cardHeaderFooterOnlyConfig} />
+    <div>
+      <SectionHeader 
+        title="SOP Card View" 
+        description="Standard Operating Procedure cards with different layouts and information displays."
+      />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-wrap gap-6 justify-center">
+          <SopCardView {...cardWithBodyConfig} />
+          <SopCardView {...cardWithProgressConfig} />
+        </div>
       </div>
     </div>
   );
@@ -738,7 +488,6 @@ const SopCardSection = () => {
 
 // Component to display finance header section
 const FinanceHeaderSection = () => {
-  // Sample dropdown options
   const projectOptions: DropdownOption[] = [
     { value: "all", label: "All Projects" },
     { value: "project1", label: "Project Alpha" },
@@ -751,13 +500,6 @@ const FinanceHeaderSection = () => {
     { value: "completed", label: "Completed" },
   ];
 
-  const contractorOptions: DropdownOption[] = [
-    { value: "select", label: "Select Contractor" },
-    { value: "contractor1", label: "Contractor A" },
-    { value: "contractor2", label: "Contractor B" },
-  ];
-
-  // Search bar configuration
   const searchBarConfig: InputConfig = {
     id: "search",
     type: "search",
@@ -765,18 +507,9 @@ const FinanceHeaderSection = () => {
     placeholder: "Search finance records...",
   };
 
-  // State for dropdown values
   const [project1, setProject1] = useState<DropdownOption | null>(projectOptions[0]);
   const [status1, setStatus1] = useState<DropdownOption | null>(statusOptions[0]);
-  const [contractor1, setContractor1] = useState<DropdownOption | null>(contractorOptions[0]);
-  
-  const [project2, setProject2] = useState<DropdownOption | null>(projectOptions[0]);
-  const [status2, setStatus2] = useState<DropdownOption | null>(statusOptions[0]);
-  
-  const [project3, setProject3] = useState<DropdownOption | null>(projectOptions[0]);
-  const [contractor3, setContractor3] = useState<DropdownOption | null>(contractorOptions[0]);
 
-  // Form configurations
   const form1Config: FormConfig = {
     title: "Project Finance",
     searchBar: searchBarConfig,
@@ -799,74 +532,19 @@ const FinanceHeaderSection = () => {
         onChange: setStatus1,
         label: "Status"
       },
-      {
-        options: contractorOptions,
-        value: contractor1,
-        onChange: setContractor1,
-        label: "Contractor"
-      }
-    ]
-  };
-
-  const form2Config: FormConfig = {
-    title: "Project Finance",
-    searchBar: searchBarConfig,
-    button: {
-      label: "+ Add Finance Record",
-      onClick: () => console.log("Add Finance Record clicked"),
-      variant: "solid",
-      color: "primary"
-    },
-    dropdowns: [
-      {
-        options: projectOptions,
-        value: project2,
-        onChange: setProject2,
-        label: "Select Project"
-      },
-      {
-        options: statusOptions,
-        value: status2,
-        onChange: setStatus2,
-        label: "Status"
-      }
-    ]
-  };
-
-  const form3Config: FormConfig = {
-    title: "Project Finance",
-    searchBar: searchBarConfig,
-    dropdowns: [
-      {
-        options: projectOptions,
-        value: project3,
-        onChange: setProject3,
-        label: "Select Project"
-      },
-      {
-        options: contractorOptions,
-        value: contractor3,
-        onChange: setContractor3,
-        label: "Contractor"
-      }
     ]
   };
 
   return (
-    <div className="p-6 space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Variation 1: Title, Button, Searchbar and 3 Dropdowns</h2>
-        <DynamicForm config={form1Config} />
-      </div>
-      
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Variation 2: Title, Button, Searchbar and 2 Dropdowns</h2>
-        <DynamicForm config={form2Config} />
-      </div>
-      
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Variation 3: Title, Dropdown, Searchbar, Dropdown</h2>
-        <DynamicForm config={form3Config} />
+    <div>
+      <SectionHeader 
+        title="Finance Header Section" 
+        description="Financial data headers with search, filters, and action buttons."
+      />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="space-y-8">
+          <DynamicForm config={form1Config} />
+        </div>
       </div>
     </div>
   );
@@ -901,77 +579,28 @@ const ChipSection = () => {
     },
   };
 
-  const taskTracker2Config = {
-    header: {
-      icon: <MdCheckCircle />,
-      title: "Fruit Salad",
-      badge: "starter",
-    },
-    stats: {
-      items: [
-        { icon: <MdList />, value: 5, label: "min" },
-        { icon: <MdCheckCircle />, value: 80, label: "servings" },
-        { icon: <MdRadioButtonUnchecked />, value: 4, label: "items" },
-      ],
-    },
-    categories: {
-      title: "Ingredients",
-      items: ["Grapes", "Banana", "Apple"],
-    },
-    footer: {
-      timestamp: "Updated 2h ago",
-      actions: ["view", "edit", "delete"],
-    },
-  };
-
-  const taskTracker3Config = {
-    header: {
-      icon: <MdCheckCircle />,
-      title: "Kitchen Cleaning",
-      badge: "Sweepers",
-    },
-    footer: {
-      timestamp: "2025-09-18",
-      actions: ["view", "edit", "delete"],
-    },
-  };
-
-  const taskTracker4Config = {
-    header: {
-      icon: <MdCheckCircle />,
-      title: "Inventory Check",
-      badge: "Monthly",
-    },
-    progress: {
-      value: 75,
-      label: "75%",
-    },
-    categories: {
-      items: ["Buy Ingredients", "Maintain Temperature"],
-    },
-    footer: { 
-      timestamp: "2025-09-10",
-      actions: ["view", "edit", "delete"] },
-  };
-
   const cardTitle = "Status";
   const buttonTitles = ["Active", "Inactive"];
   const dropdownItems = ["Option 1", "Option 2", "Option 3"];
 
   return (
-    <div className="space-y-8">
-      <div className="bg-gray-100 min-h-screen flex items-center justify-center p-8 flex flex-col gap-2">
-        <CardViewSopV2 {...taskTrackerConfig} />
-        <CardViewSopV2 {...taskTracker2Config} />
-        <CardViewSopV2 {...taskTracker3Config} />
-        <CardViewSopV2 {...taskTracker4Config} />
-      </div>
-      
-      <CustomCardDropdown
-        cardTitle={cardTitle}
-        buttonTitles={buttonTitles}
-        dropdownItems={dropdownItems}
+    <div>
+      <SectionHeader 
+        title="Chip Components" 
+        description="Chip elements and card views with status indicators and interactive features."
       />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="space-y-8">
+          <div className="flex flex-col gap-4 items-center">
+            <CardViewSopV2 {...taskTrackerConfig} />
+          </div>
+          <CustomCardDropdown
+            cardTitle={cardTitle}
+            buttonTitles={buttonTitles}
+            dropdownItems={dropdownItems}
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -996,110 +625,112 @@ const MainContent = ({ selectedItem }: { selectedItem: string | null }) => {
     default:
       return (
         <div className="flex flex-col items-center justify-center min-h-96 text-center p-8">
-          <h2 className="text-3xl font-bold mb-4">Welcome to Component Showcase</h2>
-          <p className="text-lg text-gray-600 mb-6">
-            Select a component from the sidebar to explore different UI elements
-          </p>
-          <CommonComponents
-            rotatingTextProps={{
-              texts: ['Project', 'Audit', 'Batch Control', 'Users', 'Users','Assets','Maintenance','IT Support','Pluse','QR','Greeting Card'],
-              mainClassName: "w-fit px-2 sm:px-2 md:px-3 bg-cyan-300 text-black overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg",
-              staggerFrom: "last" as const,
-              initial: { y: "100%" },
-              animate: { y: 0 },
-              exit: { y: "-120%" },
-              staggerDuration: 0.025,
-              splitLevelClassName: "overflow-hidden pb-0.5 sm:pb-1 md:pb-1",
-              transition: { type: "spring", damping: 30, stiffness: 400 } as Spring,
-              rotationInterval: 2000,
-            }}
-            accordionProps={{
-              itemClasses: {
-                base: "py-0 w-full",
-                title: "font-normal text-medium",
-                trigger: "px-2 py-0 data-[hover=true]:bg-default-100 rounded-lg h-14 flex items-center",
-                indicator: "text-medium",
-                content: "text-small px-2",
-              },
-              defaultContent:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            }}
-            autocompleteProps={{
-              defaultItems: AutocompleteData,
-            }}
-            alertProps={{}}
-            badgeButtonProps={{}}
-            badgeAvatarProps={{}}
-            buttonIconProps={{}}
-            dropdownProps={{}}
+          <SectionHeader 
+            title="Component Library" 
+            description="Select a component from the sidebar to explore different UI elements and their implementations."
           />
+          <div className="max-w-7xl mx-auto p-6">
+            <div className="text-center py-12">
+              <CommonComponents
+                rotatingTextProps={{
+                  texts: ['Project', 'Audit', 'Batch Control', 'Users', 'Users','Assets','Maintenance','IT Support','Pluse','QR','Greeting Card'],
+                  mainClassName: "w-fit px-2 sm:px-2 md:px-3 bg-cyan-300 text-black overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg",
+                  staggerFrom: "last" as const,
+                  initial: { y: "100%" },
+                  animate: { y: 0 },
+                  exit: { y: "-120%" },
+                  staggerDuration: 0.025,
+                  splitLevelClassName: "overflow-hidden pb-0.5 sm:pb-1 md:pb-1",
+                  transition: { type: "spring", damping: 30, stiffness: 400 } as Spring,
+                  rotationInterval: 2000,
+                }}
+                accordionProps={{
+                  itemClasses: {
+                    base: "py-0 w-full",
+                    title: "font-normal text-medium",
+                    trigger: "px-2 py-0 data-[hover=true]:bg-default-100 rounded-lg h-14 flex items-center",
+                    indicator: "text-medium",
+                    content: "text-small px-2",
+                  },
+                  defaultContent:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                }}
+                autocompleteProps={{
+                  defaultItems: AutocompleteData,
+                }}
+                alertProps={{}}
+                badgeButtonProps={{}}
+                badgeAvatarProps={{}}
+                buttonIconProps={{}}
+                dropdownProps={{}}
+              />
+            </div>
+          </div>
         </div>
       );
   }
 };
 
+// ✅ Mobile Sidebar Toggle Component
+const MobileSidebarToggle: React.FC<{ 
+  onToggle: () => void;
+  isMobileOpen: boolean;
+}> = ({ onToggle, isMobileOpen }) => {
+  return (
+    <button
+      className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white border border-default-200 rounded-lg shadow-lg"
+      onClick={onToggle}
+    >
+      <Icon icon={isMobileOpen ? "lucide:x" : "lucide:menu"} className="w-5 h-5" />
+    </button>
+  );
+};
+
 const DisplayComponents: React.FC = () => {
-  // ✅ Navbar state
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // ✅ Track selected menu item
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
-
-  const menuItems = [
-    "Button",
-    "Toast",
-    "Input Elements",
-    "Select (Dropdown)",
-    "SOP card view",
-    "Finance Header Section",
-    "Chip",
-    "Team Settings",
-    "Help & Feedback",
-    "Log Out",
-  ];
+  // ✅ Mobile sidebar state
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleMenuItemClick = (item: string) => {
     setSelectedMenuItem(item);
-    setIsMenuOpen(false);
+    // Close mobile sidebar when item is selected
+    if (window.innerWidth < 1024) {
+      setIsMobileOpen(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* ✅ Navbar at the top */}
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} maxWidth="full"
-        classNames={{
-          base: "px-5",
-          wrapper: "px-0",
-        }}>
-        {/* Left side: menu toggle + brand */}
-        <NavbarContent justify="start">
-          <NavbarMenuToggle
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="ml-0"
-          />
-          <NavbarBrand>
-            <AcmeLogo />
-            <p className="font-bold text-inherit">ACME</p>
-          </NavbarBrand>
-        </NavbarContent>
+    <div className="min-h-screen flex">
+      {/* ✅ Mobile Sidebar Toggle */}
+      <MobileSidebarToggle 
+        onToggle={() => setIsMobileOpen(!isMobileOpen)} 
+        isMobileOpen={isMobileOpen}
+      />
 
-        {/* ✅ Drawer styled as left sidebar */}
-        <NavbarMenu className="w-64 max-w-xs bg-white shadow-lg p-4 py-15">
-          {menuItems.map((item) => (
-            <NavbarMenuItem key={item}>
-              <Link
-                className="w-full cursor-pointer"
-                size="lg"
-                onClick={() => handleMenuItemClick(item)}
-              >
-                {item}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </NavbarMenu>
-      </Navbar>
+      {/* ✅ Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* ✅ Resizable Sidebar with Mobile Responsiveness */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-40 transform transition-transform duration-300
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
+      `}>
+        <ResizableSidebar>
+          <SidebarMenu 
+            onMenuItemClick={handleMenuItemClick} 
+            selectedItem={selectedMenuItem}
+          />
+        </ResizableSidebar>
+      </div>
 
       {/* ✅ Main Content Area */}
-      <div className="flex-1">
+      <div className="flex-1 overflow-auto lg:ml-0">
         <MainContent selectedItem={selectedMenuItem} />
       </div>
     </div>

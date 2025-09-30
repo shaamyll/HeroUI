@@ -11,7 +11,7 @@ export default function NavbarComponent() {
     { name: "Test", link: "/test" },
     { name: "Dashboard", link: "/dashBoardDumy" },
     { name: "statCard", link: "/statCardUsage" },
-    { name: "Settings", link: "/settingsProject" },
+    { name: "Stores", link: "/storeManagement" },
     { name: "Components", link: "/displaycomponents" },
     { name: "UsersForm", link: "/displayusersform" },
   ];

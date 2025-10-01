@@ -1,9 +1,8 @@
 // components/ModuleWiseComponents/DynamicUsersForm.tsx
 import type { ReactNode, CSSProperties, FormHTMLAttributes } from "react";
-import { Form as UsersForm, Accordion, AccordionItem, Switch, Card, CardBody, Select, SelectItem, CardHeader } from "@heroui/react";
+import { Form as UsersForm, Accordion, AccordionItem, Switch, Card, CardBody, CardHeader } from "@heroui/react";
 import CustomChip from "../common/CustomChip";
 import CustomInput from "@/components/common/CustomInput";
-import CustomSelect from "@/components/common/CustomSelect";
 import CustomButton from "@/components/common/CustomButton";
 import { useState, useEffect } from "react";
 import SearchableSelect from "../Reusable/SearchableSelect";
@@ -153,16 +152,16 @@ const defaultFields: FormField[] = [
 ];
 
 // Internal Accordion Component for this form only
-function FormAccordion({ items, formData }: { items: AccordionItemData[], formData: any }) {
-
+function FormAccordion({ items }: { items: AccordionItemData[] }) {
   const [appliedKeys, setAppliedKeys] = useState<Set<string>>(new Set());
   const [openKey, setOpenKey] = useState<string | null>(null);
 
-  const handleButtonClick = (key: string) => {
+  const handleButtonClick = (key: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent accordion toggle when clicking apply button
     setAppliedKeys((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(key)) {
-        newSet.delete(key); // toggle back if needed
+        newSet.delete(key);
       } else {
         newSet.add(key);
       }
@@ -174,7 +173,7 @@ function FormAccordion({ items, formData }: { items: AccordionItemData[], formDa
     setOpenKey(Array.from(keys)[0] || null);
   };
 
-  const renderChips = (chips: Chip[], itemKey: string) => {
+  const renderChips = (chips: Chip[]) => {
     return (
       <div className="flex flex-wrap gap-2">
         {chips.map((chip) => (
@@ -188,28 +187,19 @@ function FormAccordion({ items, formData }: { items: AccordionItemData[], formDa
             {chip.label}
           </CustomChip>
         ))}
-        <CustomButton
-          label={appliedKeys.has(itemKey) ? "Applied" : "Apply"}
-          size="sm"
-          radius="full"
-          variant={appliedKeys.has(itemKey) ? "solid" : "flat"}
-          color={appliedKeys.has(itemKey) ? "success" : "primary"}
-          onPress={() => handleButtonClick(itemKey)}
-          className="ml-auto"
-        />
       </div>
     );
   };
 
   const itemClasses = {
-    base: "bg-white rounded-lg",
-    title: "font-normal text-sm flex-1", // flex grow for spacing
+    base: "bg-white rounded-lg border border-default-200",
+    title: "font-normal text-sm flex-1",
     trigger: "px-4 py-0 data-[hover=true]:bg-default-100 rounded-lg h-14 flex items-center justify-between gap-2",
-    indicator: "text-sm order-first mr-1", // force left position
-    content: "text-xs p-2 w-full absolute top-full left-0 z-50 bg-white shadow-lg rounded-md mt-1 border border-gray-200",
+    indicator: "text-sm order-first mr-1",
+    content: "text-xs p-4 w-full bg-white",
   };
 
-   return (
+  return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-6xl mx-auto relative">
       {items.map((item) => (
         <div
@@ -220,27 +210,30 @@ function FormAccordion({ items, formData }: { items: AccordionItemData[], formDa
             selectionMode="single"
             itemClasses={itemClasses}
             selectedKeys={openKey ? new Set([openKey]) : new Set()}
-            onSelectionChange={(keys) =>
-              handleSelectionChange(keys as Set<string>)
-            }
+            onSelectionChange={(keys) => handleSelectionChange(keys as Set<string>)}
           >
             <AccordionItem
               key={item.key}
-              aria-label={
-                typeof item.title === "string"
-                  ? item.title
-                  : `Accordion item ${item.key}`
-              }
+              aria-label={typeof item.title === "string" ? item.title : `Accordion item ${item.key}`}
               isDisabled={item.isDisabled}
               classNames={item.classNames}
               isCompact
               title={
                 <div className="flex items-center justify-between w-full">
-                  <div className="truncate">{item.title}</div>
+                  <div className="truncate font-medium text-default-700">{item.title}</div>
+                  <CustomButton
+                    label={appliedKeys.has(item.key) ? "Applied" : "Apply"}
+                    size="sm"
+                    radius="full"
+                    variant={appliedKeys.has(item.key) ? "solid" : "flat"}
+                    color={appliedKeys.has(item.key) ? "success" : "primary"}
+                    onPress={(e: any) => handleButtonClick(item.key, e)}
+                    className="ml-2 flex-shrink-0"
+                  />
                 </div>
               }
             >
-              {renderChips(item.chips, item.key)}
+              {renderChips(item.chips)}
             </AccordionItem>
           </Accordion>
         </div>
@@ -249,290 +242,102 @@ function FormAccordion({ items, formData }: { items: AccordionItemData[], formDa
   );
 }
 
-// New internal component for the Audit section
-function ModuleAccordion() {
-  const [selectedRoles, setSelectedRoles] = useState<Record<string, any>>({});
-  const [enabledKeys, setEnabledKeys] = useState(new Set<string>());
-
-  const allSections = [
-    { key: 'audit', title: 'Audit' },
-    { key: 'sop', title: 'Sop' },
-    { key: 'user', title: 'User' },
-    { key: 'batch', title: 'Batch' },
-    { key: 'project', title: 'Project' },
-    { key: 'pulse', title: 'Pulse' },
-    { key: 'qr', title: 'QR' },
-    { key: 'scorecard', title: 'Scorecard' },
-    { key: 'greeting-card', title: 'Greeting Card' },
-    { key: 'asset', title: 'Asset' },
-    { key: 'maintenance', title: 'Maintenance' },
-    { key: 'it', title: 'IT' },
-  ];
-
-  const roleOptions = [
-    { value: "admin", label: "Admin" },
-    { value: "editor", label: "Editor" },
-    { value: "viewer", label: "Viewer" },
-    { value: "contributor", label: "Contributor" },
-  ];
-
-  const handleSwitchChange = (key: string, isSelected: boolean) => {
-    setEnabledKeys(prev => {
-      const newSet = new Set(prev);
-      if (isSelected) {
-        newSet.add(key);
-      } else {
-        newSet.delete(key);
-      }
-      return newSet;
-    });
-  };
-
-  // Calculate the keys of accordions that should be disabled.
-  const disabledAccordionKeys = allSections
-    .map(section => section.key)
-    .filter(key => !enabledKeys.has(key));
-
-
-  const itemClasses = {
-    base: "w-full",
-    title: "font-semibold text-gray-800",
-    trigger: "h-16 flex items-center p-4",
-    indicator: "text-lg",
-    content: "p-4 space-y-4",
-  };
-
-  return (
-    <div className="w-full mb-8">
-      <Accordion
-        variant="splitted"
-        selectionMode="single"
-        itemClasses={itemClasses}
-        className="w-full"
-      >
-        {allSections.map(item => {
-          const isEnabled = enabledKeys.has(item.key);
-          return (
-            <AccordionItem
-              key={item.key}
-              aria-label={item.title}
-              title={
-                <div className="flex items-center justify-between w-full">
-                  <span>{item.title}</span>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Switch
-                      isSelected={isEnabled}
-                      onValueChange={(isSelected) => handleSwitchChange(item.key, isSelected)}
-                      aria-label={`Enable ${item.title}`}
-                    />
-                  </div>
-                </div>
-              }
-            >
-              <SearchableSelect
-                selectionMode="multiple"
-                options={roleOptions}
-                placeholder={`Select ${item.title} Roles`}
-                value={selectedRoles[item.key] || []}
-                onChange={(newValue) =>
-                  setSelectedRoles(prev => ({ ...prev, [item.key]: newValue }))
-                }
-                showSearch
-                searchPlaceholder="Search for roles..."
-                label={`Select ${item.title} Roles`}
-              />
-               <div className="mt-2">
-                <CustomButton
-                  variant="light"
-                  color="danger"
-                  size="sm"
-                  label={`Add ${item.title} Section`}
-                  endContent={<span className="text-lg">×</span>}
-                />
-              </div>
-            </AccordionItem>
-          )
-        })}
-      </Accordion>
-    </div>
-  );
-}
-
 // New internal component for the card-based selection section
-function CardSelectSection() {
+function CardSelectSection({ title }: { title: string }) {
   const [enabled, setEnabled] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [selectedKeys, setSelectedKeys] = useState(new Set());
+  const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
 
   const options = [
-    { key: "option1", label: "Option 1" },
-    { key: "option2", label: "Option 2" },
-    { key: "option3", label: "Option 3" },
+    { value: "admin_access", label: "Admin Access" },
+    { value: "edit_permissions", label: "Edit Permissions" },
+    { value: "view_reports", label: "View Reports" },
+    { value: "export_data", label: "Export Data" },
+    { value: "manage_users", label: "Manage Users" },
+    { value: "system_config", label: "System Configuration" },
+    { value: "audit_logs", label: "Audit Logs" },
+    { value: "data_export", label: "Data Export" },
+    { value: "user_management", label: "User Management" },
   ];
 
-  const renderValue = (selectedItems: any[]) => (
-    <div className="flex flex-wrap gap-1">
-      {selectedItems.map((item) => (
-        <Chip
-          key={item.key}
-          onClose={() => {
-            const newKeys = new Set(selectedKeys);
-            newKeys.delete(item.key);
-            setSelectedKeys(newKeys);
-          }}
-        >
-          {item.props.children}
-        </Chip>
-      ))}
-    </div>
-  );
+  const handleSelectionChange = (newValue: any) => {
+    setSelectedOptions(Array.isArray(newValue) ? newValue : [newValue]);
+  };
 
   return (
-    <Card className="w-full mb-8">
+    <Card className="w-full bg-white rounded-lg border border-default-200 shadow-xs hover:shadow-md transition-shadow duration-200 mb-4">
       <CardHeader className="flex items-center justify-between p-4">
-        <button
-          className="p-1"
-          onClick={() => enabled && setExpanded((prev) => !prev)}
-          disabled={!enabled}
-          aria-label="Toggle dropdown"
-        >
-          <ChevronDownIcon
-            className={`w-5 h-5 transition-transform duration-300 ${expanded ? "rotate-180" : ""} ${!enabled ? "opacity-50" : ""}`}
-          />
-        </button>
-        <span className="font-semibold text-lg flex-1 text-left ml-2">Additional Configuration</span>
-        <div onClick={(e) => e.stopPropagation()}>
-            <Switch
-              isSelected={enabled}
-              onValueChange={(val) => {
-                setEnabled(val);
-                if (!val) setExpanded(false);
-              }}
-              size="md"
+        <div className="flex items-center gap-3 flex-1">
+          <button
+            className="p-1 hover:bg-default-100 rounded-lg transition-colors"
+            onClick={() => enabled && setExpanded((prev) => !prev)}
+            disabled={!enabled}
+            aria-label="Toggle dropdown"
+          >
+            <ChevronDownIcon
+              className={`w-5 h-5 transition-transform duration-300 ${
+                expanded ? "rotate-180" : ""
+              } ${!enabled ? "opacity-30" : "text-default-600"}`}
             />
+          </button>
+          <span className="font-semibold text-lg text-default-800">{title}</span>
+        </div>
+        <div onClick={(e) => e.stopPropagation()}>
+          <Switch
+            isSelected={enabled}
+            onValueChange={(val) => {
+              setEnabled(val);
+              if (!val) {
+                setExpanded(false);
+                setSelectedOptions([]);
+              }
+            }}
+            size="md"
+            color="success"
+          />
         </div>
       </CardHeader>
       {expanded && enabled && (
-        <CardBody className="p-4">
-          <Select
-            selectionMode="multiple"
-            selectedKeys={selectedKeys}
-            onSelectionChange={setSelectedKeys}
-            renderValue={renderValue}
-            isMultiline
-            label="Select Options"
-            className="w-full"
-          >
-            {options.map((opt) => (
-              <SelectItem key={opt.key}>{opt.label}</SelectItem>
-            ))}
-          </Select>
+        <CardBody className="p-4 border-t border-default-100">
+          <div className="space-y-4">
+            <SearchableSelect
+              selectionMode="multiple"
+              options={options}
+              placeholder={`Select ${title} permissions...`}
+              value={selectedOptions}
+              onChange={handleSelectionChange}
+              showSearch={true}
+              searchPlaceholder="Search permissions..."
+              label={`${title} Permissions`}
+              width="100%"
+              maxSelectedDisplay={3}
+              closeOnSelect={false}
+            />
+            {selectedOptions.length > 0 && (
+              <div className="p-3 bg-success-50 rounded-lg border border-success-200">
+                <p className="text-sm text-success-700 font-medium">
+                  {selectedOptions.length} permission(s) selected for {title}
+                </p>
+              </div>
+            )}
+          </div>
         </CardBody>
       )}
     </Card>
   );
 }
 
-export default function CustomForm({
-  fullWidth = true,
-  children,
-  validationBehavior = "aria",
-  validationErrors = {},
-  action,
-  encType,
-  method = "post",
-  target,
-  autoComplete = "on",
-  autoCapitalize,
-  className = "",
-  style,
-  formTitle = "User Form",
-  submitButtonText = "Submit",
-  cancelButtonText = "Cancel",
-  onSubmit,
-  onCancel,
-  isSubmitting = false,
-  initialData = {},
-  fields = defaultFields,
-}: FormProps) {
-  const [formData, setFormData] = useState<Record<string, any>>(initialData);
+// Main UsersForm component
+function UsersFormComponent() {
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Sample accordion data for user form
-  // Combine your items
-const userAccordionItems: AccordionItemData[] = [
-  {
-    key: "user-details-1",
-    title: "User Details Summary 1",
-    iconColor: "text-primary",
-    chips: [
-      { id: "1", label: `Name: ${formData.fullName || "Not set"}`, color: "primary", variant: "flat" },
-      { id: "2", label: `Email: ${formData.email || "Not set"}`, color: "secondary", variant: "flat" },
-      { id: "3", label: `Phone: ${formData.phone || "Not set"}`, color: "success", variant: "flat" },
-      { id: "4", label: `Status: ${formData.nationalityStatus || "Not set"}`, color: "warning", variant: "flat" },
-    ],
-  },
-  {
-    key: "user-details-2",
-    title: "User Details Summary 2",
-    iconColor: "text-primary",
-    chips: [
-      { id: "1", label: `Name: ${formData.fullName || "Not set"}`, color: "primary", variant: "flat" },
-      { id: "2", label: `Email: ${formData.email || "Not set"}`, color: "secondary", variant: "flat" },
-      { id: "3", label: `Phone: ${formData.phone || "Not set"}`, color: "success", variant: "flat" },
-      { id: "4", label: `Status: ${formData.nationalityStatus || "Not set"}`, color: "warning", variant: "flat" },
-    ],
-  },
-  {
-    key: "user-details-3",
-    title: "User Details Summary 3",
-    iconColor: "text-primary",
-    chips: [
-      { id: "1", label: `Name: ${formData.fullName || "Not set"}`, color: "primary", variant: "flat" },
-      { id: "2", label: `Email: ${formData.email || "Not set"}`, color: "secondary", variant: "flat" },
-      { id: "3", label: `Phone: ${formData.phone || "Not set"}`, color: "success", variant: "flat" },
-      { id: "4", label: `Status: ${formData.nationalityStatus || "Not set"}`, color: "warning", variant: "flat" },
-    ],
-  },
-  {
-    key: "user-details-4",
-    title: "User Details Summary 4",
-    iconColor: "text-primary",
-    chips: [
-      { id: "1", label: `Name: ${formData.fullName || "Not set"}`, color: "primary", variant: "flat" },
-      { id: "2", label: `Email: ${formData.email || "Not set"}`, color: "secondary", variant: "flat" },
-      { id: "3", label: `Phone: ${formData.phone || "Not set"}`, color: "success", variant: "flat" },
-      { id: "4", label: `Status: ${formData.nationalityStatus || "Not set"}`, color: "warning", variant: "flat" },
-    ],
-  },
-  {
-    key: "user-details-5",
-    title: "User Details Summary 5",
-    iconColor: "text-primary",
-    chips: [
-      { id: "1", label: `Name: ${formData.fullName || "Not set"}`, color: "primary", variant: "flat" },
-      { id: "2", label: `Email: ${formData.email || "Not set"}`, color: "secondary", variant: "flat" },
-      { id: "3", label: `Phone: ${formData.phone || "Not set"}`, color: "success", variant: "flat" },
-      { id: "4", label: `Status: ${formData.nationalityStatus || "Not set"}`, color: "warning", variant: "flat" },
-    ],
-  },
-];
-
-
-
-  // Update form data when initialData changes
-  useEffect(() => {
-    setFormData(initialData);
-  }, []);
-
   const handleInputChange = (name: string, value: string) => {
-    console.log("Updating field:", name, "with value:", value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -541,97 +346,26 @@ const userAccordionItems: AccordionItemData[] = [
     }
   };
 
-  const handleSelectChange = (name: string, keys: Set<string>) => {
-    const value = Array.from(keys)[0] || "";
-    handleInputChange(name, value);
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    fields.forEach(field => {
-      if (field.required && !formData[field.name]) {
-        newErrors[field.name] = field.validationError || `${field.label} is required`;
-      }
-
-      // Email validation
-      if (field.name === "email" && formData[field.name]) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData[field.name])) {
-          newErrors[field.name] = "Please enter a valid email address";
-        }
-      }
-
-      // Phone validation
-      if (field.name === "phone" && formData[field.name]) {
-        const phoneRegex = /^\+?[\d\s-()]{10,}$/;
-        if (!phoneRegex.test(formData[field.name])) {
-          newErrors[field.name] = "Please enter a valid phone number";
-        }
-      }
-
-      // Password confirmation validation
-      if (field.name === "confirmPassword" && formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
-
-      // Password strength validation
-      if (field.name === "password" && formData[field.name] && formData[field.name].length < 8) {
-        newErrors.password = "Password must be at least 8 characters long";
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (validateForm()) {
-      const userFormData: UsersFormData = {
-        fullName: formData.fullName || "",
-        address: formData.address || "",
-        email: formData.email || "",
-        phone: formData.phone || "",
-        nationalityStatus: formData.nationalityStatus || "",
-        gender: formData.gender || "",
-        password: formData.password || "",
-        confirmPassword: formData.confirmPassword || ""
-      };
-
-      if (onSubmit) {
-        onSubmit(userFormData);
-      }
-    }
-  };
-
-  const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    }
-  };
-
   const renderField = (field: FormField) => {
     const commonProps = {
       label: field.label,
       isRequired: field.required,
-      isDisabled: field.disabled || isSubmitting,
-      isInvalid: !!errors[field.name] || !!validationErrors[field.name],
-      errorMessage: errors[field.name] || validationErrors[field.name],
-      validationBehavior,
+      isInvalid: !!errors[field.name],
+      errorMessage: errors[field.name],
       className: "w-full",
       fullWidth: true
     };
 
     if (field.type === "select") {
       return (
-        <CustomSelect
+        <SearchableSelect
           {...commonProps}
-          items={field.options || []}
+          options={field.options?.map(opt => ({ value: opt.key, label: opt.label })) || []}
           placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`}
-          selectedKeys={formData[field.name] ? new Set([formData[field.name]]) : new Set()}
-          onSelectionChange={(keys) => handleSelectChange(field.name, keys as Set<string>)}
+          value={formData[field.name] ? { value: formData[field.name], label: formData[field.name] } : null}
+          onChange={(value) => handleInputChange(field.name, value?.value || "")}
+          showSearch={true}
+          width="100%"
         />
       );
     }
@@ -643,82 +377,133 @@ const userAccordionItems: AccordionItemData[] = [
         placeholder={field.placeholder}
         value={formData[field.name] || ""}
         onChange={(value) => handleInputChange(field.name, value)}
+        variant="bordered"
       />
     );
   };
 
-  // Split fields into two columns based on the specified order
-  const column1Fields = fields.filter((_, index) => index % 2 === 0);
-  const column2Fields = fields.filter((_, index) => index % 2 === 1);
+  const column1Fields = defaultFields.filter((_, index) => index % 2 === 0);
+  const column2Fields = defaultFields.filter((_, index) => index % 2 === 1);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="w-full">
+      <h3 className="text-xl font-bold mb-6 text-default-900">User Information</h3>
       <UsersForm
-        fullWidth={fullWidth}
-        validationBehavior={validationBehavior}
-        action={action}
-        encType={encType}
-        method={method}
-        target={target}
-        autoComplete={autoComplete}
-        autoCapitalize={autoCapitalize}
-        className={`w-full max-w-6xl mx-auto px-8 py-6 bg-white rounded-lg border-3 shadow-md ${className}`}
-        style={style}
-        onSubmit={handleSubmit}
+        className="w-full"
       >
-        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">{formTitle}</h2>
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 w-full gap-8 mb-8 mx-auto">
-          <div className="space-y-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 w-full gap-6 mb-6">
+          <div className="space-y-4">
             {column1Fields.map((field) => (
-              <div key={field.name} className="w-full">
+              <div key={field.name}>
                 {renderField(field)}
               </div>
             ))}
           </div>
-
-          <div className="space-y-8">
+          <div className="space-y-4">
             {column2Fields.map((field) => (
-              <div key={field.name} className="w-full">
+              <div key={field.name}>
                 {renderField(field)}
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Use the internal FormAccordion component */}
-        <FormAccordion items={userAccordionItems} formData={formData} />
-
-        {/* Add the new Module Accordion section */}
-        <ModuleAccordion />
-
-        {/* Add the new Card Select section */}
-        <CardSelectSection />
-
-        {children}
-
-        <div className="flex-shrink-0 border-t border-gray-200 py-6">
-          <div className="flex gap-6 justify-end space-x-4">
-            <CustomButton
-              label={cancelButtonText}
-              variant="bordered"
-              color="default"
-              size="lg"
-              onPress={handleCancel}
-              isDisabled={isSubmitting}
-              className="min-w-32"
-            />
-            <CustomButton
-              label={submitButtonText}
-              color="primary"
-              size="lg"
-              type="submit"
-              isDisabled={isSubmitting}
-              className="min-w-32"
-            />
           </div>
         </div>
       </UsersForm>
+    </div>
+  );
+}
+
+// Main exported component
+export default function DynamicUsersForm() {
+  // Sample accordion data with random values (not user form data)
+  const accordionItems: AccordionItemData[] = [
+    {
+      key: "user-permissions-1",
+      title: "User Permissions Summary",
+      chips: [
+        { id: "1", label: "Admin Access", color: "primary", variant: "solid" },
+        { id: "2", label: "Edit Mode", color: "success", variant: "flat" },
+        { id: "3", label: "View Reports", color: "secondary", variant: "bordered" },
+        { id: "4", label: "Export Data", color: "warning", variant: "dot" },
+      ],
+    },
+    {
+      key: "system-roles-2",
+      title: "System Roles",
+      chips: [
+        { id: "1", label: "Super Admin", color: "danger", variant: "solid" },
+        { id: "2", label: "Content Manager", color: "primary", variant: "flat" },
+        { id: "3", label: "Reviewer", color: "success", variant: "bordered" },
+      ],
+    },
+    {
+      key: "access-levels-3",
+      title: "Access Levels",
+      chips: [
+        { id: "1", label: "Full Access", color: "success", variant: "solid" },
+        { id: "2", label: "Limited Access", color: "warning", variant: "flat" },
+        { id: "3", label: "Read Only", color: "default", variant: "bordered" },
+        { id: "4", label: "No Access", color: "danger", variant: "dot" },
+      ],
+    },
+  ];
+
+  const cardTitles = [
+    "Audit", "SOP", "User", "Project", "QR", "Greeting Card", 
+    "Maintenance", "Batch", "Asset", "IT", "Scorecard", "Pulse"
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted");
+  };
+
+  const handleCancel = () => {
+    console.log("Form cancelled");
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Section 1: UsersForm */}
+        <div className="bg-white rounded-xl border border-default-200 shadow-xs p-6">
+          <UsersFormComponent />
+        </div>
+
+        {/* Section 2: FormAccordion */}
+        <div className="bg-white rounded-xl border border-default-200 shadow-xs p-6">
+          <h3 className="text-xl font-bold mb-6 text-default-900">Quick Actions</h3>
+          <FormAccordion items={accordionItems} />
+        </div>
+
+        {/* Section 3: Module Permissions (Full Width) */}
+        <div className="bg-white rounded-xl border border-default-200 shadow-xs p-6">
+          <h3 className="text-xl font-bold mb-6 text-default-900">Module Permissions</h3>
+          <div className="space-y-4">
+            {cardTitles.map((title, index) => (
+              <CardSelectSection key={index} title={title} />
+            ))}
+          </div>
+        </div>
+
+        {/* Form Action Buttons at Bottom Right */}
+        <div className="flex justify-end gap-3 pt-6 border-t border-default-200">
+          <CustomButton
+            label="Cancel"
+            variant="bordered"
+            color="default"
+            size="lg"
+            onPress={handleCancel}
+            className="min-w-32"
+          />
+          <CustomButton
+            label="Save User"
+            color="primary"
+            size="lg"
+            onPress={handleSubmit}
+            className="min-w-32"
+          />
+        </div>
+      </div>
     </div>
   );
 }
